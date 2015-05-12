@@ -61,6 +61,43 @@ namespace Superdoku
         public void setValue(int x, int y, int value)
         { values[y * NN + x] = new List<int>(new int[] { value }); }
 
+        /// <summary>Perform a simple check whether or not the sudoku is solved. This check involves only checking if all squares have exactly one possible value.</summary>
+        /// <returns>Whether or not the sudoku is solved.</returns>
+        public bool isSolvedSimple()
+        {
+            for(int i = 0; i < values.Length; ++i)
+            {
+                if(values[i].Count != 1)
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>Performs a thorough check whether or not the sudoku has been solved. All squares are checked to have exactly one value, and the values of the sqaures are checked to be correct.</summary>
+        /// <returns>Whether or not the sudoku is solved.</returns>
+        public bool isSolved()
+        {
+            // Check if every square contains exactly one possible value
+            if(!isSolvedSimple())
+                return false;
+
+            // Check for every square if its value does not occur in its peers
+            SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(n);
+            for(int i = 0; i < values.Length; ++i)
+            {
+                int[] peers = sudokuIndexHelper.getPeersFor(i);
+                for(int j = 0; j < peers.Length; ++j)
+                {
+                    if(values[peers[j]][0] == values[i][0])
+                        return false;
+                }
+            }
+
+            // If we have come here, we have passed all checks
+            return true;
+        }
+
         /// <summary>The index operator to access the values in the squares.</summary>
         /// <param name="index">The index of the square whose values you want to retrieve.</param>
         /// <returns>A list of possible values for the given square.</returns>

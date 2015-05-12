@@ -10,7 +10,8 @@ namespace Superdoku
     {
         static void Main(string[] args)
         {
-            /*string sudokuGrid = "4 . . |. . . |8 . 5" +
+            // The sudoku we are going to solve
+            string sudokuGrid = "4 . . |. . . |8 . 5" +
                                 ". 3 . |. . . |. . ." +
                                 ". . . |7 . . |. . ." +
                                 "------+------+-----" +
@@ -20,11 +21,16 @@ namespace Superdoku
                                 "------+------+-----" +
                                 ". . . |6 . 3 |. 7 ." +
                                 "5 . . |2 . . |. . ." +
-                                "1 . 4 |. . . |. . .";*/
-            string sudokuGrid = "..3.2.6..0..3.5..1..18.64....81.20..7.......8..67.82....26.05..8..2.3..0..5.1.3..";
+                                "1 . 4 |. . . |. . .";
 
+            // Read the sudoku
             Sudoku sudoku = SudokuReader.readFromString(sudokuGrid, 3);
-            SudokuHelper sudokuHelper = new SudokuHelper(new Sudoku(3));
+            Console.WriteLine("Original sudoku:");
+            printSudoku(sudoku);
+            Console.WriteLine();
+
+            // Solve the sudoku as far as we can using the SudokuConstraintsHelper
+            SudokuConstraintsHelper sudokuConstraintsHelper = new SudokuConstraintsHelper(new Sudoku(3));
             List<int> indices = new List<int>();
             for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
             {
@@ -33,14 +39,32 @@ namespace Superdoku
             }
             for(int i = 0; i < indices.Count; ++i)
             {
-                if(!sudokuHelper.assign(indices[i], sudoku[indices[i]][0]))
+                if(!sudokuConstraintsHelper.assign(indices[i], sudoku[indices[i]][0]))
                 {
-                    Console.WriteLine("ERROR!");
+                    Console.WriteLine("ERROR: This sudoku seems not to be possible...");
                     break;
                 }
             }
-            printSudoku(sudokuHelper.Sudoku);
+            Console.WriteLine("Sudoku after applying constraints:");
+            printSudoku(sudokuConstraintsHelper.Sudoku);
+            Console.WriteLine();
 
+            // Solve the sudoku using depth-first search
+            Sudoku solution = DepthFirstSearch.search(sudokuConstraintsHelper.Sudoku);
+            if(solution == null)
+                Console.WriteLine("This sudoku seems to be impossible to solve...");
+            else if(solution.isSolved())
+            {
+                Console.WriteLine("The solution after depth-first search:");
+                printSudoku(solution);
+            }
+            else
+            {
+                Console.WriteLine("ERROR! The solution after depth-first search seems to be wrong:");
+                printSudoku(solution);
+            }
+
+            // Wait for the user
             Console.ReadLine();
         }
 

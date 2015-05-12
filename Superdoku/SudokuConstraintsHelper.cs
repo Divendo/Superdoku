@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 namespace Superdoku
 {
     /// <summary>Class that helps solving a sudoku using constraints.</summary>
-    class SudokuHelper
+    class SudokuConstraintsHelper
     {
         /// <summary>The sudoku we are manipulating.</summary>
         private Sudoku sudoku;
 
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The sudoku we will be manipulating.</param>
-        public SudokuHelper(Sudoku sudoku)
+        public SudokuConstraintsHelper(Sudoku sudoku)
         { this.sudoku = sudoku; }
 
         /// <summary>Property to access the sudoku we are manipulating.</summary>
