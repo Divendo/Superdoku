@@ -177,12 +177,12 @@ namespace Superdoku
                         // The row unit
                         units[x + y * NN][1, i] = y * NN + i;
                         // The box unit
-                        units[x + y * NN][2, i] = (topY + i / n) * NN + (leftX + i % 3);
+                        units[x + y * NN][2, i] = (topY + i / n) * NN + (leftX + i % n);
 
                         // Add all these squares to the peers
                         peerSet.Add(i * NN + x);
                         peerSet.Add(y * NN + i);
-                        peerSet.Add((topY + i / n) * NN + (leftX + i % 3));
+                        peerSet.Add((topY + i / n) * NN + (leftX + i % n));
                     }
 
                     // Remove the square itself from its peers and copy the result
