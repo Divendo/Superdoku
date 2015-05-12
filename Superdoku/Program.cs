@@ -51,9 +51,11 @@ namespace Superdoku
 
             // Solve the sudoku using depth-first search
             Sudoku solution = DepthFirstSearch.search(sudokuConstraintsHelper.Sudoku);
-            if(solution == null)
+            if (solution == null)
+            {
                 Console.WriteLine("This sudoku seems to be impossible to solve...");
-            else if(solution.isSolved())
+            }
+            else if (solution.isSolved())
             {
                 Console.WriteLine("The solution after depth-first search:");
                 printSudoku(solution);

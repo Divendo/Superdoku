@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DepthFirstSearch.cs" />
+    <Compile Include="LocalSearcher.cs" />
+    <Compile Include="LocalSudoku.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sudoku.cs" />

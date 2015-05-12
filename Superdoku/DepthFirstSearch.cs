@@ -14,6 +14,9 @@ namespace Superdoku
         /// <returns>The solved sudoku, or null if no solution was possible.</returns>
         public static Sudoku search(Sudoku sudoku)
         {
+            LocalSearcher searchMachine = new LocalSearcher();
+            return searchMachine.solve(sudoku);
+
             // We can not solve a non-existing soduko
             if(sudoku == null)
                 return null;

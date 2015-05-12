@@ -35,6 +35,7 @@ namespace Superdoku
                 values[i] = new List<int>(all);
         }
 
+
         /// <summary>Copy constructor, makes a deep copy of the given sudoku.</summary>
         /// <param name="sudoku">A deep copy is made of this sudoku.</param>
         public Sudoku(Sudoku sudoku)
