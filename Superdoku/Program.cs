@@ -11,7 +11,7 @@ namespace Superdoku
         static void Main(string[] args)
         {
             // Read the sudoku
-            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/25x25.txt", 5);
+            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
             Console.WriteLine("Original sudoku:");
             printSudoku(sudoku);
             Console.WriteLine();

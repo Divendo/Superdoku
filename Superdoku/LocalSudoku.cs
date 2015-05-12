@@ -64,21 +64,21 @@ namespace Superdoku
             foreach(List<int> square in squares)
             {
                 int assign = 0;
-
+                Random random = new Random();
+                List<int> numbers = new List<int>();
                 //We give a value to each of the non-fixed boxes in the square
                 for(int t = 0; t < square.Count(); ++t)
                     if(!isFixed[square[t]])
                     {
+                        
                         bool valid = false;
                         while (!valid)
-                        {
+                        {   
+                            assign = random.Next(0, 9);
                             valid = true;
                             foreach (int index in square)
                                 if (values[index] == assign)
-                                {
                                     valid = false;
-                                    assign++;
-                                }
                         }
           
                         values[square[t]] = assign;
