@@ -10,26 +10,20 @@ namespace Superdoku
     {
         static void Main(string[] args)
         {
-            SudokuIndexHelper helper = SudokuIndexHelper.get(3);
-            Sudoku sudoku = new Sudoku(3);
+            string sudokuGrid = "4 . . |. . . |8 . 5" +
+                                ". 3 . |. . . |. . ." +
+                                ". . . |7 . . |. . ." +
+                                "------+------+-----" +
+                                ". 2 . |. . . |. 6 ." +
+                                ". . . |. 8 . |4 . ." +
+                                ". . . |. 1 . |. . ." +
+                                "------+------+-----" +
+                                ". . . |6 . 3 |. 7 ." +
+                                "5 . . |2 . . |. . ." +
+                                "1 . 4 |. . . |. . .";
 
-            int x = 4;
-            int y = 4;
-
-            sudoku[x, y].Clear();
-            sudoku[x, y].Add(0);
-            int[,] units = helper.getUnitsFor(x, y);
-            for(int i = 0; i < 3; ++i)
-            {
-                Sudoku su = new Sudoku(sudoku);
-                for(int j = 0; j < su.NN; ++j)
-                {
-                    if(units[i, j] != y * su.NN + x)
-                        su[units[i, j]].Clear();
-                }
-                printSudoku(su);
-                Console.WriteLine();
-            }
+            Sudoku sudoku = SudokuReader.readFromString(sudokuGrid, 3);
+            printSudoku(sudoku);
 
             Console.ReadLine();
         }
@@ -65,7 +59,12 @@ namespace Superdoku
                     if(values.Count == 0)
                         Console.Write('x');
                     else if(values.Count == 1)
-                        Console.Write(values[0]);
+                    {
+                        if(values[0] <= 9)
+                            Console.Write(values[0]);
+                        else
+                            Console.Write((char) ('A' + (values[0] - 10)));
+                    }
                     else
                         Console.Write('.');
                 }

@@ -48,6 +48,19 @@ namespace Superdoku
                 values[i] = new List<int>(sudoku[i]);
         }
 
+        /// <summary>Sets the given square to a single possibility.</summary>
+        /// <param name="index">The index of the square to set.</param>
+        /// <param name="value">The value that should become the only possibility for the square.</param>
+        public void setValue(int index, int value)
+        { values[index] = new List<int>(new int[] {value}); }
+
+        /// <summary>Sets the given square to a single possibility.</summary>
+        /// <param name="x">The x-coordinate of the square to set.</param>
+        /// <param name="y">The y-coordinate of the square to set.</param>
+        /// <param name="value">The value that should become the only possibility for the square.</param>
+        public void setValue(int x, int y, int value)
+        { values[y * NN + x] = new List<int>(new int[] { value }); }
+
         /// <summary>The index operator to access the values in the squares.</summary>
         /// <param name="index">The index of the square whose values you want to retrieve.</param>
         /// <returns>A list of possible values for the given square.</returns>
