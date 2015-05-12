@@ -131,8 +131,8 @@ namespace Superdoku
             int secondConstraints = calculateBrothers(a) + calculateBrothers(b);
 
             //Update the heuristic value
-            //heuristicValue = heuristicValue + (secondConstraints - firstConstraints);
-            this.setH();
+            heuristicValue = heuristicValue + (secondConstraints - firstConstraints);
+       
         }
 
         //returns a string
