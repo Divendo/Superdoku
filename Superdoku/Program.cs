@@ -10,27 +10,14 @@ namespace Superdoku
     {
         static void Main(string[] args)
         {
-            // The sudoku we are going to solve
-            string sudokuGrid = "4 . . |. . . |8 . 5" +
-                                ". 3 . |. . . |. . ." +
-                                ". . . |7 . . |. . ." +
-                                "------+------+-----" +
-                                ". 2 . |. . . |. 6 ." +
-                                ". . . |. 8 . |4 . ." +
-                                ". . . |. 1 . |. . ." +
-                                "------+------+-----" +
-                                ". . . |6 . 3 |. 7 ." +
-                                "5 . . |2 . . |. . ." +
-                                "1 . 4 |. . . |. . .";
-
             // Read the sudoku
-            Sudoku sudoku = SudokuReader.readFromString(sudokuGrid, 3);
+            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/25x25.txt", 5);
             Console.WriteLine("Original sudoku:");
             printSudoku(sudoku);
             Console.WriteLine();
 
             // Solve the sudoku as far as we can using the SudokuConstraintsHelper
-            SudokuConstraintsHelper sudokuConstraintsHelper = new SudokuConstraintsHelper(new Sudoku(3));
+            SudokuConstraintsHelper sudokuConstraintsHelper = new SudokuConstraintsHelper(new Sudoku(sudoku.N));
             List<int> indices = new List<int>();
             for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
             {
