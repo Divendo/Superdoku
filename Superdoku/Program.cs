@@ -10,7 +10,7 @@ namespace Superdoku
     {
         static void Main(string[] args)
         {
-            string sudokuGrid = "4 . . |. . . |8 . 5" +
+            /*string sudokuGrid = "4 . . |. . . |8 . 5" +
                                 ". 3 . |. . . |. . ." +
                                 ". . . |7 . . |. . ." +
                                 "------+------+-----" +
@@ -20,10 +20,26 @@ namespace Superdoku
                                 "------+------+-----" +
                                 ". . . |6 . 3 |. 7 ." +
                                 "5 . . |2 . . |. . ." +
-                                "1 . 4 |. . . |. . .";
+                                "1 . 4 |. . . |. . .";*/
+            string sudokuGrid = "..3.2.6..0..3.5..1..18.64....81.20..7.......8..67.82....26.05..8..2.3..0..5.1.3..";
 
             Sudoku sudoku = SudokuReader.readFromString(sudokuGrid, 3);
-            printSudoku(sudoku);
+            SudokuHelper sudokuHelper = new SudokuHelper(new Sudoku(3));
+            List<int> indices = new List<int>();
+            for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
+            {
+                if(sudoku[i].Count == 1)
+                    indices.Add(i);
+            }
+            for(int i = 0; i < indices.Count; ++i)
+            {
+                if(!sudokuHelper.assign(indices[i], sudoku[indices[i]][0]))
+                {
+                    Console.WriteLine("ERROR!");
+                    break;
+                }
+            }
+            printSudoku(sudokuHelper.Sudoku);
 
             Console.ReadLine();
         }
