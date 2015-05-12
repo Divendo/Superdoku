@@ -20,9 +20,10 @@ namespace Superdoku
             tabuList = new Tuple<int,int>[TABUSIZE];
             pointer = 0;
 
-            while (toSolve.heuristicValue > 50)
+            while (toSolve.heuristicValue > 0)
                 toSolve = iterate(toSolve);
 
+            toSolve.setH();
             return toSolve.toSudoku();
 
         }

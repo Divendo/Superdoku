@@ -89,7 +89,7 @@ namespace Superdoku
         }
 
         //Retuns a heuristic value based on how many constrains were crossed
-        private void setH()
+        public void setH()
         {
             int result = 0;
 
@@ -131,6 +131,7 @@ namespace Superdoku
             int secondConstraints = calculateBrothers(a) + calculateBrothers(b);
 
             //Update the heuristic value
+            //why doesn't it woooork
             heuristicValue = heuristicValue + (secondConstraints - firstConstraints);
        
         }
