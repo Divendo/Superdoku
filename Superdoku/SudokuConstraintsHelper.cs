@@ -12,10 +12,31 @@ namespace Superdoku
         /// <summary>The sudoku we are manipulating.</summary>
         private Sudoku sudoku;
 
+        /// <summary>The strategies that can be applied.</summary>
+        static private SudokuConstraintsStrategy[] strategies = new SudokuConstraintsStrategy[]
+        {
+            new SudokuConstraintsStrategy_OneValueLeft(),
+            new SudokuConstraintsStrategy_ValueOnceInUnit()
+        };
+
+        /// <summary>The index of the 'one value left' strategy.</summary>
+        public const int STRATEGY_ONE_VALUE_LEFT = 0;
+        /// <summary>The index of the 'value once in unit' strategy.</summary>
+        public const int STRATEGY_VALUE_ONCE_IN_UNIT = 1;
+
+        /// <summary>Whether or not certain strategies should be applied.</summary>
+        private bool[] applyStrategies;
+
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The sudoku we will be manipulating.</param>
         public SudokuConstraintsHelper(Sudoku sudoku)
-        { this.sudoku = sudoku; }
+        {
+            this.sudoku = sudoku;
+            
+            applyStrategies = new bool[strategies.Length];
+            for(int i = 0; i < applyStrategies.Length; ++i)
+                applyStrategies[i] = true;
+        }
 
         /// <summary>Property to access the sudoku we are manipulating.</summary>
         public Sudoku Sudoku
@@ -23,6 +44,18 @@ namespace Superdoku
             get { return sudoku; }
             set { sudoku = value; }
         }
+
+        /// <summary>Sets whether or not a certain strategy should be used.</summary>
+        /// <param name="strategy">The strategy (use the STRATEGY_* constants).</param>
+        /// <param name="use">Whether or not the strategy should be used.</param>
+        public void setStrategyUse(int strategy, bool use)
+        { applyStrategies[strategy] = use; }
+
+        /// <summary>Returns whether or not a certain strategy is being used.</summary>
+        /// <param name="strategy">The strategy (use the STRATEGY_* constants).</param>
+        /// <returns>True if the strategy is being used, false otherwise.</returns>
+        public bool isStrategyUsed(int strategy)
+        { return applyStrategies[strategy]; }
 
         /// <summary>Assign a value to a square, and apply some strategies to (partially) solve the sudoku.</summary>
         /// <param name="index">The index of the square we want to change.</param>
@@ -37,7 +70,7 @@ namespace Superdoku
             // Eliminate all values
             for(int i = 0; i < toEliminate.Count; ++i)
             {
-                if(!eleminate(index, toEliminate[i]))
+                if(!eliminate(index, toEliminate[i]))
                     return false;
             }
 
@@ -49,7 +82,7 @@ namespace Superdoku
         /// <param name="index">The index of the square we want to eliminate the value from.</param>
         /// <param name="value">The value we want to eliminate.</param>
         /// <returns>True if succesfull, false if a contradiction is reached.</returns>
-        public bool eleminate(int index, int value)
+        public bool eliminate(int index, int value)
         {
             // If the value is not present in the given square, we can stop here
             if(!sudoku[index].Contains(value))
@@ -62,30 +95,81 @@ namespace Superdoku
             if(sudoku[index].Count == 0)
                 return false;
 
-            // We'll need a SudokuIndexHelper
-            SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudoku.N);
-
-            // If we have only one value left in our square, we can remove that value from all its peers
-            if(sudoku[index].Count == 1)
+            // Apply the strategies
+            for(int i = 0; i < strategies.Length; ++i)
             {
-                int[] peers = sudokuIndexHelper.getPeersFor(index);
-                for(int i = 0; i < peers.Length; ++i)
+                if(applyStrategies[i])
                 {
-                    if(!eleminate(peers[i], sudoku[index][0]))
+                    if(!strategies[i].apply(this, index, value))
                         return false;
                 }
             }
 
-            // Check if there is a unit of this square where `value` only occurs once
-            // If that is the case, than `value` is the only possible value for that square
+            // If we have come here, everything must have gone the right way
+            return true;
+        }
+    }
+
+    /// <summary>Class that represents a strategy that can be applied after removing a possibility from a sqaure.</summary>
+    abstract class SudokuConstraintsStrategy
+    {
+        /// <summary>Applies the strategy to the given sudoku.</summary>
+        /// <param name="sudoku">The SudokuConstraintsHelper that calls this strategy.</param>
+        /// <param name="index">The index of the square from which a possibility is removed.</param>
+        /// <param name="value">The removed possibility.</param>
+        /// <returns>True if succesfull, false if a contradiction is reached.</returns>
+        public abstract bool apply(SudokuConstraintsHelper sudokuConstraintsHelper, int index, int value);
+    }
+
+    /// <summary>
+    /// Implements the following strategy:
+    /// If we have only one value left in our square, we can remove that value from all its peers.
+    /// </summary>
+    class SudokuConstraintsStrategy_OneValueLeft : SudokuConstraintsStrategy
+    {
+        public override bool apply(SudokuConstraintsHelper sudokuConstraintsHelper, int index, int value)
+        {
+            // We will need to request the peers of the square
+            SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudokuConstraintsHelper.Sudoku.N);
+
+            // We can only apply this strategy if the square has only one possibility left
+            if(sudokuConstraintsHelper.Sudoku[index].Count == 1)
+            {
+                // Eliminate the value from all peers of the square
+                int[] peers = sudokuIndexHelper.getPeersFor(index);
+                for(int i = 0; i < peers.Length; ++i)
+                {
+                    if(!sudokuConstraintsHelper.eliminate(peers[i], sudokuConstraintsHelper.Sudoku[index][0]))
+                        return false;
+                }
+            }
+
+            // If we have come here, everything went successfully
+            return true;
+        }
+    }
+    
+    /// <summary>
+    /// Implements the following strategy:
+    /// If the value only appears once as a possibility in a unit, then that sqaure must have that value.
+    /// </summary>
+    class SudokuConstraintsStrategy_ValueOnceInUnit : SudokuConstraintsStrategy
+    {
+        public override bool apply(SudokuConstraintsHelper sudokuConstraintsHelper, int index, int value)
+        {
+            // We will need to request the units of the square
+            SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudokuConstraintsHelper.Sudoku.N);
+
+            // We loop through all units of this square, counting the amount of times the value occurs
             int[,] units = sudokuIndexHelper.getUnitsFor(index);
             for(int i = 0; i < units.GetLength(0); ++i)
             {
+                // Count the amount of times the value occurs
                 int occurredAtIndex = 0;
                 int count = 0;
                 for(int j = 0; j < units.GetLength(1); ++j)
                 {
-                    if(sudoku[units[i, j]].Contains(value))
+                    if(sudokuConstraintsHelper.Sudoku[units[i, j]].Contains(value))
                     {
                         ++count;
                         occurredAtIndex = units[i, j];
@@ -99,12 +183,12 @@ namespace Superdoku
                 // If the value occurs only once, we apply the strategy
                 if(count == 1)
                 {
-                    if(!assign(occurredAtIndex, value))
+                    if(!sudokuConstraintsHelper.assign(occurredAtIndex, value))
                         return false;
                 }
             }
 
-            // If we have come here, everything must have gone the right way
+            // If we have come here, everything went successfully
             return true;
         }
     }
