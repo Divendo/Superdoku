@@ -37,6 +37,8 @@ namespace Superdoku
             Console.WriteLine();
 
             // Solve the sudoku using depth-first search
+            /* LocalSearcher searchMachine = new LocalSearcher();
+            Sudoku solution = searchMachine.solve(sudoku); */
             Sudoku solution = DepthFirstSearch.search(sudokuConstraintsHelper.Sudoku);
             if (solution == null)
             {
