@@ -137,6 +137,13 @@ namespace Superdoku
         /// <summary>An array containing the units for each square.</summary>
         private int[][,] units;
 
+        /// <summary>The index of the column unit in the array of units for a square.</summary>
+        public const int UNIT_COLUMN_INDEX = 0;
+        /// <summary>The index of the row unit in the array of units for a square.</summary>
+        public const int UNIT_ROW_INDEX = 1;
+        /// <summary>The index of the box unit in the array of units for a square.</summary>
+        public const int UNIT_BOX_INDEX = 2;
+
         /// <summary>The existing sudoku index helpers.</summary>
         private static Dictionary<int, SudokuIndexHelper> sudokuIndexHelpers = new Dictionary<int, SudokuIndexHelper>();
 
@@ -173,11 +180,11 @@ namespace Superdoku
                     for(int i = 0; i < NN; ++i)
                     {
                         // The column unit
-                        units[x + y * NN][0, i] = i * NN + x;
+                        units[x + y * NN][UNIT_COLUMN_INDEX, i] = i * NN + x;
                         // The row unit
-                        units[x + y * NN][1, i] = y * NN + i;
+                        units[x + y * NN][UNIT_ROW_INDEX, i] = y * NN + i;
                         // The box unit
-                        units[x + y * NN][2, i] = (topY + i / n) * NN + (leftX + i % n);
+                        units[x + y * NN][UNIT_BOX_INDEX, i] = (topY + i / n) * NN + (leftX + i % n);
 
                         // Add all these squares to the peers
                         peerSet.Add(i * NN + x);
@@ -192,6 +199,25 @@ namespace Superdoku
                 }
             }
         }
+
+        /// <summary>Returns the index of the square with the given coordinates.</summary>
+        /// <param name="x">The x coordinate of the square.</param>
+        /// <param name="y">The y coordinate of the square.</param>
+        /// <returns>The index of the square.</returns>
+        public int toIndex(int x, int y)
+        { return x + y * NN; }
+
+        /// <summary>Returns the x coordinate of the square with the given index.</summary>
+        /// <param name="index">The index to convert to an x coordinate.</param>
+        /// <returns>The x coordinate of the square.</returns>
+        public int indexToX(int index)
+        { return index % NN; }
+
+        /// <summary>Returns the y coordinate of the square with the given index.</summary>
+        /// <param name="index">The index to convert to an y coordinate.</param>
+        /// <returns>The y coordinate of the square.</returns>
+        public int indexToY(int index)
+        { return index / NN; }
 
         /// <summary>Returns the peers for the given square.</summary>
         /// <param name="index">The index of the square whose peers should be returned.</param>
