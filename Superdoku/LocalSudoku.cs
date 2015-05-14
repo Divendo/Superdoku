@@ -62,6 +62,16 @@ namespace Superdoku
             calcHeuristicValue();
         }
 
+        /// <summary>Copy constructor, makes a deep copy.</summary>
+        public LocalSudoku(LocalSudoku other)
+        {
+            // Copy all values
+            n = other.N;
+            for(int i = 0; i < NN; ++i)
+                sudokuValues[i] = other[i];
+            heuristicValue = other.heuristicValue;
+        }
+
         /// <summary>Calculates (or recalculates) the heuristic value of this solution.</summary>
         public void calcHeuristicValue()
         {
