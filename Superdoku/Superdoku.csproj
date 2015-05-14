@@ -52,6 +52,7 @@
     <Compile Include="SudokuConstraintsHelper.cs" />
     <Compile Include="SudokuReader.cs" />
     <Compile Include="SwapNeighbor.cs" />
+    <Compile Include="TabuSearcher.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

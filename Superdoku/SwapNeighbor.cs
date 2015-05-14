@@ -27,5 +27,35 @@ namespace Superdoku
 
         public int Second
         { get { return second; } }
+
+        public static bool equal(SwapNeighbor a, SwapNeighbor b)
+        {
+            if (a == null)
+                return false;
+
+            if (b == null)
+                return false;
+
+            return (a.first == b.first && a.second == b.second) ||
+                    (a.first == b.Second && a.second == b.first);
+        }
+
+        /*
+        public static bool operator ==(SwapNeighbor a, SwapNeighbor b)
+        {
+            if (a == null)
+                return false;
+
+            if (b == null)
+                return false;
+
+            return  (a.first == b.first && a.second == b.second) ||
+                    (a.first == b.Second && a.second == b.first);
+        }
+
+        public static bool operator !=(SwapNeighbor a, SwapNeighbor b)
+        {
+            return !(a == b);
+        }*/
     }
 }
