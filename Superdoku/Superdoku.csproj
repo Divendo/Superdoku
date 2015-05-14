@@ -50,6 +50,7 @@
     <Compile Include="Sudoku.cs" />
     <Compile Include="SudokuConstraintsHelper.cs" />
     <Compile Include="SudokuReader.cs" />
+    <Compile Include="SwapNeighbor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

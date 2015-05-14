@@ -25,17 +25,25 @@ namespace Superdoku
         protected LocalSudoku iterate(LocalSudoku sudoku)
         {
             int value = sudoku.HeuristicValue;
-            LocalSudoku result;
+            LocalSudoku result = sudoku;
+        
 
-            List<LocalSudoku> neighbors = this.generateNeighbors(sudoku);
-            result = neighbors.First();
+            List<SwapNeighbor> neighbors = this.generateNeighbors(sudoku);
+          
 
-            foreach (LocalSudoku neighbor in neighbors)
+            foreach (SwapNeighbor neighbor in neighbors)
             {
-                    if (neighbor.HeuristicValue < value)
-                        return neighbor;
-                    if (neighbor.HeuristicValue == value)
-                        result = neighbor;
+                if (neighbor.Delta < 0)
+                {
+                    result = new LocalSudoku(sudoku);
+                    result.swap(neighbor.First, neighbor.Second);
+                    return result;
+                }
+                if (neighbor.Delta == 0)
+                {
+                    result = new LocalSudoku(sudoku);
+                    result.swap(neighbor.First, neighbor.Second);
+                }
             }
             
             return result;
@@ -56,10 +64,11 @@ namespace Superdoku
         /// <summary>Generates the Neighbors of a LocalSudoku</summary>
         /// <param name="sudoku">The sudoku</param>
         /// <returns>A list containing neighbors.</returns>
-        protected List<LocalSudoku> generateNeighbors(LocalSudoku sudoku)
+        protected List<SwapNeighbor> generateNeighbors(LocalSudoku sudoku)
         {
-            List<LocalSudoku> result = new List<LocalSudoku>();
+            List<SwapNeighbor> result = new List<SwapNeighbor>();
             List<int>[] squares = helper.Squares;
+            SwapNeighbor sample;
 
             //Add each possible swap to the list
             foreach (List<int> square in squares)
@@ -67,8 +76,7 @@ namespace Superdoku
                     for (int b = a + 1; b < square.Count(); ++b)
                         if (!sudoku.fixiated[square[a]] && !sudoku.fixiated[square[b]])
                         {
-                            LocalSudoku sample = new LocalSudoku(sudoku);
-                            sample.swap(square[a], square[b]);
+                            sample = new SwapNeighbor(sudoku, a, b);
                             result.Add(sample);
                         }
             return result;
