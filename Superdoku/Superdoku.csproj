@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DepthFirstSearch.cs" />
+    <Compile Include="IterativeSearcher.cs" />
     <Compile Include="LocalSearcher.cs" />
     <Compile Include="LocalSudoku.cs" />
     <Compile Include="Program.cs" />

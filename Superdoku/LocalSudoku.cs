@@ -12,6 +12,9 @@ namespace Superdoku
         /// <summary>The sudoku that is represented.</summary>
         private int[] sudokuValues;
 
+        /// <summary>A list of booleans telling wheter an index is fixiated. CAN WE HAVE IT PUBLIC? </summary>
+        public bool[] fixiated;
+
         /// <summary>The size of the sudoku (n*n by n*n squares).</summary>
         private int n;
 
@@ -24,6 +27,9 @@ namespace Superdoku
         {
             // Remember the size
             n = sudoku.N;
+
+            //Initiate whe fixiated array
+            fixiated = new bool[NN*NN];
 
             // Create a list of possibly values for each box
             // That is, values that are not fixed yet for some square in that box
@@ -39,8 +45,11 @@ namespace Superdoku
                 int[,] units = sudokuIndexHelper.getUnitsFor(N * (box % N), N * (box / N));
                 for(int i = 0; i < NN; ++i)
                 {
-                    if(sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]].Count == 1)
+                    if (sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]].Count == 1)
+                    {
                         possibleValuesPerBox[box].Remove(sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]][0]);
+                        fixiated[i] = true;
+                    }
                 }
             }
 
@@ -67,7 +76,10 @@ namespace Superdoku
         {
             // Copy all values
             n = other.N;
-            for(int i = 0; i < NN; ++i)
+            sudokuValues = new int[NN * NN];
+            fixiated = other.fixiated;
+
+            for(int i = 0; i < NN*NN; ++i)
                 sudokuValues[i] = other[i];
             heuristicValue = other.heuristicValue;
         }
@@ -237,10 +249,16 @@ namespace Superdoku
             get { return sudokuValues[x + y * NN]; }
             set { sudokuValues[x + y * NN] = value; }
         }
+        
+        /// <summary>Returns wheter an index is fixed or not</summary>
+        public bool[] Fixed
+        { get { return fixiated; } }
 
         /// <summary>The size of the sudoku (n*n by n*n squares).</summary>
         public int N
         { get { return n; } }
+
+       
 
         /// <summary>Convenenience property, equals N*N.</summary>
         public int NN
