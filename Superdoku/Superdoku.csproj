@@ -48,6 +48,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sudoku.cs" />
     <Compile Include="SudokuConstraintsHelper.cs" />
+    <Compile Include="SudokuNotPossibleException.cs" />
     <Compile Include="SudokuReader.cs" />
   </ItemGroup>
   <ItemGroup>
