@@ -16,7 +16,7 @@ namespace Superdoku
             LocalSudoku toSolve = new LocalSudoku(sudoku);
             helper = SudokuIndexHelper.get(sudoku.N);
             //return toSolve.toSudoku();
-            while (toSolve.HeuristicValue > 100)
+            while (toSolve.HeuristicValue > 0)
                 toSolve = iterate(toSolve);
 
             return toSolve.toSudoku();
