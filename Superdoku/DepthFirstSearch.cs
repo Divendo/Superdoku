@@ -14,7 +14,7 @@ namespace Superdoku
         /// <returns>The solved sudoku, or null if no solution was possible.</returns>
         public static Sudoku search(Sudoku sudoku)
         {
-            TabuSearcher searcher = new TabuSearcher();
+            SimulatedAnnealer searcher = new SimulatedAnnealer();
             return searcher.solve(sudoku);
 
             // We can not solve a non-existing soduko

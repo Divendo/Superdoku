@@ -38,6 +38,8 @@ namespace Superdoku
             LocalSudoku result;
             C += alpha;
 
+            if (sample == null)
+                return sudoku;
 
             //If the sample is better, adopt it
             if (sample.Delta < 0)
@@ -50,7 +52,7 @@ namespace Superdoku
 
             //Else determine wheter you adopt it.
             double chance = Math.Exp(sample.Delta / C);
-            int length = (int) (1 / chance);
+            int length = (int) (1f / chance);
             bool[] boolBag = new bool[length];
             boolBag[0] = true;
 
