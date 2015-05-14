@@ -15,6 +15,7 @@ namespace Superdoku
         public int size;
         public int N;
         public int heuristicValue;
+        public Tuple<int, int> changed;
 
         //the representation used by LocalSearchers
         public LocalSudoku(Sudoku sudoku)
@@ -117,6 +118,9 @@ namespace Superdoku
         {
             //Calculate how many constraints these two indices harm
             int firstConstraints = calculateBrothers(a) + calculateBrothers(b);
+
+            //set the tuple
+            changed = new Tuple<int, int>(a, b);
 
             //Swap the values
             int temp = values[a];

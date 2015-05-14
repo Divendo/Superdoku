@@ -8,19 +8,19 @@ namespace Superdoku
 {
     class LocalSearcher
     {
-        LocalSudoku[] tabuList;
+        Tuple<int,int>[] tabuList;
         int pointer;
-        int TABUSIZE = 1000;
+        int TABUSIZE = 100000;
 
         public LocalSearcher()
         { }
         public Sudoku solve(Sudoku sudoku)
         {
             LocalSudoku toSolve = new LocalSudoku(sudoku);
-            tabuList = new LocalSudoku[TABUSIZE];
+            tabuList = new Tuple<int,int>[TABUSIZE];
             pointer = 0;
 
-            while (toSolve.heuristicValue > 85)
+            while (toSolve.heuristicValue > 50)
                 toSolve = iterate(toSolve);
 
             return toSolve.toSudoku();
@@ -28,57 +28,45 @@ namespace Superdoku
         }
 
 
-        //I know it's double, will make a nice family tree soon. SOOOOOON.
-        public Sudoku tabuSolve(Sudoku sudoku)
-        {
-            LocalSudoku toSolve = new LocalSudoku(sudoku);
-            tabuList = new LocalSudoku[TABUSIZE];
-            pointer = 0;
-
-            while (toSolve.heuristicValue > 85)
-                toSolve = iterate(toSolve);
-
-            return toSolve.toSudoku();
-        }
 
         //First improvement Iteration
         private LocalSudoku iterate(LocalSudoku sudoku)
         {
             int value = sudoku.heuristicValue;
-            LocalSudoku equal = sudoku;
+            LocalSudoku result;
 
 
             List<LocalSudoku> neighbors = this.generateNeighbors(sudoku);
+            result = neighbors.First();
+
             foreach (LocalSudoku neighbor in neighbors)
             {
-                if (!tabuList.Any(x => this.checkequal(x, neighbor)))
+                if (!tabuList.Any(x => this.checkequal(x, neighbor.changed)))
                 {
                     if (neighbor.heuristicValue < value)
                     {
-                        tabuList[pointer] = neighbor;
+                        tabuList[pointer] = neighbor.changed;
                         pointer++;
                         pointer = pointer % TABUSIZE;
                         return neighbor;
                     }
                     if (neighbor.heuristicValue == value)
-                        equal = neighbor;
-                    if (checkequal(equal, sudoku))
-                        equal = neighbor;
+                        result = neighbor;
                 }
             }
-            tabuList[pointer] = equal;
+            tabuList[pointer] = result.changed;
             pointer++;
             pointer = pointer % TABUSIZE;
-            if (checkequal(equal, sudoku))
+            if (checkequal(sudoku.changed, result.changed))
                 return null;
-            return equal;
+            return result;
         }
 
-        private bool checkequal(LocalSudoku a, LocalSudoku b)
+        private bool checkequal(Tuple<int, int> a, Tuple<int, int> b)
         {
             if (a == null)
                 return false;
-            else return a.values == b.values;
+            else return a == b;
         }
 
       
