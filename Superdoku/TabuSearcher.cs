@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Superdoku
 {
     class TabuSearcher : LocalSearcher
     {
         //TODO: MAKE TABULIST WAAAY FASTER
-        private const int TABULENGTH = 500;
+        private const int TABULENGTH = 50;
         private int pointer;
         private SwapNeighbor[] tabuList;
 
@@ -57,14 +58,17 @@ namespace Superdoku
             foreach (SwapNeighbor neighbor in neighbors)
             {
                 //Dit kan sneller!
-                if (!tabuList.Any(x => SwapNeighbor.equal(x, neighbor)))
+                if (!tabuList.Contains(neighbor))
+                   
                 {
                     if (neighbor.Delta < 0)
                     {
                         result = new LocalSudoku(sudoku);
                         result.swap(neighbor.First, neighbor.Second);
                         tabuList[pointer] = neighbor;
-                        pointer = (pointer + 1) % TABULENGTH;
+                        if (pointer + 1 >= TABULENGTH)
+                            pointer = 0;
+                        else pointer++;
                         return result;
                     }
                     if (neighbor.Delta == 0)
@@ -82,13 +86,16 @@ namespace Superdoku
             if (last != null)
             {
                 tabuList[pointer] = last;
-                pointer = (pointer + 1) % TABULENGTH;
+                if (pointer + 1 >= TABULENGTH)
+                    pointer = 0;
+                else
+                    pointer++;
                 result = new LocalSudoku(sudoku);
                 result.swap(last.First, last.Second);
 
             }
 
-            //HOE KUN JE EEN LEGE ZOEKRUIMTE KRIJGEN
+            //SANITYCHECK
             if (last == null)
                 return null;
             return result;
