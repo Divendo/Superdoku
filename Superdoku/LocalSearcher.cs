@@ -54,7 +54,7 @@ namespace Superdoku
                     {
                         if(sudoku.isFixed(square[b]))
                         {
-                            sample = new SwapNeighbor(sudoku, a, b);
+                            sample = new SwapNeighbor(sudoku, square[a], square[b]);
                             result.Add(sample);
                         }
                     }

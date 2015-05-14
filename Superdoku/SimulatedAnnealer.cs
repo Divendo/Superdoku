@@ -8,7 +8,7 @@ namespace Superdoku
 {
     class SimulatedAnnealer : LocalSearcher
     {
-        private double C = 2;
+        private double C = 2.0;
         private const double  alpha = 0.97;
 
 
@@ -51,7 +51,7 @@ namespace Superdoku
 
 
             //Else determine wheter you adopt it.
-            double chance = Math.Exp(sample.Delta / C);
+            double chance = Math.Exp(- ((double)(sample.Delta)) / C);
             int length = (int) (1f / chance);
             bool[] boolBag = new bool[length];
             boolBag[0] = true;

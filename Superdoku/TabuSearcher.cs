@@ -9,14 +9,20 @@ namespace Superdoku
     class TabuSearcher : LocalSearcher
     {
         //TODO: MAKE TABULIST WAAAY FASTER
-        private const int TABULENGTH = 200;
+        private const int TABULENGTH = 500;
         private int pointer;
         private SwapNeighbor[] tabuList;
+
+        //Just for now
+        private int iterations;
+        private int round;
 
         public TabuSearcher()
         { 
             tabuList = new SwapNeighbor[TABULENGTH];
             pointer = 0;
+            round = 0;
+            iterations = 0;
         }
 
         /// <summary>Solves the sudoku using Tabu Search </summary>
@@ -26,8 +32,7 @@ namespace Superdoku
         {
             LocalSudoku toSolve = new LocalSudoku(sudoku);
             helper = SudokuIndexHelper.get(sudoku.N);
-
-            //return toSolve.toSudoku();
+        
             while (toSolve.HeuristicValue > 0)
                 toSolve = iterate(toSolve);
 
@@ -40,7 +45,14 @@ namespace Superdoku
             int value = sudoku.HeuristicValue;
             LocalSudoku result = sudoku;
             List<SwapNeighbor> neighbors = this.generateNeighbors(sudoku);
-            SwapNeighbor last = null; ;
+            SwapNeighbor last = null;
+
+            round++;
+            if(round > 1000)
+            {
+                round = 0;
+                iterations++;
+            }
 
             foreach (SwapNeighbor neighbor in neighbors)
             {
@@ -52,7 +64,7 @@ namespace Superdoku
                         result = new LocalSudoku(sudoku);
                         result.swap(neighbor.First, neighbor.Second);
                         tabuList[pointer] = neighbor;
-                        pointer++;
+                        pointer = (pointer + 1) % TABULENGTH;
                         return result;
                     }
                     if (neighbor.Delta == 0)
@@ -61,13 +73,24 @@ namespace Superdoku
                         result.swap(neighbor.First, neighbor.Second);
                         last = neighbor;
                     }
+
+                    if (last == null)
+                        last = neighbor;
                 }
             }
-            if(last != null)
+
+            if (last != null)
             {
                 tabuList[pointer] = last;
-                pointer++;
+                pointer = (pointer + 1) % TABULENGTH;
+                result = new LocalSudoku(sudoku);
+                result.swap(last.First, last.Second);
+
             }
+
+            //HOE KUN JE EEN LEGE ZOEKRUIMTE KRIJGEN
+            if (last == null)
+                return null;
             return result;
         }
     }
