@@ -12,8 +12,8 @@ namespace Superdoku
         /// <summary>The sudoku that is represented.</summary>
         private int[] sudokuValues;
 
-        /// <summary>A list of booleans telling wheter an index is fixiated. CAN WE HAVE IT PUBLIC? </summary>
-        public bool[] fixiated;
+        /// <summary>A list of booleans telling wheter an index is fixiated.</summary>
+        private bool[] fixiated;
 
         /// <summary>The size of the sudoku (n*n by n*n squares).</summary>
         private int n;
@@ -27,9 +27,6 @@ namespace Superdoku
         {
             // Remember the size
             n = sudoku.N;
-
-            //Initiate whe fixiated array
-            fixiated = new bool[NN*NN];
 
             // Create a list of possibly values for each box
             // That is, values that are not fixed yet for some square in that box
@@ -46,19 +43,20 @@ namespace Superdoku
                 for(int i = 0; i < NN; ++i)
                 {
                     if (sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]].Count == 1)
-                    {
                         possibleValuesPerBox[box].Remove(sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]][0]);
-                        fixiated[i] = true;
-                    }
                 }
             }
 
             // Now we give each square one of its possibilities as value 
+            fixiated = new bool[NN * NN];
             sudokuValues = new int[NN * NN];
             for(int i = 0; i < NN * NN; ++i)
             {
                 if(sudoku[i].Count == 1)
+                {
                     sudokuValues[i] = sudoku[i][0];
+                    fixiated[i] = true;
+                }
                 else
                 {
                     int box = sudokuIndexHelper.indexToX(i) / N + N * (sudokuIndexHelper.indexToY(i) / N);
@@ -226,10 +224,16 @@ namespace Superdoku
         public Sudoku toSudoku()
         {
             Sudoku sudoku = new Sudoku(N);
-            for(int i = 0; i < NN; ++i)
-                sudoku[i] = new List<int>(sudokuValues[i]);
+            for(int i = 0; i < NN * NN; ++i)
+                sudoku[i] = new List<int>(new int[] { sudokuValues[i] });
             return sudoku;
         }
+
+        /// <summary>Returns whether or not a certain square is fixed.</summary>
+        /// <param name="index">The square that is to be checked.</param>
+        /// <returns>True if the square is fixed, false otherwise</returns>
+        public bool isFixed(int index)
+        { return fixiated[index]; }
 
         /// <summary>The index operator to access the values in the squares.</summary>
         /// <param name="index">The index of the square whose value you want to retrieve.</param>
@@ -257,8 +261,6 @@ namespace Superdoku
         /// <summary>The size of the sudoku (n*n by n*n squares).</summary>
         public int N
         { get { return n; } }
-
-       
 
         /// <summary>Convenenience property, equals N*N.</summary>
         public int NN

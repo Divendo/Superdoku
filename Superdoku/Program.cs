@@ -39,6 +39,8 @@ namespace Superdoku
             // Solve the sudoku using depth-first search
             /* LocalSearcher searchMachine = new LocalSearcher();
             Sudoku solution = searchMachine.solve(sudoku); */
+            /* SimulatedAnnealer searcher = new SimulatedAnnealer();
+            Sudoku solution = searcher.solve(sudoku); */
             Sudoku solution = DepthFirstSearch.search(sudokuConstraintsHelper.Sudoku);
             if (solution == null)
             {

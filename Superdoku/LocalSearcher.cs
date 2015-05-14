@@ -44,14 +44,22 @@ namespace Superdoku
             SwapNeighbor sample;
 
             //Add each possible swap to the list
-            foreach (List<int> square in squares)
-                for (int a = 0; a < square.Count(); ++a)
-                    for (int b = a + 1; b < square.Count(); ++b)
-                        if (!sudoku.fixiated[square[a]] && !sudoku.fixiated[square[b]])
+            foreach(List<int> square in squares)
+            {
+                for(int a = 0; a < square.Count(); ++a)
+                {
+                    if(sudoku.isFixed(square[a]))
+                        continue;
+                    for(int b = a + 1; b < square.Count(); ++b)
+                    {
+                        if(sudoku.isFixed(square[b]))
                         {
                             sample = new SwapNeighbor(sudoku, a, b);
                             result.Add(sample);
                         }
+                    }
+                }
+            }
             return result;
         }
         
