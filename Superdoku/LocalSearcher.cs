@@ -8,19 +8,19 @@ namespace Superdoku
 {
     class LocalSearcher
     {
-        LocalSudoku[] tabuList;
+        Tuple<int,int>[] tabuList;
         int pointer;
-        int TABUSIZE = 1000;
+        int TABUSIZE = 100000;
 
         public LocalSearcher()
         { }
         public Sudoku solve(Sudoku sudoku)
         {
-            LocalSudoku toSolve = new LocalSudoku(sudoku);
-            tabuList = new LocalSudoku[TABUSIZE];
+            LocalSudokuOld toSolve = new LocalSudokuOld(sudoku);
+            tabuList = new Tuple<int,int>[TABUSIZE];
             pointer = 0;
 
-            while (toSolve.heuristicValue > 85)
+            while (toSolve.heuristicValue > 50)
                 toSolve = iterate(toSolve);
 
             return toSolve.toSudoku();
@@ -28,63 +28,51 @@ namespace Superdoku
         }
 
 
-        //I know it's double, will make a nice family tree soon. SOOOOOON.
-        public Sudoku tabuSolve(Sudoku sudoku)
-        {
-            LocalSudoku toSolve = new LocalSudoku(sudoku);
-            tabuList = new LocalSudoku[TABUSIZE];
-            pointer = 0;
-
-            while (toSolve.heuristicValue > 85)
-                toSolve = iterate(toSolve);
-
-            return toSolve.toSudoku();
-        }
 
         //First improvement Iteration
-        private LocalSudoku iterate(LocalSudoku sudoku)
+        private LocalSudokuOld iterate(LocalSudokuOld sudoku)
         {
             int value = sudoku.heuristicValue;
-            LocalSudoku equal = sudoku;
+            LocalSudokuOld result;
 
 
-            List<LocalSudoku> neighbors = this.generateNeighbors(sudoku);
-            foreach (LocalSudoku neighbor in neighbors)
+            List<LocalSudokuOld> neighbors = this.generateNeighbors(sudoku);
+            result = neighbors.First();
+
+            foreach (LocalSudokuOld neighbor in neighbors)
             {
-                if (!tabuList.Any(x => this.checkequal(x, neighbor)))
+                if (!tabuList.Any(x => this.checkequal(x, neighbor.changed)))
                 {
                     if (neighbor.heuristicValue < value)
                     {
-                        tabuList[pointer] = neighbor;
+                        tabuList[pointer] = neighbor.changed;
                         pointer++;
                         pointer = pointer % TABUSIZE;
                         return neighbor;
                     }
                     if (neighbor.heuristicValue == value)
-                        equal = neighbor;
-                    if (checkequal(equal, sudoku))
-                        equal = neighbor;
+                        result = neighbor;
                 }
             }
-            tabuList[pointer] = equal;
+            tabuList[pointer] = result.changed;
             pointer++;
             pointer = pointer % TABUSIZE;
-            if (checkequal(equal, sudoku))
+            if (checkequal(sudoku.changed, result.changed))
                 return null;
-            return equal;
+            return result;
         }
 
-        private bool checkequal(LocalSudoku a, LocalSudoku b)
+        private bool checkequal(Tuple<int, int> a, Tuple<int, int> b)
         {
             if (a == null)
                 return false;
-            else return a.values == b.values;
+            else return a == b;
         }
 
       
-        private List<LocalSudoku> generateNeighbors(LocalSudoku sudoku)
+        private List<LocalSudokuOld> generateNeighbors(LocalSudokuOld sudoku)
         {
-            List<LocalSudoku> result = new List<LocalSudoku>();
+            List<LocalSudokuOld> result = new List<LocalSudokuOld>();
 
             //Add each possible swap to the list
             foreach(List<int> square in sudoku.squares)
@@ -92,7 +80,7 @@ namespace Superdoku
                     for(int b = a + 1; b < square.Count(); ++b)
                         if(!sudoku.isFixed[square[a]] && !sudoku.isFixed[square[b]])
                         {
-                            LocalSudoku sample = new LocalSudoku(sudoku);
+                            LocalSudokuOld sample = new LocalSudokuOld(sudoku);
                             sample.swap(square[a], square[b]);
                             result.Add(sample);
                         }
