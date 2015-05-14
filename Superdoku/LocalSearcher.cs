@@ -16,7 +16,7 @@ namespace Superdoku
         { }
         public Sudoku solve(Sudoku sudoku)
         {
-            LocalSudoku toSolve = new LocalSudoku(sudoku);
+            LocalSudokuOld toSolve = new LocalSudokuOld(sudoku);
             tabuList = new Tuple<int,int>[TABUSIZE];
             pointer = 0;
 
@@ -30,16 +30,16 @@ namespace Superdoku
 
 
         //First improvement Iteration
-        private LocalSudoku iterate(LocalSudoku sudoku)
+        private LocalSudokuOld iterate(LocalSudokuOld sudoku)
         {
             int value = sudoku.heuristicValue;
-            LocalSudoku result;
+            LocalSudokuOld result;
 
 
-            List<LocalSudoku> neighbors = this.generateNeighbors(sudoku);
+            List<LocalSudokuOld> neighbors = this.generateNeighbors(sudoku);
             result = neighbors.First();
 
-            foreach (LocalSudoku neighbor in neighbors)
+            foreach (LocalSudokuOld neighbor in neighbors)
             {
                 if (!tabuList.Any(x => this.checkequal(x, neighbor.changed)))
                 {
@@ -70,9 +70,9 @@ namespace Superdoku
         }
 
       
-        private List<LocalSudoku> generateNeighbors(LocalSudoku sudoku)
+        private List<LocalSudokuOld> generateNeighbors(LocalSudokuOld sudoku)
         {
-            List<LocalSudoku> result = new List<LocalSudoku>();
+            List<LocalSudokuOld> result = new List<LocalSudokuOld>();
 
             //Add each possible swap to the list
             foreach(List<int> square in sudoku.squares)
@@ -80,7 +80,7 @@ namespace Superdoku
                     for(int b = a + 1; b < square.Count(); ++b)
                         if(!sudoku.isFixed[square[a]] && !sudoku.isFixed[square[b]])
                         {
-                            LocalSudoku sample = new LocalSudoku(sudoku);
+                            LocalSudokuOld sample = new LocalSudokuOld(sudoku);
                             sample.swap(square[a], square[b]);
                             result.Add(sample);
                         }
