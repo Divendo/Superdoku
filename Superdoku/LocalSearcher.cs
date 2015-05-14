@@ -15,40 +15,13 @@ namespace Superdoku
 
 
         abstract public Sudoku solve(Sudoku sudoku);
-        
-
-
 
        /// <summary>Implementation of first improvement Iteration. </summary>
        /// <param name="sudoku">The sudoku to iterate over</param>
        /// <returns>An improved version.</returns>
-        protected LocalSudoku iterate(LocalSudoku sudoku)
-        {
-            int value = sudoku.HeuristicValue;
-            LocalSudoku result = sudoku;
+        abstract protected LocalSudoku iterate(LocalSudoku sudoku);
         
-
-            List<SwapNeighbor> neighbors = this.generateNeighbors(sudoku);
-          
-
-            foreach (SwapNeighbor neighbor in neighbors)
-            {
-                if (neighbor.Delta < 0)
-                {
-                    result = new LocalSudoku(sudoku);
-                    result.swap(neighbor.First, neighbor.Second);
-                    return result;
-                }
-                if (neighbor.Delta == 0)
-                {
-                    result = new LocalSudoku(sudoku);
-                    result.swap(neighbor.First, neighbor.Second);
-                }
-            }
-            
-            return result;
-        }
-
+       
 
         /// <summary>Returns wheter two tuples are equal.</summary>
         /// <param name="a">The First tuple.</param>
