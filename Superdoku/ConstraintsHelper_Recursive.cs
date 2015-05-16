@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 namespace Superdoku
 {
     /// <summary>Class that helps solving a sudoku using constraints.</summary>
-    class SudokuConstraintsHelper
+    class ConstraintsHelper_Recursive : ConstraintsHelper
     {
-        /// <summary>The sudoku we are manipulating.</summary>
-        private Sudoku sudoku;
-
         /// <summary>The strategies that can be applied.</summary>
         static private SudokuConstraintsStrategy[] strategies = new SudokuConstraintsStrategy[]
         {
@@ -32,20 +29,12 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The sudoku we will be manipulating.</param>
-        public SudokuConstraintsHelper(Sudoku sudoku)
+        public ConstraintsHelper_Recursive(Sudoku sudoku)
+            : base(sudoku)
         {
-            this.sudoku = sudoku;
-            
             applyStrategies = new bool[strategies.Length];
             for(int i = 0; i < applyStrategies.Length; ++i)
                 applyStrategies[i] = true;
-        }
-
-        /// <summary>Property to access the sudoku we are manipulating.</summary>
-        public Sudoku Sudoku
-        {
-            get { return sudoku; }
-            set { sudoku = value; }
         }
 
         /// <summary>Sets whether or not a certain strategy should be used.</summary>
@@ -60,11 +49,7 @@ namespace Superdoku
         public bool isStrategyUsed(int strategy)
         { return applyStrategies[strategy]; }
 
-        /// <summary>Assign a value to a square, and apply some strategies to (partially) solve the sudoku.</summary>
-        /// <param name="index">The index of the square we want to change.</param>
-        /// <param name="value">The value the square should get.</param>
-        /// <returns>True if succesfull, false if a contradiction is reached.</returns>
-        public bool assign(int index, int value)
+        public override bool assign(int index, int value)
         {
             // First we get the values we want to eliminate
             List<int> toEliminate = new List<int>(sudoku[index]);
@@ -111,6 +96,45 @@ namespace Superdoku
             // If we have come here, everything must have gone the right way
             return true;
         }
+
+        public override bool clean()
+        {
+            // A list of all values
+            List<int> allValues = new List<int>(sudoku.NN);
+            for(int i = 0; i < sudoku.NN; ++i)
+                allValues.Add(i);
+
+            // First we build a list of indices that we want to apply assign() to
+            // Also keep track of there values because we are going to fill the squares with all possibilities again
+            List<int> indices = new List<int>();
+            List<int> values = new List<int>();
+            for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
+            {
+                if(sudoku[i].Count == 1)
+                {
+                    indices.Add(i);
+                    values.Add(sudoku[i][0]);
+                    sudoku[i] = new List<int>(allValues);
+                }
+            }
+
+            // Now we apply assign to each of these indices
+            for(int i = 0; i < indices.Count; ++i)
+            {
+                if(!assign(indices[i], values[i]))
+                    return false;
+            }
+
+            // If we have come here, everything went successful
+            return true;
+        }
+    }
+
+    /// <summary>A factor for the ConstraintsHelper_Recursive class.</summary>
+    class ConstraintsHelperFactory_Recursive : ConstraintsHelperFactory
+    {
+        public override ConstraintsHelper createConstraintsHelper(Sudoku sudoku)
+        { return new ConstraintsHelper_Recursive(sudoku); }
     }
 
     /// <summary>Class that represents a strategy that can be applied after removing a possibility from a sqaure.</summary>
@@ -121,7 +145,7 @@ namespace Superdoku
         /// <param name="index">The index of the square from which a possibility is removed.</param>
         /// <param name="value">The removed possibility.</param>
         /// <returns>True if succesfull, false if a contradiction is reached.</returns>
-        public abstract bool apply(SudokuConstraintsHelper sudokuConstraintsHelper, int index, int value);
+        public abstract bool apply(ConstraintsHelper_Recursive sudokuConstraintsHelper, int index, int value);
     }
 
     /// <summary>
@@ -130,7 +154,7 @@ namespace Superdoku
     /// </summary>
     class SudokuConstraintsStrategy_OneValueLeft : SudokuConstraintsStrategy
     {
-        public override bool apply(SudokuConstraintsHelper sudokuConstraintsHelper, int index, int value)
+        public override bool apply(ConstraintsHelper_Recursive sudokuConstraintsHelper, int index, int value)
         {
             // We will need to request the peers of the square
             SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudokuConstraintsHelper.Sudoku.N);
@@ -158,7 +182,7 @@ namespace Superdoku
     /// </summary>
     class SudokuConstraintsStrategy_ValueOnceInUnit : SudokuConstraintsStrategy
     {
-        public override bool apply(SudokuConstraintsHelper sudokuConstraintsHelper, int index, int value)
+        public override bool apply(ConstraintsHelper_Recursive sudokuConstraintsHelper, int index, int value)
         {
             // We will need to request the units of the square
             SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudokuConstraintsHelper.Sudoku.N);
@@ -203,7 +227,7 @@ namespace Superdoku
     /// </summary>
     class SudokuConstraintsStrategy_NakedTwins : SudokuConstraintsStrategy
     {
-        public override bool apply(SudokuConstraintsHelper sudokuConstraintsHelper, int index, int value)
+        public override bool apply(ConstraintsHelper_Recursive sudokuConstraintsHelper, int index, int value)
         {
             // Check if the square we are examining actually contains two possibilities
             if(sudokuConstraintsHelper.Sudoku[index].Count != 2)

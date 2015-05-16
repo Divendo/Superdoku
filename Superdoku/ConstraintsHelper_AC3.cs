@@ -7,8 +7,22 @@ using System.Threading.Tasks;
 namespace Superdoku
 {
     /// <summary>Class that helps solving a sudoku using constraints by applying the AC2 algorithm.</summary>
-    class SudokuConstraintsAC3
+    class ConstraintsHelper_AC3 : ConstraintsHelper
     {
+        public ConstraintsHelper_AC3(Sudoku sudoku)
+            : base(sudoku) { }
+
+        public override bool assign(int index, int value)
+        {
+            sudoku[index] = new List<int>(new int[] { value });
+            return apply(sudoku);
+        }
+
+        public override bool clean()
+        {
+            return apply(sudoku);
+        }
+
         /// <summary>Runs the algorithm on the Sudoku.</summary>
         /// <param name="sudoku">The sudoku to run the algorithm on.</param>
         /// <returns>True if successful, false otherwise (e.g. in case a contradiction is reached).</returns>
@@ -107,5 +121,12 @@ namespace Superdoku
                     return -(square1 + square2 * n * n * n * n);
             }
         }
+    }
+
+    /// <summary>A factor for the ConstraintsHelper_AC3 class.</summary>
+    class ConstraintsHelperFactory_AC3 : ConstraintsHelperFactory
+    {
+        public override ConstraintsHelper createConstraintsHelper(Sudoku sudoku)
+        { return new ConstraintsHelper_AC3(sudoku); }
     }
 }

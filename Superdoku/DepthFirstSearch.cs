@@ -9,10 +9,35 @@ namespace Superdoku
     /// <summary>This class implements a depth first search to search for a solution of the sudoku.</summary>
     class DepthFirstSearch
     {
+        /// <summary>A factory for the constraints helper that is applied to each node.</summary>
+        private ConstraintsHelperFactory constraintsHelperFactory;
+
+        /// <summary>Default constructor.</summary>
+        public DepthFirstSearch()
+        {
+            constraintsHelperFactory = new ConstraintsHelperFactory_Trivial();
+        }
+
+        /// <summary>Constructor.</summary>
+        /// <param name="helper">The factory that is to be used to create ConstraintsHelper instances, which will be used for constraint satisfaction.</param>
+        public DepthFirstSearch(ConstraintsHelperFactory helperFactory)
+        {
+            constraintsHelperFactory = helperFactory;
+        }
+
+        /// <summary>Convenience method. Applies clean() from the constraints helper of this instance.</summary>
+        /// <param name="sudoku">The sudoku that clean() should be applied to.</param>
+        /// <returns>True if succesfull, false if a contradiction is reached.</returns>
+        public bool clean(Sudoku sudoku)
+        {
+            ConstraintsHelper helper = constraintsHelperFactory.createConstraintsHelper(sudoku);
+            return helper.clean();
+        }
+
         /// <summary>Searches for a solution for the given sudoku using depth-first search.</summary>
         /// <param name="sudoku">The sudoku that should be solved.</param>
         /// <returns>The solved sudoku, or null if no solution was possible.</returns>
-        public static Sudoku search(Sudoku sudoku)
+        public Sudoku search(Sudoku sudoku)
         {
             // We can not solve a non-existing soduko
             if(sudoku == null)
@@ -40,7 +65,7 @@ namespace Superdoku
             // Try all possibilities for the square we found
             for(int i = 0; i < sudoku[index].Count; ++i)
             {
-                SudokuConstraintsHelper helper = new SudokuConstraintsHelper(new Sudoku(sudoku));
+                ConstraintsHelper helper = constraintsHelperFactory.createConstraintsHelper(new Sudoku(sudoku));
                 if(helper.assign(index, sudoku[index][i]))
                 {
                     Sudoku result = search(helper.Sudoku);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,52 +17,50 @@ namespace Superdoku
             printSudoku(sudoku);
             Console.WriteLine();
 
-            // Solve the sudoku as far as we can using the SudokuConstraintsHelper
-            SudokuConstraintsHelper sudokuConstraintsHelper = new SudokuConstraintsHelper(new Sudoku(sudoku.N));
-            List<int> indices = new List<int>();
-            for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
+            // We will solve the sudoku using depth-first search and different constraint strategies
+            Dictionary<string, ConstraintsHelperFactory> constraintFactories = new Dictionary<string, ConstraintsHelperFactory>();
+            constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
+            constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
+            constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
+            constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
+
+            // We will want to measure the performance of each strategy
+            foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)
             {
-                if(sudoku[i].Count == 1)
-                    indices.Add(i);
-            }
-            for(int i = 0; i < indices.Count; ++i)
-            {
-                if(!sudokuConstraintsHelper.assign(indices[i], sudoku[indices[i]][0]))
+                // Initialise the necessary objects
+                DepthFirstSearch depthFirstSearch = new DepthFirstSearch(entry.Value);
+                Sudoku copy = new Sudoku(sudoku);
+                Stopwatch stopWatch = new Stopwatch();
+                Console.WriteLine("Applying strategy '" + entry.Key + "'.");
+
+                // Measure the time it takes to clean the sudoku
+                stopWatch.Start();
+                bool cleaned = depthFirstSearch.clean(copy);
+                stopWatch.Stop();
+                long cleanTime = stopWatch.ElapsedMilliseconds;
+                stopWatch.Reset();
+                if(!cleaned)
                 {
-                    Console.WriteLine("ERROR: This sudoku seems not to be possible...");
-                    break;
+                    Console.WriteLine("Could not clean the sudoku (" + cleanTime.ToString() + " ms).");
+                    Console.WriteLine();
+                    continue;
                 }
-            }
-            Console.WriteLine("Sudoku after applying constraints:");
-            printSudoku(sudokuConstraintsHelper.Sudoku);
-            Console.WriteLine();
+                else
+                    Console.WriteLine("Cleaned the sudoku (" + cleanTime.ToString() + " ms).");
 
-
-            Console.WriteLine("Sudoku after applying constraints 2:");
-            Sudoku copy = new Sudoku(sudoku);
-            if(SudokuConstraintsAC1.apply(copy))
-                printSudoku(copy);
-            else
-                Console.WriteLine("FAILED...");
-            Console.WriteLine();
-
-            // Solve the sudoku using depth-first search
-            /* LocalSearcher searchMachine = new LocalSearcher();
-            Sudoku solution = searchMachine.solve(sudoku); */
-            Sudoku solution = DepthFirstSearch.search(sudokuConstraintsHelper.Sudoku);
-            if (solution == null)
-            {
-                Console.WriteLine("This sudoku seems to be impossible to solve...");
-            }
-            else if (solution.isSolved())
-            {
-                Console.WriteLine("The solution after depth-first search:");
-                printSudoku(solution);
-            }
-            else
-            {
-                Console.WriteLine("ERROR! The solution after depth-first search seems to be wrong:");
-                printSudoku(solution);
+                // Measure the time it takes to solve the sudoku
+                stopWatch.Start();
+                Sudoku solved = depthFirstSearch.search(copy);
+                stopWatch.Stop();
+                long searchTime = stopWatch.ElapsedMilliseconds;
+                stopWatch.Reset();
+                if(solved == null)
+                    Console.WriteLine("This sudoku seems to be impossible to solve (" + searchTime.ToString() + " ms).");
+                else if(!solved.isSolved())
+                    Console.WriteLine("Something went wrong while solving the sudoku (" + searchTime.ToString() + " ms).");
+                else
+                    Console.WriteLine("The sudoku was solved (" + searchTime.ToString() + " ms), total: " + (cleanTime + searchTime).ToString() + " ms.");
+                Console.WriteLine();
             }
 
             // Wait for the user
