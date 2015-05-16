@@ -21,6 +21,7 @@ namespace Superdoku
             Dictionary<string, ConstraintsHelperFactory> constraintFactories = new Dictionary<string, ConstraintsHelperFactory>();
             constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
             constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
+            constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
             constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
             constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
 
@@ -71,6 +72,7 @@ namespace Superdoku
             }
 
             // Wait for the user
+            Console.WriteLine("Press <enter> to quit.");
             Console.ReadLine();
         }
 

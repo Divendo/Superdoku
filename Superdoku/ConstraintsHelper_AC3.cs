@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Superdoku
 {
-    /// <summary>Class that helps solving a sudoku using constraints by applying the AC2 algorithm.</summary>
+    /// <summary>Class that helps solving a sudoku using constraints by applying the AC3 algorithm.</summary>
     class ConstraintsHelper_AC3 : ConstraintsHelper
     {
         public ConstraintsHelper_AC3(Sudoku sudoku)
