@@ -11,7 +11,7 @@ namespace Superdoku
         static void Main(string[] args)
         {
             // Read the sudoku
-            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
+            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/25x25.txt", 5);
             Console.WriteLine("Original sudoku:");
             printSudoku(sudoku);
             Console.WriteLine();
@@ -34,6 +34,15 @@ namespace Superdoku
             }
             Console.WriteLine("Sudoku after applying constraints:");
             printSudoku(sudokuConstraintsHelper.Sudoku);
+            Console.WriteLine();
+
+
+            Console.WriteLine("Sudoku after applying constraints 2:");
+            Sudoku copy = new Sudoku(sudoku);
+            if(SudokuConstraintsAC1.apply(copy))
+                printSudoku(copy);
+            else
+                Console.WriteLine("FAILED...");
             Console.WriteLine();
 
             // Solve the sudoku using depth-first search
