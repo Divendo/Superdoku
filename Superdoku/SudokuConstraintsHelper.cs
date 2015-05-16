@@ -16,13 +16,16 @@ namespace Superdoku
         static private SudokuConstraintsStrategy[] strategies = new SudokuConstraintsStrategy[]
         {
             new SudokuConstraintsStrategy_OneValueLeft(),
-            new SudokuConstraintsStrategy_ValueOnceInUnit()
+            new SudokuConstraintsStrategy_ValueOnceInUnit(),
+            new SudokuConstraintsStrategy_NakedTwins()
         };
 
         /// <summary>The index of the 'one value left' strategy.</summary>
         public const int STRATEGY_ONE_VALUE_LEFT = 0;
         /// <summary>The index of the 'value once in unit' strategy.</summary>
         public const int STRATEGY_VALUE_ONCE_IN_UNIT = 1;
+        /// <summary>The index of the 'naked twins' strategy.</summary>
+        public const int STRATEGY_NAKED_TWINS = 2;
 
         /// <summary>Whether or not certain strategies should be applied.</summary>
         private bool[] applyStrategies;
@@ -189,6 +192,56 @@ namespace Superdoku
             }
 
             // If we have come here, everything went successfully
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Implements the following strategy:
+    /// If two squares in the same unit contain the same two possibilities and do not contain any other possibilities,
+    /// then these possibilities can be eliminated from all other squares in the unit.
+    /// </summary>
+    class SudokuConstraintsStrategy_NakedTwins : SudokuConstraintsStrategy
+    {
+        public override bool apply(SudokuConstraintsHelper sudokuConstraintsHelper, int index, int value)
+        {
+            // Check if the square we are examining actually contains two possibilities
+            if(sudokuConstraintsHelper.Sudoku[index].Count != 2)
+                return true;
+
+            // We will need to request the units of the square
+            SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudokuConstraintsHelper.Sudoku.N);
+
+            // We will try to find two such squares for each unit
+            int[,] units = sudokuIndexHelper.getUnitsFor(index);
+            for(int unit = 0; unit < units.GetLength(0); ++unit)
+            {
+                // Loop through all squares in the unit
+                for(int square = 0; square < units.GetLength(1); ++square)
+                {
+                    if(units[unit, square] == index)
+                        continue;
+                    // Check if the current square has two possibilities and if they are the same as the square we are examining
+                    else if(sudokuConstraintsHelper.Sudoku[units[unit, square]].Count == 2 &&
+                            sudokuConstraintsHelper.Sudoku[units[unit, square]].Contains(sudokuConstraintsHelper.Sudoku[index][0]) &&
+                            sudokuConstraintsHelper.Sudoku[units[unit, square]].Contains(sudokuConstraintsHelper.Sudoku[index][1]))
+                    {
+                        // Remove the two possibilities from all other squares in the unit
+                        int value1 = sudokuConstraintsHelper.Sudoku[index][0];              // Note, we need to remember the values here because they might be removed from our square as
+                        int value2 = sudokuConstraintsHelper.Sudoku[index][1];              // a consequence of applying other strategies while eliminating values from other squares
+                        for(int i = 0; i < units.GetLength(1); ++i)
+                        {
+                            if(units[unit, i] != index && units[unit, i] != units[unit, square])
+                            {
+                                if(!sudokuConstraintsHelper.eliminate(units[unit, i], value1) || !sudokuConstraintsHelper.eliminate(units[unit, i], value2))
+                                    return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If we have come here, everything must have gone successful
             return true;
         }
     }
