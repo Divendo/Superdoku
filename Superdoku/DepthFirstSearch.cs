@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,10 +13,17 @@ namespace Superdoku
         /// <summary>A factory for the constraints helper that is applied to each node.</summary>
         private ConstraintsHelperFactory constraintsHelperFactory;
 
-        /// <summary>Default constructor.</summary>
+        /// <summary>A stopwatch to limit the amount of time we search.</summary>
+        private Stopwatch stopwatch;
+
+        /// <summary>The search time limit in milliseconds.</summary>
+        public const long SEARCH_TIME_LIMIT = 3 * 60 * 1000;
+
+        /// <summary>Constructor.</summary>
         public DepthFirstSearch()
         {
             constraintsHelperFactory = new ConstraintsHelperFactory_Trivial();
+            stopwatch = null;
         }
 
         /// <summary>Constructor.</summary>
@@ -23,10 +31,11 @@ namespace Superdoku
         public DepthFirstSearch(ConstraintsHelperFactory helperFactory)
         {
             constraintsHelperFactory = helperFactory;
+            stopwatch = null;
         }
 
         /// <summary>Convenience method. Applies clean() from the constraints helper of this instance.</summary>
-        /// <param name="sudoku">The sudoku that clean() should be applied to.</param>
+        /// <param name="sudoku">The sudoku that should be cleaned.</param>
         /// <returns>True if succesfull, false if a contradiction is reached.</returns>
         public bool clean(Sudoku sudoku)
         {
@@ -38,6 +47,24 @@ namespace Superdoku
         /// <param name="sudoku">The sudoku that should be solved.</param>
         /// <returns>The solved sudoku, or null if no solution was possible.</returns>
         public Sudoku search(Sudoku sudoku)
+        {
+            // Keep track of our time limit
+            stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            // Do the actual searching
+            Sudoku result = search_helper(sudoku);
+
+            // Clear the stopwatch
+            stopwatch = null;
+
+            // Return the result
+            return result;
+        }
+
+        /// <summary>Does the actual depth-first searching (while making deep copies).</summary>
+        /// <returns>The solved sudoku if successful, null otherwise.</returns>
+        private Sudoku search_helper(Sudoku sudoku)
         {
             // We can not solve a non-existing soduko
             if(sudoku == null)
@@ -65,10 +92,13 @@ namespace Superdoku
             // Try all possibilities for the square we found
             for(int i = 0; i < sudoku[index].Count; ++i)
             {
+                if(stopwatch.ElapsedMilliseconds > SEARCH_TIME_LIMIT)
+                    throw new TimeLimitReachedException("Time limit of " + SEARCH_TIME_LIMIT + "ms reached (actual: " + stopwatch.ElapsedMilliseconds + "ms).");
+
                 ConstraintsHelper helper = constraintsHelperFactory.createConstraintsHelper(new Sudoku(sudoku));
                 if(helper.assign(index, sudoku[index][i]))
                 {
-                    Sudoku result = search(helper.Sudoku);
+                    Sudoku result = search_helper(helper.Sudoku);
                     if(result != null)
                         return result;
                 }
@@ -77,5 +107,18 @@ namespace Superdoku
             // If we have come here, we have not found a solution
             return null;
         }
+    }
+
+    /// <summary>Exception to indicate that the time limit has been reached.</summary>
+    class TimeLimitReachedException : Exception
+    {
+        public TimeLimitReachedException()
+        { }
+
+        public TimeLimitReachedException(string msg)
+            : base(msg) { }
+
+        public TimeLimitReachedException(string msg, Exception inner)
+            : base(msg, inner) { }
     }
 }

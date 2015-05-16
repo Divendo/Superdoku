@@ -12,7 +12,7 @@ namespace Superdoku
         static void Main(string[] args)
         {
             // Read the sudoku
-            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/25x25.txt", 5);
+            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
             Console.WriteLine("Original sudoku:");
             printSudoku(sudoku);
             Console.WriteLine();
@@ -49,17 +49,24 @@ namespace Superdoku
                     Console.WriteLine("Cleaned the sudoku (" + cleanTime.ToString() + " ms).");
 
                 // Measure the time it takes to solve the sudoku
-                stopWatch.Start();
-                Sudoku solved = depthFirstSearch.search(copy);
-                stopWatch.Stop();
-                long searchTime = stopWatch.ElapsedMilliseconds;
-                stopWatch.Reset();
-                if(solved == null)
-                    Console.WriteLine("This sudoku seems to be impossible to solve (" + searchTime.ToString() + " ms).");
-                else if(!solved.isSolved())
-                    Console.WriteLine("Something went wrong while solving the sudoku (" + searchTime.ToString() + " ms).");
-                else
-                    Console.WriteLine("The sudoku was solved (" + searchTime.ToString() + " ms), total: " + (cleanTime + searchTime).ToString() + " ms.");
+                try
+                {
+                    stopWatch.Start();
+                    Sudoku solved = depthFirstSearch.search(copy);
+                    stopWatch.Stop();
+                    long searchTime = stopWatch.ElapsedMilliseconds;
+                    stopWatch.Reset();
+                    if(solved == null)
+                        Console.WriteLine("This sudoku seems to be impossible to solve (" + searchTime.ToString() + " ms).");
+                    else if(!solved.isSolved())
+                        Console.WriteLine("Something went wrong while solving the sudoku (" + searchTime.ToString() + " ms).");
+                    else
+                        Console.WriteLine("The sudoku was solved (" + searchTime.ToString() + " ms), total: " + (cleanTime + searchTime).ToString() + " ms.");
+                }
+                catch(Exception exc)
+                {
+                    Console.WriteLine("Exception: " + exc.Message);
+                }
                 Console.WriteLine();
             }
 
