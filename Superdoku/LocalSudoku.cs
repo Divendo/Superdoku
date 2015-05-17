@@ -159,9 +159,9 @@ namespace Superdoku
                         row1.Remove(sudokuValues[i + y1 * NN]);
 
                     if(i + y2 * NN == index2)
-                        row1.Remove(sudokuValues[index1]);
+                        row2.Remove(sudokuValues[index1]);
                     else
-                        row1.Remove(sudokuValues[i + y2 * NN]);
+                        row2.Remove(sudokuValues[i + y2 * NN]);
                 }
 
                 // Calculate the change in score
@@ -192,9 +192,9 @@ namespace Superdoku
                         col1.Remove(sudokuValues[x1 + i * NN]);
 
                     if(x2 + i * NN == index2)
-                        col1.Remove(sudokuValues[index1]);
+                        col2.Remove(sudokuValues[index1]);
                     else
-                        col1.Remove(sudokuValues[x2 + i * NN]);
+                        col2.Remove(sudokuValues[x2 + i * NN]);
                 }
 
                 // Calculate the change in score

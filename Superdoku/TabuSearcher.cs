@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace Superdoku
 {
@@ -32,7 +31,7 @@ namespace Superdoku
         public override Sudoku solve(Sudoku sudoku)
         {
             LocalSudoku toSolve = new LocalSudoku(sudoku);
-            helper = SudokuIndexHelper.get(sudoku.N);
+            SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
         
             while (toSolve.HeuristicValue > 0)
                 toSolve = iterate(toSolve);
@@ -41,7 +40,7 @@ namespace Superdoku
         }
 
 
-        protected override LocalSudoku iterate(LocalSudoku sudoku)
+        protected LocalSudoku iterate(LocalSudoku sudoku)
         {
             int value = sudoku.HeuristicValue;
             LocalSudoku result = sudoku;
@@ -61,20 +60,20 @@ namespace Superdoku
                 if (!tabuList.Contains(neighbor))
                    
                 {
-                    if (neighbor.Delta < 0)
+                    if(neighbor.ScoreDelta < 0)
                     {
                         result = new LocalSudoku(sudoku);
-                        result.swap(neighbor.First, neighbor.Second);
+                        result.swap(neighbor.Square1, neighbor.Square2);
                         tabuList[pointer] = neighbor;
                         if (pointer + 1 >= TABULENGTH)
                             pointer = 0;
                         else pointer++;
                         return result;
                     }
-                    if (neighbor.Delta == 0)
+                    if (neighbor.ScoreDelta == 0)
                     {
                         result = new LocalSudoku(sudoku);
-                        result.swap(neighbor.First, neighbor.Second);
+                        result.swap(neighbor.Square1, neighbor.Square2);
                         last = neighbor;
                     }
 
@@ -91,7 +90,7 @@ namespace Superdoku
                 else
                     pointer++;
                 result = new LocalSudoku(sudoku);
-                result.swap(last.First, last.Second);
+                result.swap(last.Square1, last.Square2);
 
             }
 

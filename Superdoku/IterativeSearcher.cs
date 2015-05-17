@@ -6,50 +6,38 @@ using System.Threading.Tasks;
 
 namespace Superdoku
 {
+    /// <summary>This class implements the hillclimbing technique.</summary>
     class IterativeSearcher : LocalSearcher
     {
-        public IterativeSearcher()
-        { }
-
-
-        /// <summary>Solves the sudoku using hillclimbing </summary>
-        /// <param name="sudoku">The sudoku</param>
-        /// <returns>A solved sudoku</returns>
         public override Sudoku solve(Sudoku sudoku)
         {
+            // Create a LocalSudoku that can be used to perform local search on
             LocalSudoku toSolve = new LocalSudoku(sudoku);
-            helper = SudokuIndexHelper.get(sudoku.N);
 
-            //return toSolve.toSudoku();
-            while (toSolve.HeuristicValue > 0)
-                toSolve = iterate(toSolve);
-
-            return toSolve.toSudoku();
-        }
-
-
-        protected override LocalSudoku iterate(LocalSudoku sudoku)
-        {
-            int value = sudoku.HeuristicValue;
-            LocalSudoku result = sudoku;
-            List<SwapNeighbor> neighbors = this.generateNeighbors(sudoku);
-
-            foreach (SwapNeighbor neighbor in neighbors)
+            // Keep running while the sudoku has not been solved yet
+            while(toSolve.HeuristicValue > 0)
             {
-                if (neighbor.Delta < 0)
+                // Search for the best neighbor
+                List<SwapNeighbor> neighbors = generateNeighbors(toSolve);
+                SwapNeighbor bestNeighbor = null;
+                foreach(SwapNeighbor neighbor in neighbors)
                 {
-                    result = new LocalSudoku(sudoku);
-                    result.swap(neighbor.First, neighbor.Second);
-                    return result;
+                    // We will only accept improvements
+                    if(neighbor.ScoreDelta < 0)
+                    {
+                        if(bestNeighbor == null || neighbor.ScoreDelta < bestNeighbor.ScoreDelta)
+                            bestNeighbor = neighbor;
+                    }
                 }
-                if (neighbor.Delta == 0)
-                {
-                    result = new LocalSudoku(sudoku);
-                    result.swap(neighbor.First, neighbor.Second);
-                }
+
+                // If we have found a neighbor, apply it otherwise we return null
+                if(bestNeighbor != null)
+                    toSolve.swap(bestNeighbor.Square1, bestNeighbor.Square2);
+                return null;
             }
 
-            return result;
+            // If we have come here, we have solved the sudoku
+            return toSolve.toSudoku();
         }
     }
 }

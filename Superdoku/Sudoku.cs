@@ -137,10 +137,6 @@ namespace Superdoku
         /// <summary>An array containing the units for each square.</summary>
         private int[][,] units;
 
-        /// <summary>An array containing the indices of each square, REDUNDANT
-        ///             ONE DAY ILL MAKE IT PRETTY                  </summary>
-        private List<int>[] squares;
-
         /// <summary>The index of the column unit in the array of units for a square.</summary>
         public const int UNIT_COLUMN_INDEX = 0;
         /// <summary>The index of the row unit in the array of units for a square.</summary>
@@ -201,34 +197,7 @@ namespace Superdoku
                     peers[x + y * NN] = new int[n * n - 1 + 2 * (n - 1) * n];
                     peerSet.CopyTo(peers[x + y * NN]);
                 }
-
-
-                //set the Squares
-                this.setSquares();
             }
-        }
-
-        /// <summary>
-        /// Sets the squares for future reference
-        /// </summary>
-        private void setSquares()
-        {
-            squares = new List<int>[NN];
-            int pointer = 0;
-
-            List<int> indices;
-            int[,] grid = new int[NN, NN];
-            for (int a = 0; a < N; ++a)
-                for (int b = 0; b < N; ++b)
-                {
-                    indices = new List<int>();
-
-                    for (int x = 0; x < N; ++x)
-                        for (int y = 0; y < N; ++y)
-                            indices.Add((x + a * n) * NN + (y + b * n));
-                    squares[pointer] = indices;
-                    pointer++;
-                }
         }
 
         /// <summary>Returns the index of the square with the given coordinates.</summary>
@@ -275,10 +244,6 @@ namespace Superdoku
         /// <returns>The units of the square.</returns>
         public int[,] getUnitsFor(int x, int y)
         { return getUnitsFor(x + y * NN); }
-
-        /// <summary>The indices for each square </summary>
-        public List<int>[] Squares
-        { get { return squares; } }
 
         /// <summary>The size of the sudoku this helper represents (n*n by n*n squares).</summary>
         public int N

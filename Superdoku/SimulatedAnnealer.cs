@@ -22,7 +22,7 @@ namespace Superdoku
         public override Sudoku solve(Sudoku sudoku)
         {
             LocalSudoku toSolve = new LocalSudoku(sudoku);
-            helper = SudokuIndexHelper.get(sudoku.N);
+            SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
 
             //return toSolve.toSudoku();
             while (toSolve.HeuristicValue > 0)
@@ -32,7 +32,7 @@ namespace Superdoku
         }
 
 
-        protected override LocalSudoku iterate(LocalSudoku sudoku)
+        protected LocalSudoku iterate(LocalSudoku sudoku)
         {
             SwapNeighbor sample = this.generateNeighbor(sudoku);
             LocalSudoku result;
@@ -42,16 +42,16 @@ namespace Superdoku
                 return sudoku;
 
             //If the sample is better, adopt it
-            if (sample.Delta < 0)
+            if (sample.ScoreDelta < 0)
             {
                 result = new LocalSudoku(sudoku);
-                sudoku.swap(sample.First, sample.Second);
+                sudoku.swap(sample.Square1, sample.Square2);
                 return result;
             }
 
 
             //Else determine wheter you adopt it.
-            double chance = Math.Exp(- ((double)(sample.Delta)) / C);
+            double chance = Math.Exp(-((double)(sample.ScoreDelta)) / C);
             int length = (int) (1f / chance);
             bool[] boolBag = new bool[length];
             boolBag[0] = true;
@@ -62,7 +62,7 @@ namespace Superdoku
             if(boolBag[index])
             {
                 result = new LocalSudoku(sudoku);
-                sudoku.swap(sample.First, sample.Second);
+                sudoku.swap(sample.Square1, sample.Square2);
                 return result;
             }
 
@@ -73,15 +73,16 @@ namespace Superdoku
 
         private SwapNeighbor generateNeighbor(LocalSudoku sudoku)
         {
-            Random random = new Random();
+            /*Random random = new Random();
             int square = random.Next(0, sudoku.NN);
+            SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
 
-            int first = random.Next(0, helper.Squares[square].Count());
-            int second = random.Next(0, helper.Squares[square].Count());
+            //int first = random.Next(0, helper.Squares[square].Count());
+            //int second = random.Next(0, helper.Squares[square].Count());
 
             if (first != second && !sudoku.Fixed[first] && !sudoku.Fixed[second])
                 return new SwapNeighbor(sudoku, first, second);
-            else
+            else*/
                 return null;
         }
     }

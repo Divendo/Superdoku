@@ -6,42 +6,51 @@ using System.Threading.Tasks;
 
 namespace Superdoku
 {
+    /// <summary>Represents a possible swap that can be performed to get a neighbor.</summary>
     class SwapNeighbor
     {
-        private int delta;
-        private int first;
-        private int second;
-        private int firstValue;
-        private int secondValue;
+        /// <summary>The first square that should be swapped.</summary>
+        private int square1;
+        /// <summary>The second square that should be swapped.</summary>
+        private int square2;
+        /// <summary>The change in score after swapping the squares.</summary>
+        private int scoreDelta;
 
-        public SwapNeighbor(LocalSudoku sudoku, int index_a, int index_b)
+        public SwapNeighbor(int square1, int square2, int scoreDelta)
         {
-            first = index_a;
-            second = index_b;
-            delta = sudoku.heuristicDelta(index_a, index_b);
-            firstValue = sudoku[first];
-            secondValue = sudoku[second];
+            this.square1 = square1;
+            this.square2 = square2;
+            this.scoreDelta = scoreDelta;
         }
 
-        public int Delta
-        { get { return delta; } }
+        public int ScoreDelta
+        { get { return scoreDelta; } }
 
-        public int First
-        { get { return first; } }
+        public int Square1
+        { get { return square1; } }
 
-        public int Second
-        { get { return second; } }
+        public int Square2
+        { get { return square2; } }
+
+        public override bool Equals(object obj)
+        {
+            if(!(obj is SwapNeighbor))
+                return false;
+
+            return Equals((SwapNeighbor) obj);
+        }
+        
+        public bool Equals(SwapNeighbor other)
+        {
+            return square1 == other.square1 && square2 == other.square2 && scoreDelta == other.scoreDelta;
+        }
+
+        public override int GetHashCode()
+        {
+            return square1 * 1000000 + scoreDelta * 10000 + square2;
+        }
 
         public static bool equal(SwapNeighbor a, SwapNeighbor b)
-        {
-            if (a == null)
-                return false;
-
-            if (b == null)
-                return false;
-
-            return (a.first == b.first && a.second == b.second) && a.firstValue == b.firstValue && a.secondValue == b.secondValue ||
-                    (a.first == b.Second && a.second == b.first && a.firstValue == b.secondValue && a.secondValue == b.firstValue);
-        }
+        { return a.Equals(b); }
     }
 }

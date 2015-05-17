@@ -8,21 +8,11 @@ namespace Superdoku
 {
     abstract class LocalSearcher
     {
-        protected SudokuIndexHelper helper;
-
-        public LocalSearcher()
-        { }
-
-
+        /// <summary>Tries to solve the sudoku using local search.</summary>
+        /// <param name="sudoku">The sudoku that should be solved.</param>
+        /// <returns>The solved sudoku, or null if no solution could be found.</returns>
         abstract public Sudoku solve(Sudoku sudoku);
-
-       /// <summary>Implementation of first improvement Iteration. </summary>
-       /// <param name="sudoku">The sudoku to iterate over</param>
-       /// <returns>An improved version.</returns>
-        abstract protected LocalSudoku iterate(LocalSudoku sudoku);
         
-       
-
         /// <summary>Returns wheter two tuples are equal.</summary>
         /// <param name="a">The First tuple.</param>
         /// <param name="b">The second tuple.</param>
@@ -34,32 +24,42 @@ namespace Superdoku
             else return a == b;
         }
 
-        /// <summary>Generates the Neighbors of a LocalSudoku</summary>
-        /// <param name="sudoku">The sudoku</param>
+        /// <summary>Generates the Neighbors of a LocalSudoku.</summary>
+        /// <param name="sudoku">The sudoku.</param>
         /// <returns>A list containing neighbors.</returns>
         protected List<SwapNeighbor> generateNeighbors(LocalSudoku sudoku)
         {
-            List<SwapNeighbor> result = new List<SwapNeighbor>();
-            List<int>[] squares = helper.Squares;
-            SwapNeighbor sample;
+            SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
 
-            //Add each possible swap to the list
-            foreach(List<int> square in squares)
+            // Each box contains N^2 squares, so at most there will be N^2 + (N^2 - 1) + (N^2 - 2) + ... + 1 = N^2 (N^2 + 1) / 2 combinations possible.
+            // There are N^2 boxes, so that results in a capacity of N^2 * N^2 (N^2 + 1) / 2
+            List<SwapNeighbor> result = new List<SwapNeighbor>(sudoku.NN * sudoku.NN * (sudoku.NN + 1) / 2);
+
+            // Loop through all boxes
+            for(int box = 0; box < sudoku.NN; ++box)
             {
-                for(int a = 0; a < square.Count(); ++a)
+                // Within a box we loop through all squares and add all possibilities to the list
+                int[,] units = helper.getUnitsFor(sudoku.N * (box % sudoku.N), sudoku.N * (box / sudoku.N));
+                for(int square1 = 0; square1 < units.GetLength(1); ++square1)
                 {
-                    if(sudoku.isFixed(square[a]))
+                    if(sudoku.isFixed(units[SudokuIndexHelper.UNIT_BOX_INDEX, square1]))
                         continue;
-                    for(int b = a + 1; b < square.Count(); ++b)
+
+                    for(int square2 = square1 + 1; square2 < units.GetLength(1); ++square2)
                     {
-                        if(sudoku.isFixed(square[b]))
+                        if(!sudoku.isFixed(units[SudokuIndexHelper.UNIT_BOX_INDEX, square2]))
                         {
-                            sample = new SwapNeighbor(sudoku, square[a], square[b]);
-                            result.Add(sample);
+                            result.Add(new SwapNeighbor(
+                                units[SudokuIndexHelper.UNIT_BOX_INDEX, square1],
+                                units[SudokuIndexHelper.UNIT_BOX_INDEX, square2],
+                                sudoku.heuristicDelta(units[SudokuIndexHelper.UNIT_BOX_INDEX, square1], units[SudokuIndexHelper.UNIT_BOX_INDEX, square2])
+                            ));
                         }
                     }
                 }
             }
+
+            // Return the list
             return result;
         }
         

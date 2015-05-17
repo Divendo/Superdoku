@@ -11,33 +11,13 @@ namespace Superdoku
         static void Main(string[] args)
         {
             // Read the sudoku
-            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
+            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/4x4.txt", 2);
             Console.WriteLine("Original sudoku:");
             printSudoku(sudoku);
             Console.WriteLine();
 
-            // Solve the sudoku as far as we can using the SudokuConstraintsHelper
-            SudokuConstraintsHelper sudokuConstraintsHelper = new SudokuConstraintsHelper(new Sudoku(sudoku.N));
-            List<int> indices = new List<int>();
-            for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
-            {
-                if(sudoku[i].Count == 1)
-                    indices.Add(i);
-            }
-            for(int i = 0; i < indices.Count; ++i)
-            {
-                if(!sudokuConstraintsHelper.assign(indices[i], sudoku[indices[i]][0]))
-                {
-                    Console.WriteLine("ERROR: This sudoku seems not to be possible...");
-                    break;
-                }
-            }
-            Console.WriteLine("Sudoku after applying constraints:");
-            printSudoku(sudokuConstraintsHelper.Sudoku);
-            Console.WriteLine();
-
             // Solve the sudoku using depth-first search
-            LocalSearcher searchMachine = new TabuSearcher();
+            LocalSearcher searchMachine = new IterativeSearcher();
             Sudoku solution = searchMachine.solve(sudoku); 
             /* SimulatedAnnealer searcher = new SimulatedAnnealer();
             Sudoku solution = searcher.solve(sudoku); */
