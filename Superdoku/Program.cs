@@ -16,30 +16,9 @@ namespace Superdoku
             printSudoku(sudoku);
             Console.WriteLine();
 
-            // Solve the sudoku as far as we can using the SudokuConstraintsHelper
-            SudokuConstraintsHelper sudokuConstraintsHelper = new SudokuConstraintsHelper(new Sudoku(sudoku.N));
-            List<int> indices = new List<int>();
-            for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
-            {
-                if(sudoku[i].Count == 1)
-                    indices.Add(i);
-            }
-            for(int i = 0; i < indices.Count; ++i)
-            {
-                if(!sudokuConstraintsHelper.assign(indices[i], sudoku[indices[i]][0]))
-                {
-                    Console.WriteLine("ERROR: This sudoku seems not to be possible...");
-                    break;
-                }
-            }
-            Console.WriteLine("Sudoku after applying constraints:");
-            printSudoku(sudokuConstraintsHelper.Sudoku);
-            Console.WriteLine();
-
             // Solve the sudoku using depth-first search
-            /* LocalSearcher searchMachine = new LocalSearcher();
-            Sudoku solution = searchMachine.solve(sudoku); */
-            Sudoku solution = DepthFirstSearch.search(sudokuConstraintsHelper.Sudoku);
+            LocalSearcher searchMachine = new TabuSearcher();
+            Sudoku solution = searchMachine.solve(sudoku); 
             if (solution == null)
             {
                 Console.WriteLine("This sudoku seems to be impossible to solve...");

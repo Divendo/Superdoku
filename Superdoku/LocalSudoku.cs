@@ -12,6 +12,9 @@ namespace Superdoku
         /// <summary>The sudoku that is represented.</summary>
         private int[] sudokuValues;
 
+        /// <summary>A list of booleans telling wheter an index is fixiated.</summary>
+        private bool[] fixiated;
+
         /// <summary>The size of the sudoku (n*n by n*n squares).</summary>
         private int n;
 
@@ -39,17 +42,21 @@ namespace Superdoku
                 int[,] units = sudokuIndexHelper.getUnitsFor(N * (box % N), N * (box / N));
                 for(int i = 0; i < NN; ++i)
                 {
-                    if(sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]].Count == 1)
+                    if (sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]].Count == 1)
                         possibleValuesPerBox[box].Remove(sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]][0]);
                 }
             }
 
             // Now we give each square one of its possibilities as value 
+            fixiated = new bool[NN * NN];
             sudokuValues = new int[NN * NN];
             for(int i = 0; i < NN * NN; ++i)
             {
                 if(sudoku[i].Count == 1)
+                {
                     sudokuValues[i] = sudoku[i][0];
+                    fixiated[i] = true;
+                }
                 else
                 {
                     int box = sudokuIndexHelper.indexToX(i) / N + N * (sudokuIndexHelper.indexToY(i) / N);
@@ -67,7 +74,10 @@ namespace Superdoku
         {
             // Copy all values
             n = other.N;
-            for(int i = 0; i < NN; ++i)
+            sudokuValues = new int[NN * NN];
+            fixiated = other.fixiated;
+
+            for(int i = 0; i < NN*NN; ++i)
                 sudokuValues[i] = other[i];
             heuristicValue = other.heuristicValue;
         }
@@ -149,9 +159,9 @@ namespace Superdoku
                         row1.Remove(sudokuValues[i + y1 * NN]);
 
                     if(i + y2 * NN == index2)
-                        row1.Remove(sudokuValues[index1]);
+                        row2.Remove(sudokuValues[index1]);
                     else
-                        row1.Remove(sudokuValues[i + y2 * NN]);
+                        row2.Remove(sudokuValues[i + y2 * NN]);
                 }
 
                 // Calculate the change in score
@@ -182,9 +192,9 @@ namespace Superdoku
                         col1.Remove(sudokuValues[x1 + i * NN]);
 
                     if(x2 + i * NN == index2)
-                        col1.Remove(sudokuValues[index1]);
+                        col2.Remove(sudokuValues[index1]);
                     else
-                        col1.Remove(sudokuValues[x2 + i * NN]);
+                        col2.Remove(sudokuValues[x2 + i * NN]);
                 }
 
                 // Calculate the change in score
@@ -214,10 +224,16 @@ namespace Superdoku
         public Sudoku toSudoku()
         {
             Sudoku sudoku = new Sudoku(N);
-            for(int i = 0; i < NN; ++i)
-                sudoku[i] = new List<int>(sudokuValues[i]);
+            for(int i = 0; i < NN * NN; ++i)
+                sudoku[i] = new List<int>(new int[] { sudokuValues[i] });
             return sudoku;
         }
+
+        /// <summary>Returns whether or not a certain square is fixed.</summary>
+        /// <param name="index">The square that is to be checked.</param>
+        /// <returns>True if the square is fixed, false otherwise</returns>
+        public bool isFixed(int index)
+        { return fixiated[index]; }
 
         /// <summary>The index operator to access the values in the squares.</summary>
         /// <param name="index">The index of the square whose value you want to retrieve.</param>
@@ -237,6 +253,10 @@ namespace Superdoku
             get { return sudokuValues[x + y * NN]; }
             set { sudokuValues[x + y * NN] = value; }
         }
+        
+        /// <summary>Returns wheter an index is fixed or not</summary>
+        public bool[] Fixed
+        { get { return fixiated; } }
 
         /// <summary>The size of the sudoku (n*n by n*n squares).</summary>
         public int N
@@ -334,7 +354,7 @@ namespace Superdoku
         }
 
         //Retuns a heuristic value based on how many constrains were crossed
-        private void setH()
+        public void setH()
         {
             int result = 0;
 
@@ -376,8 +396,9 @@ namespace Superdoku
             int secondConstraints = calculateBrothers(a) + calculateBrothers(b);
 
             //Update the heuristic value
-            //heuristicValue = heuristicValue + (secondConstraints - firstConstraints);
-            this.setH();
+            //why doesn't it woooork
+            heuristicValue = heuristicValue + (secondConstraints - firstConstraints);
+       
         }
 
         //returns a string
