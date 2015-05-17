@@ -6,98 +6,63 @@ using System.Threading.Tasks;
 
 namespace Superdoku
 {
+    /// <summary>This class implements the tabu search technique.</summary>
     class TabuSearcher : LocalSearcher
     {
-        //TODO: MAKE TABULIST WAAAY FASTER
-        private const int TABULENGTH = 50;
-        private int pointer;
-        private SwapNeighbor[] tabuList;
+        /// <summary>Constructor.</summary>
+        /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
+        public TabuSearcher(int maxIterations = -1)
+            : base(maxIterations) { }
 
-        //Just for now
-        private int iterations;
-        private int round;
+        /// <summary>Calculates the length of the tabu list for a sudoku of the given size.</summary>
+        /// <param name="n">The size of the sudoku (n*n by n*n squares).</param>
+        /// <returns>The size of the tabu list for a sudoku of the given size.</returns>
+        public int tabuListLength(int n)
+        {
+            return n * n * n * n;
+        }
 
-        public TabuSearcher()
-        { 
-            tabuList = new SwapNeighbor[TABULENGTH];
-            pointer = 0;
-            round = 0;
+        public override bool solve(LocalSudoku sudoku)
+        {
+            // The tabu list
+            int tabuListSize = tabuListLength(sudoku.N);
+            HashSet<SwapNeighbor> tabuList = new HashSet<SwapNeighbor>();
+            Queue<SwapNeighbor> tabuQueue = new Queue<SwapNeighbor>(tabuListSize);
+
+            // Reset the iterations
             iterations = 0;
-        }
 
-        /// <summary>Solves the sudoku using Tabu Search </summary>
-        /// <param name="sudoku">The sudoku</param>
-        /// <returns>A solved sudoku</returns>
-        public override Sudoku solve(Sudoku sudoku)
-        {
-            LocalSudoku toSolve = new LocalSudoku(sudoku);
-            SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
-        
-            while (toSolve.HeuristicValue > 0)
-                toSolve = iterate(toSolve);
-
-            return toSolve.toSudoku();
-        }
-
-
-        protected LocalSudoku iterate(LocalSudoku sudoku)
-        {
-            int value = sudoku.HeuristicValue;
-            LocalSudoku result = sudoku;
-            List<SwapNeighbor> neighbors = this.generateNeighbors(sudoku);
-            SwapNeighbor last = null;
-
-            round++;
-            if(round > 1000)
+            // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
+            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
             {
-                round = 0;
-                iterations++;
-            }
+                // Increase the iteration counter
+                ++iterations;
 
-            foreach (SwapNeighbor neighbor in neighbors)
-            {
-                //Dit kan sneller!
-                if (!tabuList.Contains(neighbor))
-                   
+                // Find the best neighbor that is not on the tabu list
+                List<SwapNeighbor> neighbors = generateNeighbors(sudoku);
+                SwapNeighbor bestNeighbor = null;
+                foreach(SwapNeighbor neighbor in neighbors)
                 {
-                    if(neighbor.ScoreDelta < 0)
+                    if(!tabuList.Contains(neighbor))
                     {
-                        result = new LocalSudoku(sudoku);
-                        result.swap(neighbor.Square1, neighbor.Square2);
-                        tabuList[pointer] = neighbor;
-                        if (pointer + 1 >= TABULENGTH)
-                            pointer = 0;
-                        else pointer++;
-                        return result;
+                        if(bestNeighbor == null || neighbor.ScoreDelta < bestNeighbor.ScoreDelta)
+                            bestNeighbor = neighbor;
                     }
-                    if (neighbor.ScoreDelta == 0)
-                    {
-                        result = new LocalSudoku(sudoku);
-                        result.swap(neighbor.Square1, neighbor.Square2);
-                        last = neighbor;
-                    }
-
-                    if (last == null)
-                        last = neighbor;
                 }
+
+                // If no neighbor can be found, we stop the search process
+                if(bestNeighbor == null)
+                    return false;
+
+                // Otherwise we apply the neighbor and add it to the tabu list
+                sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
+                if(tabuQueue.Count == tabuListSize)
+                    tabuList.Remove(tabuQueue.Dequeue());
+                tabuList.Add(bestNeighbor);
+                tabuQueue.Enqueue(bestNeighbor);
             }
 
-            if (last != null)
-            {
-                tabuList[pointer] = last;
-                if (pointer + 1 >= TABULENGTH)
-                    pointer = 0;
-                else
-                    pointer++;
-                result = new LocalSudoku(sudoku);
-                result.swap(last.Square1, last.Square2);
-
-            }
-
-            //SANITYCHECK
-            if (last == null)
-                return null;
-            return result;
+            return true;
         }
     }
 }

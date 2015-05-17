@@ -11,17 +11,14 @@ namespace Superdoku
         static void Main(string[] args)
         {
             // Read the sudoku
-            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/4x4.txt", 2);
+            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
             Console.WriteLine("Original sudoku:");
             printSudoku(sudoku);
             Console.WriteLine();
 
             // Solve the sudoku using depth-first search
-            LocalSearcher searchMachine = new IterativeSearcher();
+            LocalSearcher searchMachine = new TabuSearcher();
             Sudoku solution = searchMachine.solve(sudoku); 
-            /* SimulatedAnnealer searcher = new SimulatedAnnealer();
-            Sudoku solution = searcher.solve(sudoku); */
-           // Sudoku solution = DepthFirstSearch.search(sudokuConstraintsHelper.Sudoku);
             if (solution == null)
             {
                 Console.WriteLine("This sudoku seems to be impossible to solve...");

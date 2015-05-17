@@ -42,12 +42,16 @@ namespace Superdoku
         
         public bool Equals(SwapNeighbor other)
         {
-            return square1 == other.square1 && square2 == other.square2 && scoreDelta == other.scoreDelta;
+            // Two SwapNeighbor instances are equal if they swap the same squares
+            // So we ignore the scoreDelta on purpose
+            return (square1 == other.square1 && square2 == other.square2) || (square1 == other.square2 && square2 == other.square1);
         }
 
         public override int GetHashCode()
         {
-            return square1 * 1000000 + scoreDelta * 10000 + square2;
+            if(square1 < square2)
+                return square1 * 1000000 + square2;
+            return square2 * 1000000 + square1;
         }
 
         public static bool equal(SwapNeighbor a, SwapNeighbor b)

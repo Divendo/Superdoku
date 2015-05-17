@@ -8,10 +8,38 @@ namespace Superdoku
 {
     abstract class LocalSearcher
     {
+        /// <summary>The maximum amount of iterations the searcher should perform (negative value for unlimited).</summary>
+        protected int maxIterations;
+
+        /// <summary>The amount of iterations performed in the last run.</summary>
+        protected int iterations;
+        
+        /// <summary>Constructor.</summary>
+        /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
+        public LocalSearcher(int maxIterations = -1)
+        {
+            this.maxIterations = maxIterations;
+        }
+
+        /// <summary>The amount of iterations performed in the last run.</summary>
+        public int Iterations
+        { get { return iterations; } }
+
         /// <summary>Tries to solve the sudoku using local search.</summary>
         /// <param name="sudoku">The sudoku that should be solved.</param>
         /// <returns>The solved sudoku, or null if no solution could be found.</returns>
-        abstract public Sudoku solve(Sudoku sudoku);
+        public Sudoku solve(Sudoku sudoku)
+        {
+            LocalSudoku localSudoku = new LocalSudoku(sudoku);
+            if(solve(localSudoku))
+                return localSudoku.toSudoku();
+            return null;
+        }
+
+        /// <summary>Tries to solve the sudoku using local search.</summary>
+        /// <param name="sudoku">The sudoku that should be solved.</param>
+        /// <returns>True if a solution could be found, false otherwise.</returns>
+        abstract public bool solve(LocalSudoku sudoku);
         
         /// <summary>Returns wheter two tuples are equal.</summary>
         /// <param name="a">The First tuple.</param>

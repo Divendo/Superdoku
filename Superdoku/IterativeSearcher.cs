@@ -9,16 +9,24 @@ namespace Superdoku
     /// <summary>This class implements the hillclimbing technique.</summary>
     class IterativeSearcher : LocalSearcher
     {
-        public override Sudoku solve(Sudoku sudoku)
-        {
-            // Create a LocalSudoku that can be used to perform local search on
-            LocalSudoku toSolve = new LocalSudoku(sudoku);
+        /// <summary>Constructor.</summary>
+        /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
+        public IterativeSearcher(int maxIterations = -1)
+            : base(maxIterations) { }
 
-            // Keep running while the sudoku has not been solved yet
-            while(toSolve.HeuristicValue > 0)
+        public override bool solve(LocalSudoku sudoku)
+        {
+            // Reset the iterations
+            iterations = 0;
+
+            // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
+            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
             {
+                // Increase the iteration counter
+                ++iterations;
+
                 // Search for the best neighbor
-                List<SwapNeighbor> neighbors = generateNeighbors(toSolve);
+                List<SwapNeighbor> neighbors = generateNeighbors(sudoku);
                 SwapNeighbor bestNeighbor = null;
                 foreach(SwapNeighbor neighbor in neighbors)
                 {
@@ -32,12 +40,11 @@ namespace Superdoku
 
                 // If we have found a neighbor, apply it otherwise we return null
                 if(bestNeighbor != null)
-                    toSolve.swap(bestNeighbor.Square1, bestNeighbor.Square2);
-                return null;
+                    sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
+                return false;
             }
 
-            // If we have come here, we have solved the sudoku
-            return toSolve.toSudoku();
+            return sudoku.HeuristicValue == 0;
         }
     }
 }

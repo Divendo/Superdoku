@@ -6,84 +6,99 @@ using System.Threading.Tasks;
 
 namespace Superdoku
 {
+    /// <summary>This class implements the simulated annealing technique.</summary>
     class SimulatedAnnealer : LocalSearcher
     {
-        private double C = 2.0;
+        /// <summary>The factor with which we decrease the parameter c in the search progress.</summary>
         private const double  alpha = 0.97;
 
+        /// <summary>Constructor.</summary>
+        /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
+        public SimulatedAnnealer(int maxIterations = -1)
+            : base(maxIterations) { }
 
-        public SimulatedAnnealer()
-        { }
-
-
-        /// <summary>Solves the sudoku using simulated annealing</summary>
-        /// <param name="sudoku">The sudoku</param>
-        /// <returns>A solved sudoku</returns>
-        public override Sudoku solve(Sudoku sudoku)
+        public override bool solve(LocalSudoku sudoku)
         {
-            LocalSudoku toSolve = new LocalSudoku(sudoku);
-            SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
-
-            //return toSolve.toSudoku();
-            while (toSolve.HeuristicValue > 0)
-                toSolve = iterate(toSolve);
-
-            return toSolve.toSudoku();
-        }
-
-
-        protected LocalSudoku iterate(LocalSudoku sudoku)
-        {
-            SwapNeighbor sample = this.generateNeighbor(sudoku);
-            LocalSudoku result;
-            C += alpha;
-
-            if (sample == null)
-                return sudoku;
-
-            //If the sample is better, adopt it
-            if (sample.ScoreDelta < 0)
-            {
-                result = new LocalSudoku(sudoku);
-                sudoku.swap(sample.Square1, sample.Square2);
-                return result;
-            }
-
-
-            //Else determine wheter you adopt it.
-            double chance = Math.Exp(-((double)(sample.ScoreDelta)) / C);
-            int length = (int) (1f / chance);
-            bool[] boolBag = new bool[length];
-            boolBag[0] = true;
-
+            // We will need a random generator
             Random random = new Random();
-            int index = random.Next(0, boolBag.Length);
 
-            if(boolBag[index])
+            // Parameter to decrease the chances of accepting neighbor that does not improve the sudoku
+            double c = 2.0;
+
+            // Reset the iterations
+            iterations = 0;
+
+            // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
+            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
             {
-                result = new LocalSudoku(sudoku);
-                sudoku.swap(sample.Square1, sample.Square2);
-                return result;
+                // Increase the iteration counter
+                ++iterations;
+
+                // Randomly generate a neighbor
+                SwapNeighbor neighbor = generateNeighbor(sudoku);
+                if(neighbor == null)
+                    return false;
+
+                // Decrease the value of c
+                c *= alpha;
+
+                // If the sample is better, adopt it
+                if(neighbor.ScoreDelta < 0)
+                    sudoku.swap(neighbor.Square1, neighbor.Square2);
+                // Else we adopt it with a given chance
+                else if(random.NextDouble() < Math.Exp(-neighbor.ScoreDelta / c))
+                    sudoku.swap(neighbor.Square1, neighbor.Square2);
             }
 
-            else return sudoku;
-
-            
+            return sudoku.HeuristicValue == 0;
         }
 
+        /// <summary>Randomly generates a neighbor for the given sudoku.</summary>
+        /// <param name="sudoku">The sudoku to generate a neighbor for.</param>
+        /// <returns>The generated neighbor, or null if no neighbor could be generated.</returns>
         private SwapNeighbor generateNeighbor(LocalSudoku sudoku)
         {
-            /*Random random = new Random();
-            int square = random.Next(0, sudoku.NN);
+            Random random = new Random();
             SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
 
-            //int first = random.Next(0, helper.Squares[square].Count());
-            //int second = random.Next(0, helper.Squares[square].Count());
+            // Pick a random box 
+            int box = random.Next(0, sudoku.NN);
+            
+            List<int> squares = null;
+            int currBox = box;
+            do
+            {
+                // Make a list of all squares that can be swapped within this box
+                int[,] units = helper.getUnitsFor(sudoku.N * (box % sudoku.N), sudoku.N * (box / sudoku.N));
+                squares = new List<int>(units.GetLength(1));
+                for(int square = 0; square < units.GetLength(1); ++square)
+                {
+                    if(!sudoku.isFixed(units[SudokuIndexHelper.UNIT_BOX_INDEX, square]))
+                        squares.Add(units[SudokuIndexHelper.UNIT_BOX_INDEX, square]);
+                }
 
-            if (first != second && !sudoku.Fixed[first] && !sudoku.Fixed[second])
-                return new SwapNeighbor(sudoku, first, second);
-            else*/
+                // Check if we have enough options
+                if(squares.Count >= 2)
+                    break;
+
+                // We do not have enough options, so we try the next box
+                if(++currBox >= sudoku.NN)
+                    currBox -= sudoku.NN;
+                squares = null;
+            } while(currBox != box);
+
+            // We may not have succeeded in finding two squares to swap
+            if(squares == null)
                 return null;
+
+            // Randomly pick two squares
+            int square1 = random.Next(0, squares.Count);
+            int square2 = random.Next(0, squares.Count - 1);
+            if(square2 >= square1)
+                ++square2;
+
+            // Return the neighbor
+            return new SwapNeighbor(squares[square1], squares[square2], sudoku.heuristicDelta(squares[square1], squares[square2]));
         }
     }
 }
