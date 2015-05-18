@@ -12,7 +12,7 @@ namespace Superdoku
         static void Main(string[] args)
         {
             // Read the sudoku
-            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
+            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/16x16.txt", 4);
             Console.WriteLine("Original sudoku:");
             printSudoku(sudoku);
             Console.WriteLine();
@@ -50,11 +50,12 @@ namespace Superdoku
         {
             // We will solve the sudoku using depth-first search and different constraint strategies
             Dictionary<string, ConstraintsHelperFactory> constraintFactories = new Dictionary<string, ConstraintsHelperFactory>();
-            constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
-            constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
-            constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
+            //constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
+            //constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
+            //constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
             constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
-            constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
+            constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
+            //constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
 
             // We will want to measure the performance of each strategy
             foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)

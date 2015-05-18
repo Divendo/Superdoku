@@ -42,7 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConstraintsHelper.cs" />
+    <Compile Include="ConstraintsHelperExt.cs" />
+    <Compile Include="ConstraintsHelperExt_Strategy.cs" />
     <Compile Include="ConstraintsHelper_AC3_squares.cs" />
+    <Compile Include="ConstraintsHelper_MAC.cs" />
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="IterativeSearcher.cs" />
     <Compile Include="LocalSearcher.cs" />
