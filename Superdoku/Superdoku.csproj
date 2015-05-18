@@ -44,12 +44,14 @@
     <Compile Include="ConstraintsHelper.cs" />
     <Compile Include="ConstraintsHelper_AC3_squares.cs" />
     <Compile Include="DepthFirstSearch.cs" />
-    <Compile Include="IterativeSearcher.cs" />
-    <Compile Include="LocalSearcher.cs" />
+    <Compile Include="LocalSearchers\IterativeSearcher.cs" />
+    <Compile Include="LocalSearchers\LocalSearcher.cs" />
     <Compile Include="LocalSudoku.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimulatedAnnealer.cs" />
+    <Compile Include="LocalSearchers\RandomRestartSearcher.cs" />
+    <Compile Include="LocalSearchers\SimulatedAnnealer.cs" />
+    <Compile Include="LocalSearchers\SteepRandomHillclimbSolver.cs" />
     <Compile Include="Sudoku.cs" />
     <Compile Include="SudokuNotPossibleException.cs" />
     <Compile Include="ConstraintsHelper_AC1.cs" />
@@ -57,7 +59,7 @@
     <Compile Include="ConstraintsHelper_Recursive.cs" />
     <Compile Include="SudokuReader.cs" />
     <Compile Include="SwapNeighbor.cs" />
-    <Compile Include="TabuSearcher.cs" />
+    <Compile Include="LocalSearchers\TabuSearcher.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

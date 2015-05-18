@@ -14,12 +14,13 @@ namespace Superdoku
         public TabuSearcher(int maxIterations = -1)
             : base(maxIterations) { }
 
+
         /// <summary>Calculates the length of the tabu list for a sudoku of the given size.</summary>
         /// <param name="n">The size of the sudoku (n*n by n*n squares).</param>
         /// <returns>The size of the tabu list for a sudoku of the given size.</returns>
         public int tabuListLength(int n)
         {
-            return n * n * n * n;
+            return n * n * n ;
         }
 
         public override bool solve(LocalSudoku sudoku)
@@ -61,7 +62,7 @@ namespace Superdoku
                 tabuList.Add(bestNeighbor);
                 tabuQueue.Enqueue(bestNeighbor);
             }
-
+            solution = sudoku;
             return true;
         }
     }

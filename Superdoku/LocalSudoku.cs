@@ -50,6 +50,8 @@ namespace Superdoku
             // Now we give each square one of its possibilities as value 
             fixiated = new bool[NN * NN];
             sudokuValues = new int[NN * NN];
+            Random random = new Random();
+
             for(int i = 0; i < NN * NN; ++i)
             {
                 if(sudoku[i].Count == 1)
@@ -60,8 +62,9 @@ namespace Superdoku
                 else
                 {
                     int box = sudokuIndexHelper.indexToX(i) / N + N * (sudokuIndexHelper.indexToY(i) / N);
-                    sudokuValues[i] = possibleValuesPerBox[box][0];
-                    possibleValuesPerBox[box].RemoveAt(0);
+                    int index = random.Next(0, possibleValuesPerBox[box].Count());
+                    sudokuValues[i] = possibleValuesPerBox[box][index];
+                    possibleValuesPerBox[box].RemoveAt(index);
                 }
             }
 

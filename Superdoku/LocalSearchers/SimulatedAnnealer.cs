@@ -49,56 +49,9 @@ namespace Superdoku
                 else if(random.NextDouble() < Math.Exp(-neighbor.ScoreDelta / c))
                     sudoku.swap(neighbor.Square1, neighbor.Square2);
             }
-
+            solution = sudoku;
             return sudoku.HeuristicValue == 0;
         }
 
-        /// <summary>Randomly generates a neighbor for the given sudoku.</summary>
-        /// <param name="sudoku">The sudoku to generate a neighbor for.</param>
-        /// <returns>The generated neighbor, or null if no neighbor could be generated.</returns>
-        private SwapNeighbor generateNeighbor(LocalSudoku sudoku)
-        {
-            Random random = new Random();
-            SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
-
-            // Pick a random box 
-            int box = random.Next(0, sudoku.NN);
-            
-            List<int> squares = null;
-            int currBox = box;
-            do
-            {
-                // Make a list of all squares that can be swapped within this box
-                int[,] units = helper.getUnitsFor(sudoku.N * (box % sudoku.N), sudoku.N * (box / sudoku.N));
-                squares = new List<int>(units.GetLength(1));
-                for(int square = 0; square < units.GetLength(1); ++square)
-                {
-                    if(!sudoku.isFixed(units[SudokuIndexHelper.UNIT_BOX_INDEX, square]))
-                        squares.Add(units[SudokuIndexHelper.UNIT_BOX_INDEX, square]);
-                }
-
-                // Check if we have enough options
-                if(squares.Count >= 2)
-                    break;
-
-                // We do not have enough options, so we try the next box
-                if(++currBox >= sudoku.NN)
-                    currBox -= sudoku.NN;
-                squares = null;
-            } while(currBox != box);
-
-            // We may not have succeeded in finding two squares to swap
-            if(squares == null)
-                return null;
-
-            // Randomly pick two squares
-            int square1 = random.Next(0, squares.Count);
-            int square2 = random.Next(0, squares.Count - 1);
-            if(square2 >= square1)
-                ++square2;
-
-            // Return the neighbor
-            return new SwapNeighbor(squares[square1], squares[square2], sudoku.heuristicDelta(squares[square1], squares[square2]));
-        }
     }
 }

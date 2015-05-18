@@ -18,8 +18,9 @@ namespace Superdoku
             Console.WriteLine();
 
             // Test our code
-            testDepthFirstSearch(sudoku);
-
+            //testDepthFirstSearch(sudoku);
+            //waarom doet ivor het niet in mijn methode :'(
+            testLocalSearch(sudoku);
             // Wait for the user
             Console.WriteLine("Press <enter> to quit.");
             Console.ReadLine();
@@ -29,7 +30,11 @@ namespace Superdoku
         {
             // Solve the sudoku using local search
             LocalSearcher searchMachine = new TabuSearcher();
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             Sudoku solution = searchMachine.solve(sudoku);
+            watch.Stop();
+            long cleantime = watch.ElapsedMilliseconds;
             if(solution == null)
             {
                 Console.WriteLine("The local searcher was not able to solve this sudoku...");
@@ -38,6 +43,7 @@ namespace Superdoku
             {
                 Console.WriteLine("The solution after local search:");
                 printSudoku(solution);
+                Console.WriteLine("time elapsed: " + cleantime.ToString() + "ms");
             }
             else
             {
