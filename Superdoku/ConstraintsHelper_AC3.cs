@@ -15,7 +15,7 @@ namespace Superdoku
         public override bool assign(int index, int value)
         {
             sudoku[index] = new List<int>(new int[] { value });
-            return apply(sudoku);
+            return apply(sudoku, index);
         }
 
         public override bool clean()
@@ -25,25 +25,43 @@ namespace Superdoku
 
         /// <summary>Runs the algorithm on the Sudoku.</summary>
         /// <param name="sudoku">The sudoku to run the algorithm on.</param>
+        /// <param name="changedSquare">The square that has been changed, or -1 if all squares should be added to the queue.</param>
         /// <returns>True if successful, false otherwise (e.g. in case a contradiction is reached).</returns>
-        public static bool apply(Sudoku sudoku)
+        public static bool apply(Sudoku sudoku, int changedSquare = -1)
         {
+            // Nothing to do if changedSquare is set and it has more than 1 possibility left
+            if(changedSquare != -1 && sudoku[changedSquare].Count != 1)
+                return true;
+
             // We will need an index helper
             SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudoku.N);
 
             // Keep track of the constraints we still need to check
             HashSet<Constraint> toCheck = new HashSet<Constraint>();
             Queue<Constraint> toCheckQueue = new Queue<Constraint>(sudoku.NN * sudoku.NN * 2);
-            
-            // Add all constraints to the queue
-            for(int square = 0; square < sudoku.NN * sudoku.NN; ++square)
+
+            // Add the constraints to the queue
+            if(changedSquare != -1)
             {
-                int[] peers = sudokuIndexHelper.getPeersFor(square);
+                int[] peers = sudokuIndexHelper.getPeersFor(changedSquare);
                 for(int peer = 0; peer < peers.Length; ++peer)
                 {
-                    Constraint constraint = new Constraint(square, peers[peer], sudoku.N);
+                    Constraint constraint = new Constraint(peers[peer], changedSquare, sudoku.N);
                     toCheck.Add(constraint);
                     toCheckQueue.Enqueue(constraint);
+                }
+            }
+            else
+            {
+                for(int square = 0; square < sudoku.NN * sudoku.NN; ++square)
+                {
+                    int[] peers = sudokuIndexHelper.getPeersFor(square);
+                    for(int peer = 0; peer < peers.Length; ++peer)
+                    {
+                        Constraint constraint = new Constraint(square, peers[peer], sudoku.N);
+                        toCheck.Add(constraint);
+                        toCheckQueue.Enqueue(constraint);
+                    }
                 }
             }
 

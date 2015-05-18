@@ -18,7 +18,7 @@ namespace Superdoku
         public override bool assign(int index, int value)
         {
             sudoku[index] = new List<int>(new int[] { value });
-            return apply(sudoku);
+            return apply(sudoku, index);
         }
 
         public override bool clean()
@@ -28,9 +28,14 @@ namespace Superdoku
 
         /// <summary>Runs the algorithm on the Sudoku.</summary>
         /// <param name="sudoku">The sudoku to run the algorithm on.</param>
+        /// <param name="changedSquare">The square that has been changed, or -1 if all squares should be added to the queue.</param>
         /// <returns>True if successful, false otherwise (e.g. in case a contradiction is reached).</returns>
-        public static bool apply(Sudoku sudoku)
+        public static bool apply(Sudoku sudoku, int changedSquare = -1)
         {
+            // Nothing to do if changedSquare is set and it has more than 1 possibility left
+            if(changedSquare != -1 && sudoku[changedSquare].Count != 1)
+                return true;
+
             // We will need an index helper
             SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudoku.N);
 
@@ -39,10 +44,22 @@ namespace Superdoku
             Queue<int> toCheckQueue = new Queue<int>(sudoku.NN * sudoku.NN);
 
             // Add all squares to the queue
-            for(int square = 0; square < sudoku.NN * sudoku.NN; ++square)
+            if(changedSquare != -1)
             {
-                toCheck[square] = true;
-                toCheckQueue.Enqueue(square);
+                int[] peers = sudokuIndexHelper.getPeersFor(changedSquare);
+                for(int peer = 0; peer < peers.Length; ++peer)
+                {
+                    toCheck[peers[peer]] = true;
+                    toCheckQueue.Enqueue(peers[peer]);
+                }
+            }
+            else
+            {
+                for(int square = 0; square < sudoku.NN * sudoku.NN; ++square)
+                {
+                    toCheck[square] = true;
+                    toCheckQueue.Enqueue(square);
+                }
             }
 
             // Keep running while there are still squares in the queue
