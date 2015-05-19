@@ -49,5 +49,18 @@ namespace Superdoku
         {
             return readFromString(File.ReadAllText(filename), n);
         }
+
+        /// <summary>Reads multiple sudokus from a file, one on each line.</summary>
+        /// <param name="filename">The file to read the sudoku from.</param>
+        /// <param name="n">The size of the sudoku (n*n by n*n squares).</param>
+        /// <returns>The parsed sudoku</returns>
+        public static Sudoku[] readFromFileLines(string filename, int n)
+        {
+            string[] lines = File.ReadAllText(filename).Split(new char[] { '\n' });
+            Sudoku[] sudokus = new Sudoku[lines.Length];
+            for(int i = 0; i < lines.Length; ++i)
+                sudokus[i] = readFromString(lines[i], n);
+            return sudokus;
+        }
     }
 }

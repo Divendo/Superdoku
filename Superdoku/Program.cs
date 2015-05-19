@@ -11,14 +11,30 @@ namespace Superdoku
     {
         static void Main(string[] args)
         {
-            // Read the sudoku
-            Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/16x16.txt", 4);
-            Console.WriteLine("Original sudoku:");
-            printSudoku(sudoku);
-            Console.WriteLine();
+            // Whether or not to test a whole list of sudokus
+            bool testMultipleSudokus = true;
+            
+            // Read and test the sudokus
+            if(testMultipleSudokus)
+            {
+                // Read the sudokus
+                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/norvig-95-9x9.txt", 3);
+                Console.WriteLine("{0} sudokus imported.", sudokus.Length);
 
-            // Test our code
-            testDepthFirstSearch(sudoku);
+                // Test our code
+                testDepthFirstSearch(sudokus);
+            }
+            else
+            {
+                // Read the sudoku
+                Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/16x16.txt", 4);
+                Console.WriteLine("Original sudoku:");
+                printSudoku(sudoku);
+                Console.WriteLine();
+
+                // Test our code
+                testDepthFirstSearch(sudoku);
+            }
 
             // Wait for the user
             Console.WriteLine("Press <enter> to quit.");
@@ -46,6 +62,11 @@ namespace Superdoku
             }
         }
         
+        static void testLocalSearch(Sudoku[] sudokus)
+        {
+            throw new NotImplementedException();
+        }
+
         static void testDepthFirstSearch(Sudoku sudoku)
         {
             // We will solve the sudoku using depth-first search and different constraint strategies
@@ -101,6 +122,138 @@ namespace Superdoku
                     Console.WriteLine("Exception: " + exc.Message);
                 }
                 Console.WriteLine();
+            }
+        }
+
+        static void testDepthFirstSearch(Sudoku[] sudokus)
+        {
+            // We will solve the sudoku using depth-first search and different constraint strategies
+            Dictionary<string, ConstraintsHelperFactory> constraintFactories = new Dictionary<string, ConstraintsHelperFactory>();
+            //constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
+            //constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
+            //constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
+            constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
+            constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
+            //constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
+
+            // Things we are going to measure
+            Dictionary<string, long[]> cleanTimes = new Dictionary<string, long[]>();
+            Dictionary<string, bool[]> cleaned = new Dictionary<string, bool[]>();
+            Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
+            Dictionary<string, bool[]> solved = new Dictionary<string, bool[]>();
+
+            // Initialise the measure dictionaries
+            foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)
+            {
+                cleanTimes.Add(entry.Key, new long[sudokus.Length]);
+                cleaned.Add(entry.Key, new bool[sudokus.Length]);
+                solveTimes.Add(entry.Key, new long[sudokus.Length]);
+                solved.Add(entry.Key, new bool[sudokus.Length]);
+            }
+
+            // Measure the performance on each sudoku
+            for(int i = 0; i < sudokus.Length; ++i)
+            {
+                // Show which sudoku we are solving
+                Console.WriteLine("Solving sudoku " + i.ToString());
+
+                // We will want to measure the performance of each strategy
+                foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)
+                {
+                    // Initialise the necessary objects
+                    DepthFirstSearch depthFirstSearch = new DepthFirstSearch(entry.Value);
+                    Sudoku copy = new Sudoku(sudokus[i]);
+                    Stopwatch stopWatch = new Stopwatch();
+
+                    // Measure the time it takes to clean the sudoku
+                    stopWatch.Start();
+                    bool isCleaned = depthFirstSearch.clean(copy);
+                    stopWatch.Stop();
+                    long cleanTime = stopWatch.ElapsedMilliseconds;
+                    stopWatch.Reset();
+
+                    // Recored the measurements
+                    cleaned[entry.Key][i] = isCleaned;
+                    cleanTimes[entry.Key][i] = cleanTime;
+
+                    // Stop if the sudoku could not be cleaned
+                    if(!isCleaned)
+                    {
+                        Console.WriteLine("Algorithm '" + entry.Key + "' failed to clean the sudoku.");
+                        continue;
+                    }
+
+                    // Measure the time it takes to solve the sudoku
+                    try
+                    {
+                        stopWatch.Start();
+                        Sudoku solvedSudoku = depthFirstSearch.search(copy);
+                        stopWatch.Stop();
+                        long searchTime = stopWatch.ElapsedMilliseconds;
+                        stopWatch.Reset();
+
+                        // Recored the measurements
+                        solveTimes[entry.Key][i] = searchTime;
+                        if(solvedSudoku == null)
+                        {
+                            solved[entry.Key][i] = false;
+                            Console.WriteLine("Algorithm '" + entry.Key + "' failed to solve the sudoku.");
+                        }
+                        else if(!solvedSudoku.isSolved())
+                        {
+                            solved[entry.Key][i] = false;
+                            Console.WriteLine("Algorithm '" + entry.Key + "' appeared to have solved the sudoku, but failed.");
+                        }
+                        else
+                        {
+                            solved[entry.Key][i] = true;
+                            Console.WriteLine("Algorithm '" + entry.Key + "' solved the sudoku.");
+                        }
+                    }
+                    catch(Exception exc)
+                    {
+                        Console.WriteLine("Algorithm '" + entry.Key + "' threw exception: " + exc.Message);
+                    }
+                }
+
+                // Newline
+                Console.WriteLine();
+            }
+
+            // Calculate and show the stats
+            Console.WriteLine("Results (from {0} sudokus):", sudokus.Length);
+            Console.WriteLine("--------------------");
+            foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)
+            {
+                // First we calculate the stats
+                long cleanTimeSum = 0;
+                long solveTimeSum = 0;
+                long wholeTimeSum = 0;
+                int cleanCount = 0;
+                int solveCount = 0;
+                for(int i = 0; i < sudokus.Length; ++i)
+                {
+                    // We only count cleaned and solved sudokus
+                    if(cleaned[entry.Key][i])
+                    {
+                        ++cleanCount;
+                        cleanTimeSum += cleanTimes[entry.Key][i];
+
+                        if(solved[entry.Key][i])
+                        {
+                            ++solveCount;
+                            solveTimeSum += solveTimes[entry.Key][i];
+                            wholeTimeSum += cleanTimes[entry.Key][i] + solveTimes[entry.Key][i];
+                        }
+                    }
+                }
+
+                // Then we show them
+                Console.WriteLine("Algorithm '" + entry.Key + "' solved {0} sudokus (cleaned {1}).", solveCount, cleanCount);
+                Console.WriteLine("Cleaning:\ttotal: {0}ms\tmean: {1}ms", cleanTimeSum, ((double)cleanTimeSum) / cleanCount);
+                Console.WriteLine("Solving:\ttotal: {0}ms\tmean: {1}ms", solveTimeSum, ((double)solveTimeSum) / solveCount);
+                Console.WriteLine("Total:\t\ttotal: {0}ms\tmean: {1}ms", wholeTimeSum, ((double)wholeTimeSum) / solveCount);
+                Console.WriteLine("--------------------");
             }
         }
 
