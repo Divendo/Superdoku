@@ -99,6 +99,36 @@ namespace Superdoku
             return true;
         }
 
+        /// <summary>Checks if the sudoku is still consistent. That is: no squares without any possibilities and no two squares with the same single possibility in one unit.</summary>
+        /// <returns>True if the sudoku is consistent, false otherwise.</returns>
+        public bool isConsistent()
+        {
+            // We need a sudoku index helper
+            SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(n);
+
+            // Loop through all squares
+            for(int square = 0; square < NN * NN; ++square)
+            {
+                // Check for empty squares
+                if(values[square].Count == 0)
+                    return false;
+
+                // If this square has a single possibility, check its peers for another square with that single possibility
+                if(values[square].Count == 1)
+                {
+                    int[] peers = sudokuIndexHelper.getPeersFor(square);
+                    for(int peer = 0; peer < peers.Length; ++peer)
+                    {
+                        if(values[peers[peer]].Count == 1 && values[peers[peer]] == values[square])
+                            return false;
+                    }
+                }
+            }
+
+            // If we have come here all squares have been checked and no inconsistencies have been found
+            return true;
+        }
+
         /// <summary>The index operator to access the values in the squares.</summary>
         /// <param name="index">The index of the square whose values you want to retrieve.</param>
         /// <returns>A list of possible values for the given square.</returns>

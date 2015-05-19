@@ -147,11 +147,17 @@ namespace Superdoku
                 if(count == 0)
                     return false;
 
-                // If the value occurs only once, we apply the strategy
+                // If the value occurs only once, we apply the strategy (using eliminate, not assign)
                 if(count == 1)
                 {
-                    if(!constraintsHelper.assign(occurredAtIndex, removedValue))
-                        return false;
+                    List<int> toEliminate = new List<int>(constraintsHelper.Sudoku[occurredAtIndex]);
+                    toEliminate.Remove(removedValue);
+
+                    for(int eliminateMe = 0; eliminateMe < toEliminate.Count; ++eliminateMe)
+                    {
+                        if(!constraintsHelper.eliminate(occurredAtIndex, toEliminate[eliminateMe]))
+                            return false;
+                    }
                 }
             }
 
