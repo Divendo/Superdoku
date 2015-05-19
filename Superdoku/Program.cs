@@ -29,7 +29,7 @@ namespace Superdoku
         static void testLocalSearch(Sudoku sudoku)
         {
             // Solve the sudoku using local search
-            LocalSearcher searchMachine = new TabuSearcher();
+            LocalSearcher searchMachine = new FirstImprovementTabuSearcher();
             Stopwatch watch = new Stopwatch();
             watch.Start();
             Sudoku solution = searchMachine.solve(sudoku);

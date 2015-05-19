@@ -10,7 +10,10 @@ namespace Superdoku
     class SimulatedAnnealer : LocalSearcher
     {
         /// <summary>The factor with which we decrease the parameter c in the search progress.</summary>
-        private const double  alpha = 0.97;
+        private const double  alpha = 0.977;
+
+        // Parameter to decrease the chances of accepting neighbor that does not improve the sudoku
+        double c = 2.0;
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
@@ -22,8 +25,6 @@ namespace Superdoku
             // We will need a random generator
             Random random = new Random();
 
-            // Parameter to decrease the chances of accepting neighbor that does not improve the sudoku
-            double c = 2.0;
 
             // Reset the iterations
             iterations = 0;

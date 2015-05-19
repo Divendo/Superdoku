@@ -44,6 +44,7 @@
     <Compile Include="ConstraintsHelper.cs" />
     <Compile Include="ConstraintsHelper_AC3_squares.cs" />
     <Compile Include="DepthFirstSearch.cs" />
+    <Compile Include="FirstImprovementTabuSearcher.cs" />
     <Compile Include="LocalSearchers\IterativeSearcher.cs" />
     <Compile Include="LocalSearchers\LocalSearcher.cs" />
     <Compile Include="LocalSudoku.cs" />

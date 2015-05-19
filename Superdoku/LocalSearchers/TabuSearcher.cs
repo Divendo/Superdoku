@@ -20,7 +20,7 @@ namespace Superdoku
         /// <returns>The size of the tabu list for a sudoku of the given size.</returns>
         public int tabuListLength(int n)
         {
-            return n * n * n ;
+            return (int)(n*n );
         }
 
         public override bool solve(LocalSudoku sudoku)
