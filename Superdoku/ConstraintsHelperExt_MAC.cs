@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Superdoku
 {
     /// <summary>Class that helps solving a sudoku using constraints. The strategies will be applied one after each other using a queue.</summary>
-    class ConstraintsHelper_MAC : ConstraintsHelperExt
+    class ConstraintsHelperExt_MAC : ConstraintsHelperExt
     {
         /// <summary>The strategies that still should be run.</summary>
         private HashSet<ConstraintsHelperExt_Strategy> strategiesToRun;
@@ -17,7 +17,7 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The sudoku we will be manipulating.</param>
-        public ConstraintsHelper_MAC(Sudoku sudoku)
+        public ConstraintsHelperExt_MAC(Sudoku sudoku)
             : base(sudoku) { }
 
         public override bool assign(int index, int value)
@@ -90,6 +90,6 @@ namespace Superdoku
     class ConstraintsHelperFactory_MAC : ConstraintsHelperFactory
     {
         public override ConstraintsHelper createConstraintsHelper(Sudoku sudoku)
-        { return new ConstraintsHelper_MAC(sudoku); }
+        { return new ConstraintsHelperExt_MAC(sudoku); }
     }
 }

@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace Superdoku
 {
     /// <summary>Class that helps solving a sudoku using constraints. The strategies will be applied recursive.</summary>
-    class ConstraintsHelper_Recursive : ConstraintsHelperExt
+    class ConstraintsHelperExt_Recursive : ConstraintsHelperExt
     {
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The sudoku we will be manipulating.</param>
-        public ConstraintsHelper_Recursive(Sudoku sudoku)
+        public ConstraintsHelperExt_Recursive(Sudoku sudoku)
             : base(sudoku) { }
 
         public override bool assign(int index, int value)
@@ -64,6 +64,6 @@ namespace Superdoku
     class ConstraintsHelperFactory_Recursive : ConstraintsHelperFactory
     {
         public override ConstraintsHelper createConstraintsHelper(Sudoku sudoku)
-        { return new ConstraintsHelper_Recursive(sudoku); }
+        { return new ConstraintsHelperExt_Recursive(sudoku); }
     }
 }
