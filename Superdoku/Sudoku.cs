@@ -129,6 +129,58 @@ namespace Superdoku
             return true;
         }
 
+        public override bool Equals(object obj)
+        {
+            if(!(obj is Sudoku))
+                return false;
+
+            return Equals((Sudoku)obj);
+        }
+        
+        public bool Equals(Sudoku other)
+        {
+            // Are we the same size?
+            if(n != other.n)
+                return false;
+
+            // First check if every square contains the same amount of values
+            for(int square = 0; square < NN * NN; ++square)
+            {
+                if(values[square].Count != other.values[square].Count)
+                    return false;
+            }
+
+            // Now check if each square matches
+            for(int square = 0; square < NN * NN; ++square)
+            {
+                for(int value = 0; value < values[square].Count; ++value)
+                {
+                    if(!other.values[square].Contains(values[square][value]))
+                        return false;
+                }
+            }
+
+            // If we have come here, all checks have passed and we are the same sudoku
+            return true;
+        }
+
+        private int getSquareHash(int index)
+        {
+            List<int> squareValues = values[index];
+            int result = 0;
+            for(int i = 0; i < squareValues.Count; ++i)
+                result ^= (1 << squareValues[i]);
+            return result;
+        }
+
+        public override int GetHashCode()
+        {
+            int result = 0;
+            for(int i = 0; i < NN; ++i)
+                result ^= (getSquareHash(N * (i % N) + NN * N * (i / N)) << i);
+            return result;
+        }
+
         /// <summary>The index operator to access the values in the squares.</summary>
         /// <param name="index">The index of the square whose values you want to retrieve.</param>
         /// <returns>A list of possible values for the given square.</returns>

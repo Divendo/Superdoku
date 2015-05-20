@@ -19,11 +19,18 @@ namespace Superdoku
         /// <summary>The search time limit in milliseconds.</summary>
         public const long SEARCH_TIME_LIMIT = 3 * 60 * 1000;
 
+        /// <summary>Whether or not to use a hash map to keep track of failed nodes.</summary>
+        private bool useHashMap;
+
+        /// <summary>Nodes that we have tried but failed.</summary>
+        private HashSet<Sudoku> failedNodes;
+
         /// <summary>Constructor.</summary>
         public DepthFirstSearch()
         {
             constraintsHelperFactory = new ConstraintsHelperFactory_Trivial();
             stopwatch = null;
+            useHashMap = false;
         }
 
         /// <summary>Constructor.</summary>
@@ -32,6 +39,7 @@ namespace Superdoku
         {
             constraintsHelperFactory = helperFactory;
             stopwatch = null;
+            useHashMap = false;
         }
 
         /// <summary>Convenience method. Applies clean() from the constraints helper of this instance.</summary>
@@ -52,11 +60,18 @@ namespace Superdoku
             stopwatch = new Stopwatch();
             stopwatch.Start();
 
+            // Reset the failed nodes set
+            if(useHashMap)
+                failedNodes = new HashSet<Sudoku>();
+
             // Do the actual searching
             Sudoku result = search_helper(sudoku);
 
             // Clear the stopwatch
             stopwatch = null;
+
+            // Clear the failed nodes set
+            failedNodes = null;
 
             // Return the result
             return result;
@@ -73,6 +88,10 @@ namespace Superdoku
             // Check if we have already solved the sudoku
             if(sudoku.isSolvedSimple())
                 return sudoku;
+
+            // Check if this node was already tried
+            if(useHashMap && failedNodes.Contains(sudoku))
+                return null;
 
             // Pick the square with the fewest possibilities (ignoring the squares with one possibility)
             int index = -1;
@@ -104,8 +123,19 @@ namespace Superdoku
                 }
             }
 
+            // Remember this node will not give a solution
+            if(useHashMap)
+                failedNodes.Add(sudoku);
+
             // If we have come here, we have not found a solution
             return null;
+        }
+
+        /// <summary>Whether or not to use a hash map to keep track of failed nodes.</summary>
+        public bool UseHashMap
+        {
+            get { return useHashMap; }
+            set { useHashMap = value; }
         }
     }
 
