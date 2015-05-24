@@ -36,7 +36,7 @@ namespace Superdoku
             else
             {
                 // Read the sudoku
-                Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/25x25.txt", 5);
+                Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
                 Console.WriteLine("Original sudoku:");
                 printSudoku(sudoku);
                 Console.WriteLine();
@@ -59,7 +59,7 @@ namespace Superdoku
         static void testLocalSearch(Sudoku sudoku)
         {
             // Solve the sudoku using local search
-            LocalSearcher searchMachine = new TabuSearcher();
+            LocalSearcher searchMachine = new CGA1solver();
             Sudoku solution = searchMachine.solve(sudoku);
             if(solution == null)
             {

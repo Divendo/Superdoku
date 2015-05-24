@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CGA1solver.cs" />
+    <Compile Include="CGA2solver.cs" />
     <Compile Include="ConstraintsHelper.cs" />
     <Compile Include="ConstraintsHelperExt.cs" />
     <Compile Include="ConstraintsHelperExt_Strategy.cs" />

@@ -30,8 +30,8 @@ namespace Superdoku
                 SwapNeighbor bestNeighbor = null;
                 foreach(SwapNeighbor neighbor in neighbors)
                 {
-                    // We will only accept improvements
-                    if(neighbor.ScoreDelta < 0)
+                    // We will only accept improvements and equals, note that this does allow us to loop without end
+                    if(neighbor.ScoreDelta <= 0)
                     {
                         if(bestNeighbor == null || neighbor.ScoreDelta < bestNeighbor.ScoreDelta)
                             bestNeighbor = neighbor;

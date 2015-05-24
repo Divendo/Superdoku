@@ -40,7 +40,7 @@ namespace Superdoku
             primary = new Sudoku(sudoku);
             if (solve(localSudoku))
                 return solution.toSudoku();
-                //return localSudoku.toSudoku();
+   
             return null;
         }
 
@@ -136,11 +136,15 @@ namespace Superdoku
                     {
                         if(!sudoku.isFixed(units[SudokuIndexHelper.UNIT_BOX_INDEX, square2]))
                         {
-                            result.Add(new SwapNeighbor(
+                            SwapNeighbor temp = new SwapNeighbor(
                                 units[SudokuIndexHelper.UNIT_BOX_INDEX, square1],
                                 units[SudokuIndexHelper.UNIT_BOX_INDEX, square2],
                                 sudoku.heuristicDelta(units[SudokuIndexHelper.UNIT_BOX_INDEX, square1], units[SudokuIndexHelper.UNIT_BOX_INDEX, square2])
-                            ));
+                            );
+                            result.Add(temp);
+                            //If we find the best solution possible, return it
+                            if (temp.ScoreDelta == -4)
+                                return new List<SwapNeighbor> { temp };
                         }
                     }
                 }
