@@ -42,7 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConstraintsHelper.cs" />
+    <Compile Include="ConstraintsHelperExt.cs" />
+    <Compile Include="ConstraintsHelperExt_Strategy.cs" />
     <Compile Include="ConstraintsHelper_AC3_squares.cs" />
+    <Compile Include="ConstraintsHelperExt_MAC.cs" />
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="FirstImprovementTabuSearcher.cs" />
     <Compile Include="LocalSearchers\IterativeSearcher.cs" />
@@ -57,7 +60,7 @@
     <Compile Include="SudokuNotPossibleException.cs" />
     <Compile Include="ConstraintsHelper_AC1.cs" />
     <Compile Include="ConstraintsHelper_AC3.cs" />
-    <Compile Include="ConstraintsHelper_Recursive.cs" />
+    <Compile Include="ConstraintsHelperExt_Recursive.cs" />
     <Compile Include="SudokuReader.cs" />
     <Compile Include="SwapNeighbor.cs" />
     <Compile Include="LocalSearchers\TabuSearcher.cs" />

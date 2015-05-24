@@ -16,8 +16,9 @@ namespace Superdoku
         /// Lists the possible values for each square. Each square is indicated by an index ranging from 0 to n^4 - 1 (inclusive).
         /// The index of a square can be expressed in its zero-based (x,y) coordinates: index = n*n * y + x.
         /// Each value ranges from 0 to n*n - 1 (inclusive), note that this means that for a standard sudoku we work with the values 0 to 8 here.
+        /// The values are saved as a bitstring, a 1 in a certain position means that that value is a possibility, a 0 means it is no possibility.
         /// </summary>
-        private List<int>[] values;
+        private ulong[] values;
 
         /// <summary>Constructor, constructs a sudoku where everything is still possible.</summary>
         /// <param name="n">The size of the sudoku (n*n by n*n squares).</param>
@@ -27,12 +28,10 @@ namespace Superdoku
             this.n = n;
 
             // Initialise the values
-            values = new List<int>[NN * NN];
-            List<int> all = new List<int>(NN);
-            for(int i = 0; i < NN; ++i)
-                all.Add(i);
+            values = new ulong[NN * NN];
+            ulong allValues = (1ul << n * n) - 1;
             for(int i = 0; i < NN * NN; ++i)
-                values[i] = new List<int>(all);
+                values[i] = allValues;
         }
 
 
@@ -44,23 +43,67 @@ namespace Superdoku
             this.n = sudoku.n;
 
             // Copy the values
-            values = new List<int>[NN * NN];
+            values = new ulong[NN * NN];
             for(int i = 0; i < NN * NN; ++i)
-                values[i] = new List<int>(sudoku[i]);
+                values[i] = sudoku[i];
         }
 
-        /// <summary>Sets the given square to a single possibility.</summary>
-        /// <param name="index">The index of the square to set.</param>
-        /// <param name="value">The value that should become the only possibility for the square.</param>
-        public void setValue(int index, int value)
-        { values[index] = new List<int>(new int[] {value}); }
+        /// <summary>Checks if the given square contains only one possibility, and returns that possibility.</summary>
+        /// <param name="index">The square to check.</param>
+        /// <returns>The only possible value for the square, or -1 if the square does not contain a single possibility.</returns>
+        public int singleValue(int index)
+        {
+            // If there are no possibilities, stop here
+            if(values[index] == 0)
+                return -1;
 
-        /// <summary>Sets the given square to a single possibility.</summary>
-        /// <param name="x">The x-coordinate of the square to set.</param>
-        /// <param name="y">The y-coordinate of the square to set.</param>
-        /// <param name="value">The value that should become the only possibility for the square.</param>
-        public void setValue(int x, int y, int value)
-        { values[y * NN + x] = new List<int>(new int[] { value }); }
+            // We use a binary search to find out if there is only on bit set to 1
+            // This is done by applying complementary bitmasks and checking if only one of them does not yield 0
+            ulong COMPLETE_MASK = 0xfffffffffffffffful;
+            ulong[] MASKS = new ulong[]
+            {
+                0xaaaaaaaaaaaaaaaaul,   // 1010 1010 1010 1010 1010 1010 1010 1010 1010 1010 1010 1010 1010 1010 1010 1010
+                0xccccccccccccccccul,   // 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100 1100
+                0xf0f0f0f0f0f0f0f0ul,   // 1111 0000 1111 0000 1111 0000 1111 0000 1111 0000 1111 0000 1111 0000 1111 0000
+                0xff00ff00ff00ff00ul,   // 1111 1111 0000 0000 1111 1111 0000 0000 1111 1111 0000 0000 1111 1111 0000 0000
+                0xffff0000ffff0000ul,   // 1111 1111 1111 1111 0000 0000 0000 0000 1111 1111 1111 1111 0000 0000 0000 0000
+                0xffffffff00000000ul    // 1111 1111 1111 1111 1111 1111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000
+            };
+
+            // Build the value, using the masks we can also determine the position of the one bit that is 1
+            int value = 0;
+            for(int mask = 0; mask < MASKS.Length; ++mask)
+            {
+                if((values[index] & MASKS[mask]) != 0)
+                {
+                    if((values[index] & (COMPLETE_MASK ^ MASKS[mask])) != 0)
+                        return -1;
+
+                    value |= (1 << mask);
+                }
+            }
+
+            // Return the result
+            return value;
+        }
+
+        /// <summary>Checks if the given square contains only one possibility, and returns that possibility.</summary>
+        /// <param name="x">The x-coordinate of the square to check.</param>
+        /// <param name="y">The y-coordinate of the square to check.</param>
+        /// <returns>The only possible value for the square, or -1 if the square does not contain a single possibility.</returns>
+        public int singleValue(int x, int y)
+        { return singleValue(y * NN + x); }
+
+        /// <summary>Returns the amount of possibilities for the given square.</summary>
+        /// <param name="index">The index of the square whose possibility count should be returned.</param>
+        /// <returns>The possibility count of the square.</returns>
+        public int valueCount(int index)
+        {
+            ulong value = values[index];
+            value = value - ((value >> 1) & 0x5555555555555555UL);
+            value = (value & 0x3333333333333333UL) + ((value >> 2) & 0x3333333333333333UL);
+            return (int)(unchecked(((value + (value >> 4)) & 0xF0F0F0F0F0F0F0FUL) * 0x101010101010101UL) >> 56);
+        }
 
         /// <summary>Perform a simple check whether or not the sudoku is solved. This check involves only checking if all squares have exactly one possible value.</summary>
         /// <returns>Whether or not the sudoku is solved.</returns>
@@ -68,7 +111,7 @@ namespace Superdoku
         {
             for(int i = 0; i < values.Length; ++i)
             {
-                if(values[i].Count != 1)
+                if(valueCount(i) != 1)
                     return false;
             }
 
@@ -90,7 +133,7 @@ namespace Superdoku
                 int[] peers = sudokuIndexHelper.getPeersFor(i);
                 for(int j = 0; j < peers.Length; ++j)
                 {
-                    if(values[peers[j]][0] == values[i][0])
+                    if(values[peers[j]] == values[i])
                         return false;
                 }
             }
@@ -99,10 +142,73 @@ namespace Superdoku
             return true;
         }
 
+        /// <summary>Checks if the sudoku is still consistent. That is: no squares without any possibilities and no two squares with the same single possibility in one unit.</summary>
+        /// <returns>True if the sudoku is consistent, false otherwise.</returns>
+        public bool isConsistent()
+        {
+            // We need a sudoku index helper
+            SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(n);
+
+            // Loop through all squares
+            for(int square = 0; square < NN * NN; ++square)
+            {
+                // Check for empty squares
+                if(values[square] == 0)
+                    return false;
+
+                // If this square has a single possibility, check its peers for another square with that single possibility
+                if(valueCount(square) != 1)
+                {
+                    int[] peers = sudokuIndexHelper.getPeersFor(square);
+                    for(int peer = 0; peer < peers.Length; ++peer)
+                    {
+                        if(values[peers[peer]] == values[square])
+                            return false;
+                    }
+                }
+            }
+
+            // If we have come here all squares have been checked and no inconsistencies have been found
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(!(obj is Sudoku))
+                return false;
+
+            return Equals((Sudoku)obj);
+        }
+        
+        public bool Equals(Sudoku other)
+        {
+            // Are we the same size?
+            if(n != other.n)
+                return false;
+
+            // Now check if each square matches
+            for(int square = 0; square < NN * NN; ++square)
+            {
+                if(values[square] != other.values[square])
+                    return false;
+            }
+
+            // If we have come here, all checks have passed and we are the same sudoku
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            int result = 0;
+            for(int i = 0; i < NN; ++i)
+                result ^= ((int) values[N * (i % N) + NN * N * (i / N)] << i);
+            return result;
+        }
+
         /// <summary>The index operator to access the values in the squares.</summary>
         /// <param name="index">The index of the square whose values you want to retrieve.</param>
         /// <returns>A list of possible values for the given square.</returns>
-        public List<int> this[int index]
+        public ulong this[int index]
         {
             get { return values[index]; }
             set { values[index] = value; }
@@ -112,7 +218,7 @@ namespace Superdoku
         /// <param name="x">The x-coordinate of the square whose values you want to retrieve.</param>
         /// <param name="y">The y-coordinate of the square whose values you want to retrieve.</param>
         /// <returns>A list of possible values for the given square.</returns>
-        public List<int> this[int x, int y]
+        public ulong this[int x, int y]
         {
             get { return values[x + y * NN]; }
             set { values[x + y * NN] = value; }

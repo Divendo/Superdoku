@@ -30,11 +30,11 @@ namespace Superdoku
             for(int i = 0; i < grid.Length; ++i)
             {
                 if(Char.IsDigit(grid[i]))
-                    sudoku.setValue(index++, grid[i] - '0');
+                    sudoku[index++] = 1ul << (grid[i] - '0');
                 else if(Char.IsUpper(grid[i]))
-                    sudoku.setValue(index++, 10 + grid[i] - 'A');
+                    sudoku[index++] = 1ul << (10 + grid[i] - 'A');
                 else if(grid[i] == 'x')
-                    sudoku[index++].Clear();
+                    sudoku[index++] = 0;
                 else if(grid[i] == '.')
                     ++index;
             }
@@ -48,6 +48,19 @@ namespace Superdoku
         public static Sudoku readFromFile(string filename, int n)
         {
             return readFromString(File.ReadAllText(filename), n);
+        }
+
+        /// <summary>Reads multiple sudokus from a file, one on each line.</summary>
+        /// <param name="filename">The file to read the sudoku from.</param>
+        /// <param name="n">The size of the sudoku (n*n by n*n squares).</param>
+        /// <returns>The parsed sudoku</returns>
+        public static Sudoku[] readFromFileLines(string filename, int n)
+        {
+            string[] lines = File.ReadAllText(filename).Split(new char[] { '\n' });
+            Sudoku[] sudokus = new Sudoku[lines.Length];
+            for(int i = 0; i < lines.Length; ++i)
+                sudokus[i] = readFromString(lines[i], n);
+            return sudokus;
         }
     }
 }

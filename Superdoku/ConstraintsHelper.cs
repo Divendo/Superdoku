@@ -21,7 +21,7 @@ namespace Superdoku
         /// <param name="index">The index of the square we want to change.</param>
         /// <param name="value">The value the square should get.</param>
         /// <returns>True if succesfull, false if a contradiction is reached.</returns>
-        public abstract bool assign(int index, int value);
+        public abstract bool assign(int index, ulong value);
 
         /// <summary>Cleans the sudoku by applying assign() to every square that contains one possibility.</summary>
         /// <returns>True if succesfull, false if a contradiction is reached.</returns>
@@ -50,19 +50,19 @@ namespace Superdoku
         public ConstraintsHelper_Trivial(Sudoku sudoku)
             : base(sudoku) { }
 
-        public override bool assign(int index, int value)
+        public override bool assign(int index, ulong value)
         {
             // First check if the value does not conflict with some peer
             SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudoku.N);
             int[] peers = sudokuIndexHelper.getPeersFor(index);
             for(int peer = 0; peer < peers.Length; ++peer)
             {
-                if(sudoku[peers[peer]].Count == 1 && sudoku[peers[peer]][0] == value)
+                if(sudoku[peers[peer]] == value)
                     return false;
             }
 
             // If everything checks out, we can set the value
-            sudoku[index] = new List<int>(new int[] { value });
+            sudoku[index] = value;
             return true;
         }
 
@@ -72,13 +72,13 @@ namespace Superdoku
             SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudoku.N);
             for(int square = 0; square < sudoku.NN; ++square)
             {
-                if(sudoku[square].Count != 1)
+                if(sudoku.valueCount(square) == 1)
                     continue;
 
                 int[] peers = sudokuIndexHelper.getPeersFor(square);
                 for(int peer = 0; peer < peers.Length; ++peer)
                 {
-                    if(sudoku[peers[peer]].Count == 1 && sudoku[peers[peer]][0] == sudoku[square][0])
+                    if(sudoku[peers[peer]] == sudoku[square])
                         return false;
                 }
             }
