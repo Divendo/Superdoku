@@ -42,8 +42,9 @@ namespace Superdoku
                 int[,] units = sudokuIndexHelper.getUnitsFor(N * (box % N), N * (box / N));
                 for(int i = 0; i < NN; ++i)
                 {
-                    if (sudoku.valueCount(units[SudokuIndexHelper.UNIT_BOX_INDEX, i]) == 1)
-                        possibleValuesPerBox[box].Remove(sudoku.singleValue(units[SudokuIndexHelper.UNIT_BOX_INDEX, i]));
+                    int singleValue = sudoku.singleValue(units[SudokuIndexHelper.UNIT_BOX_INDEX, i]);
+                    if(singleValue != -1)
+                        possibleValuesPerBox[box].Remove(singleValue);
                 }
             }
 
@@ -53,7 +54,7 @@ namespace Superdoku
             for(int i = 0; i < NN * NN; ++i)
             {
                 int singleValue = sudoku.singleValue(i);
-                if(singleValue != 1)
+                if(singleValue != -1)
                 {
                     sudokuValues[i] = singleValue;
                     fixiated[i] = true;
