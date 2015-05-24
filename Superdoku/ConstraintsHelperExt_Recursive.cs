@@ -14,34 +14,38 @@ namespace Superdoku
         public ConstraintsHelperExt_Recursive(Sudoku sudoku)
             : base(sudoku) { }
 
-        public override bool assign(int index, int value)
+        public override bool assign(int index, ulong value)
         {
             // First we get the values we want to eliminate
-            List<int> toEliminate = new List<int>(sudoku[index]);
-            toEliminate.Remove(value);
+            ulong toEliminate = sudoku[index] ^ value;
 
             // Eliminate all values
-            for(int i = 0; i < toEliminate.Count; ++i)
+            for(ulong eliminateMe = 1; toEliminate != 0; eliminateMe <<= 1)
             {
-                if(!eliminate(index, toEliminate[i]))
+                if((toEliminate & eliminateMe) == 0)
+                    continue;
+
+                if(!eliminate(index, eliminateMe))
                     return false;
+
+                toEliminate ^= eliminateMe;
             }
 
             // If we have come here, everything must have gone the right way
             return true;
         }
 
-        public override bool eliminate(int index, int value)
+        public override bool eliminate(int index, ulong value)
         {
             // If the value is not present in the given square, we can stop here
-            if(!sudoku[index].Contains(value))
+            if((sudoku[index] & value) == 0)
                 return true;
 
             // Remove the value
-            sudoku[index].Remove(value);
+            sudoku[index] ^= value;
 
-            // Check for a contradiction
-            if(sudoku[index].Count == 0)
+            // Check if the sudoku is still correct
+            if(sudoku[index] == 0)
                 return false;
 
             // Apply the strategies
@@ -64,6 +68,10 @@ namespace Superdoku
     class ConstraintsHelperFactory_Recursive : ConstraintsHelperFactory
     {
         public override ConstraintsHelper createConstraintsHelper(Sudoku sudoku)
-        { return new ConstraintsHelperExt_Recursive(sudoku); }
+        { ConstraintsHelperExt_Recursive c = new ConstraintsHelperExt_Recursive(sudoku);
+        //c.setStrategyUse(ConstraintsHelperExt.STRATEGY_NAKED_TWINS, false);
+        //c.setStrategyUse(ConstraintsHelperExt.STRATEGY_VALUE_ONCE_IN_UNIT, false);
+        return c;
+        }
     }
 }

@@ -12,9 +12,9 @@ namespace Superdoku
         public ConstraintsHelper_AC3(Sudoku sudoku)
             : base(sudoku) { }
 
-        public override bool assign(int index, int value)
+        public override bool assign(int index, ulong value)
         {
-            sudoku[index] = new List<int>(new int[] { value });
+            sudoku[index] = value;
             return apply(sudoku, index);
         }
 
@@ -30,7 +30,7 @@ namespace Superdoku
         public static bool apply(Sudoku sudoku, int changedSquare = -1)
         {
             // Nothing to do if changedSquare is set and it has more than 1 possibility left
-            if(changedSquare != -1 && sudoku[changedSquare].Count != 1)
+            if(changedSquare != -1 && sudoku.valueCount(changedSquare) != 1)
                 return true;
 
             // We will need an index helper
@@ -73,16 +73,16 @@ namespace Superdoku
                 toCheck.Remove(constraint);
 
                 // If the other square has only one value left, we can eliminate it from the current square
-                if(sudoku[constraint.square2].Count == 1 && sudoku[constraint.square1].Contains(sudoku[constraint.square2][0]))
+                if(sudoku.valueCount(constraint.square2) == 1 && (sudoku[constraint.square1] & sudoku[constraint.square2]) != 0)
                 {
                     // Remove the value from the domain
-                    sudoku[constraint.square1].Remove(sudoku[constraint.square2][0]);
+                    sudoku[constraint.square1] ^= sudoku[constraint.square2];
 
                     // Check for a contradiction
-                    if(sudoku[constraint.square1].Count == 0)
+                    if(sudoku[constraint.square1] == 0)
                         return false;
                     // Only add new constraints to the queue if it is worth checking them
-                    else if(sudoku[constraint.square1].Count == 1)
+                    else if(sudoku.valueCount(constraint.square1) == 1)
                     {
                         // Add new constraints to the queue
                         int[] peers = sudokuIndexHelper.getPeersFor(constraint.square1);

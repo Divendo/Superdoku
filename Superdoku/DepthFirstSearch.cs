@@ -17,7 +17,7 @@ namespace Superdoku
         private Stopwatch stopwatch;
 
         /// <summary>The search time limit in milliseconds.</summary>
-        public const long SEARCH_TIME_LIMIT = 3 * 60 * 1000;
+        public const long SEARCH_TIME_LIMIT = 30 * 60 * 1000;
 
         /// <summary>Whether or not to use a hash map to keep track of failed nodes.</summary>
         private bool useHashMap;
@@ -65,6 +65,7 @@ namespace Superdoku
                 failedNodes = new HashSet<Sudoku>();
 
             // Do the actual searching
+            iterations = 0;
             Sudoku result = search_helper(sudoku);
 
             // Clear the stopwatch
@@ -77,10 +78,13 @@ namespace Superdoku
             return result;
         }
 
+        long iterations;
+
         /// <summary>Does the actual depth-first searching (while making deep copies).</summary>
         /// <returns>The solved sudoku if successful, null otherwise.</returns>
         private Sudoku search_helper(Sudoku sudoku)
         {
+            ++iterations;
             // We can not solve a non-existing soduko
             if(sudoku == null)
                 return null;
@@ -95,32 +99,42 @@ namespace Superdoku
 
             // Pick the square with the fewest possibilities (ignoring the squares with one possibility)
             int index = -1;
+            int indexValueCount = 0;
             for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
             {
-                if(sudoku[i].Count == 1)
+                if(sudoku.valueCount(i) == 1)
                     continue;
 
-                if(index == -1 || sudoku[i].Count < sudoku[index].Count)
+                if(index == -1 || sudoku.valueCount(i) < indexValueCount)
+                {
+                    indexValueCount = sudoku.valueCount(i);
                     index = i;
+                }
             }
 
             // If there is a square without any possibilites, we can not find a solution
-            if(sudoku[index].Count == 0)
+            if(indexValueCount == 0)
                 return null;
 
             // Try all possibilities for the square we found
-            for(int i = 0; i < sudoku[index].Count; ++i)
+            ulong valuesToCheck = sudoku[index];
+            for(ulong value = 1; valuesToCheck != 0; value <<= 1)
             {
                 if(stopwatch.ElapsedMilliseconds > SEARCH_TIME_LIMIT)
                     throw new TimeLimitReachedException("Time limit of " + SEARCH_TIME_LIMIT + "ms reached (actual: " + stopwatch.ElapsedMilliseconds + "ms).");
 
+                if((sudoku[index] & value) == 0)
+                    continue;
+
                 ConstraintsHelper helper = constraintsHelperFactory.createConstraintsHelper(new Sudoku(sudoku));
-                if(helper.assign(index, sudoku[index][i]))
+                if(helper.assign(index, value))
                 {
                     Sudoku result = search_helper(helper.Sudoku);
                     if(result != null)
                         return result;
                 }
+
+                valuesToCheck ^= value;
             }
 
             // Remember this node will not give a solution

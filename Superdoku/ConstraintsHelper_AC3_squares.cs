@@ -15,9 +15,9 @@ namespace Superdoku
         public ConstraintsHelper_AC3_squares(Sudoku sudoku)
             : base(sudoku) { }
 
-        public override bool assign(int index, int value)
+        public override bool assign(int index, ulong value)
         {
-            sudoku[index] = new List<int>(new int[] { value });
+            sudoku[index] = value;
             return apply(sudoku, index);
         }
 
@@ -33,7 +33,7 @@ namespace Superdoku
         public static bool apply(Sudoku sudoku, int changedSquare = -1)
         {
             // Nothing to do if changedSquare is set and it has more than 1 possibility left
-            if(changedSquare != -1 && sudoku[changedSquare].Count != 1)
+            if(changedSquare != -1 && sudoku.valueCount(changedSquare) != 1)
                 return true;
 
             // We will need an index helper
@@ -73,16 +73,16 @@ namespace Superdoku
                 int[] peers = sudokuIndexHelper.getPeersFor(square);
                 for(int peer = 0; peer < peers.Length; ++peer)
                 {
-                    if(sudoku[peers[peer]].Count == 1 && sudoku[square].Contains(sudoku[peers[peer]][0]))
+                    if(sudoku.valueCount(peers[peer]) == 1 && (sudoku[square] & sudoku[peers[peer]]) != 0)
                     {
                         // Remove the value from the domain
-                        sudoku[square].Remove(sudoku[peers[peer]][0]);
+                        sudoku[square] ^= sudoku[peers[peer]];
 
                         // Check for a contradiction
-                        if(sudoku[square].Count == 0)
+                        if(sudoku[square] == 0)
                             return false;
                         // Only add new constraints to the queue if it is worth checking them
-                        else if(sudoku[square].Count == 1)
+                        else if(sudoku.valueCount(square) == 1)
                         {
                             // Add new constraints to the queue
                             for(int peerToQueue = 0; peerToQueue < peers.Length; ++peerToQueue)

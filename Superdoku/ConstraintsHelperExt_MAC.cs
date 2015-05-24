@@ -20,21 +20,25 @@ namespace Superdoku
         public ConstraintsHelperExt_MAC(Sudoku sudoku)
             : base(sudoku) { }
 
-        public override bool assign(int index, int value)
+        public override bool assign(int index, ulong value)
         {
             // Initialise the strategy queue and set
             strategiesToRun = new HashSet<ConstraintsHelperExt_Strategy>();
             strategiesQueue = new Queue<ConstraintsHelperExt_Strategy>();
 
             // First we get the values we want to eliminate
-            List<int> toEliminate = new List<int>(sudoku[index]);
-            toEliminate.Remove(value);
+            ulong toEliminate = sudoku[index] ^ value;
 
             // Eliminate all values
-            for(int i = 0; i < toEliminate.Count; ++i)
+            for(ulong eliminateMe = 1; toEliminate != 0; eliminateMe <<= 1)
             {
-                if(!eliminate(index, toEliminate[i]))
+                if((toEliminate & eliminateMe) == 0)
+                    continue;
+
+                if(!eliminate(index, eliminateMe))
                     return false;
+
+                toEliminate ^= eliminateMe;
             }
 
             // Keep running strategies while there are strategies to run
@@ -54,17 +58,17 @@ namespace Superdoku
         /// <param name="index">The index of the square we want to eliminate the value from.</param>
         /// <param name="value">The value we want to eliminate.</param>
         /// <returns>True if succesfull, false if a contradiction is reached.</returns>
-        public override bool eliminate(int index, int value)
+        public override bool eliminate(int index, ulong value)
         {
             // If the value is not present in the given square, we can stop here
-            if(!sudoku[index].Contains(value))
+            if((sudoku[index] & value) == 0)
                 return true;
 
             // Remove the value
-            sudoku[index].Remove(value);
+            sudoku[index] ^= value;
 
             // Check if the sudoku is still correct
-            if(sudoku[index].Count == 0)
+            if(sudoku[index] == 0)
                 return false;
 
             // Add strategies

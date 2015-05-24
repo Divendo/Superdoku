@@ -42,8 +42,8 @@ namespace Superdoku
                 int[,] units = sudokuIndexHelper.getUnitsFor(N * (box % N), N * (box / N));
                 for(int i = 0; i < NN; ++i)
                 {
-                    if (sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]].Count == 1)
-                        possibleValuesPerBox[box].Remove(sudoku[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]][0]);
+                    if (sudoku.valueCount(units[SudokuIndexHelper.UNIT_BOX_INDEX, i]) == 1)
+                        possibleValuesPerBox[box].Remove(sudoku.singleValue(units[SudokuIndexHelper.UNIT_BOX_INDEX, i]));
                 }
             }
 
@@ -52,9 +52,10 @@ namespace Superdoku
             sudokuValues = new int[NN * NN];
             for(int i = 0; i < NN * NN; ++i)
             {
-                if(sudoku[i].Count == 1)
+                int singleValue = sudoku.singleValue(i);
+                if(singleValue != 1)
                 {
-                    sudokuValues[i] = sudoku[i][0];
+                    sudokuValues[i] = singleValue;
                     fixiated[i] = true;
                 }
                 else
@@ -225,7 +226,7 @@ namespace Superdoku
         {
             Sudoku sudoku = new Sudoku(N);
             for(int i = 0; i < NN * NN; ++i)
-                sudoku[i] = new List<int>(new int[] { sudokuValues[i] });
+                sudoku[i] = 1ul << sudokuValues[i];
             return sudoku;
         }
 
@@ -269,170 +270,5 @@ namespace Superdoku
         /// <summary>The heuristic value of this solution.</summary>
         public int HeuristicValue
         { get { return heuristicValue; } }
-    }
-
-    class LocalSudokuOld
-    {
-        public int[] values;
-        public bool[] isFixed;
-        public SudokuIndexHelper helper;
-        public List<List<int>> squares;
-        public int size;
-        public int N;
-        public int heuristicValue;
-        public Tuple<int, int> changed;
-
-        //the representation used by LocalSearchers
-        public LocalSudokuOld(Sudoku sudoku)
-        {
-            //Set the size
-            size = sudoku.NN;
-            //set the N
-            N = sudoku.N;
-            //Create an array of values
-            this.values = new int[size * size];
-            for (int t = 0; t < values.Length; ++t)
-                values[t] = -1;
-            //Create an array of bools
-            this.isFixed = new bool[size * size];
-            //Initialise a helper
-            helper = SudokuIndexHelper.get(N);
-
-            //Copy the values and mark them as set
-            for(int t = 0; t < values.Length; ++t)
-                if (sudoku[t].Count == 1)
-                {   values[t] = sudoku[t][0];
-                    isFixed[t] = true;}
-
-            //set the squares
-            this.setSquares();
-            //initialise
-            this.initialise();
-            //set the heuristic value
-            this.setH();
-        }
-
-        public LocalSudokuOld(LocalSudokuOld sudoku)
-        {
-            this.values         = sudoku.values;
-            this.helper         = sudoku.helper;
-            this.heuristicValue = sudoku.heuristicValue;
-            this.isFixed        = sudoku.isFixed;
-            this.size           = sudoku.size;
-            this.squares        = sudoku.squares;
-            this.N              = sudoku.N;
-        }
-
-        //initialises the sudoku
-        private void initialise()
-        {
-            //We loop over each of the squares
-            foreach(List<int> square in squares)
-            {
-                int assign = 0;
-                Random random = new Random();
-                List<int> numbers = new List<int>();
-                //We give a value to each of the non-fixed boxes in the square
-                for(int t = 0; t < square.Count(); ++t)
-                    if(!isFixed[square[t]])
-                    {
-                        
-                        bool valid = false;
-                        while (!valid)
-                        {   
-                            assign = random.Next(0, 9);
-                            valid = true;
-                            foreach (int index in square)
-                                if (values[index] == assign)
-                                    valid = false;
-                        }
-          
-                        values[square[t]] = assign;
-                    }
-
-            }
-        }
-
-        //Retuns a heuristic value based on how many constrains were crossed
-        public void setH()
-        {
-            int result = 0;
-
-            for(int t = 0; t < size * size; ++t)
-            {
-                result += calculateBrothers(t);
-            }
-            heuristicValue = result;
-        }
-
-
-        //Returns how many duplicates there are in a box's peers
-        private int calculateBrothers(int sample)
-        {
-            int result = 0;
-            int[] peers = helper.getPeersFor(sample);
-            foreach (int peer in peers)
-                if (peer != sample)
-                    if (values[peer] == values[sample])
-                        result += 1;
-            return result;
-        }
-
-        //swaps two values given two indices and updates the heuristic value
-        public void swap(int a, int b)
-        {
-            //Calculate how many constraints these two indices harm
-            int firstConstraints = calculateBrothers(a) + calculateBrothers(b);
-
-            //set the tuple
-            changed = new Tuple<int, int>(a, b);
-
-            //Swap the values
-            int temp = values[a];
-            values[a] = values[b];
-            values[b] = temp;
-            
-            //Calculate how many constraints are harmed now
-            int secondConstraints = calculateBrothers(a) + calculateBrothers(b);
-
-            //Update the heuristic value
-            //why doesn't it woooork
-            heuristicValue = heuristicValue + (secondConstraints - firstConstraints);
-       
-        }
-
-        //returns a string
-        public string toString()
-        {
-            return values.ToString();
-        }
-
-        //returns a sudoku
-        public Sudoku toSudoku()
-        {
-            Sudoku result = new Sudoku((int) Math.Sqrt(size));
-            for (int t = 0; t < size * size; ++t)
-                result.setValue(t, values[t]);
-            return result;
-        }
-
-        //Create a list of lists containing the indices for the squares
-        private void setSquares()
-        {
-            squares = new List<List<int>>();
-
-            List<int> indices;
-            int[,] grid = new int[size, size];
-            int n = (int)   Math.Sqrt(size);
-            for (int a = 0; a < n; ++a)
-                for (int b = 0; b < n; ++b)
-                {
-                    indices = new List<int>();
-                    for (int x = 0; x < n; ++x)
-                        for (int y = 0; y < n; ++y)
-                            indices.Add((x + a*n) * size + (y+ b*n));
-                    squares.Add(indices);
-                }
-        }
     }
 }

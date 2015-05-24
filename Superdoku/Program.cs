@@ -16,7 +16,7 @@ namespace Superdoku
 
             // The type of search mechanism we want to test
             bool testDepthFirstSearchAlgorithm = true;
-            
+
             // Read and test the sudokus
             if(testMultipleSudokus)
             {
@@ -36,7 +36,7 @@ namespace Superdoku
             else
             {
                 // Read the sudoku
-                Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
+                Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/25x25.txt", 5);
                 Console.WriteLine("Original sudoku:");
                 printSudoku(sudoku);
                 Console.WriteLine();
@@ -91,7 +91,7 @@ namespace Superdoku
             //constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
             constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
             constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
-            constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
+            //constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
 
             // We will want to measure the performance of each strategy
             foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)
@@ -320,18 +320,21 @@ namespace Superdoku
                     // Write an x if there are no possibilities for this square
                     // If there is only one possibility, write that possibility
                     // Otherwise we write a '.'
-                    List<int> values = sudoku[x, y];
-                    if(values.Count == 0)
+                    if(sudoku[x, y] == 0)
                         Console.Write('x');
-                    else if(values.Count == 1)
-                    {
-                        if(values[0] <= 9)
-                            Console.Write(values[0]);
-                        else
-                            Console.Write((char) ('A' + (values[0] - 10)));
-                    }
                     else
-                        Console.Write('.');
+                    {
+                        int singleValue = sudoku.singleValue(x, y);
+                        if(singleValue != -1)
+                        {
+                            if(singleValue <= 9)
+                                Console.Write(singleValue);
+                            else
+                                Console.Write((char)('A' + (singleValue - 10)));
+                        }
+                        else
+                            Console.Write('.');
+                    }
                 }
 
                 // Next row

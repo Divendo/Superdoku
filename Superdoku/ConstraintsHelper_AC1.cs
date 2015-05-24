@@ -12,9 +12,9 @@ namespace Superdoku
         public ConstraintsHelper_AC1(Sudoku sudoku)
             : base(sudoku) { }
 
-        public override bool assign(int index, int value)
+        public override bool assign(int index, ulong value)
         {
-            sudoku[index] = new List<int>(new int[] { value });
+            sudoku[index] = value;
             return apply(sudoku);
         }
 
@@ -46,12 +46,12 @@ namespace Superdoku
                     for(int peer = 0; peer < peers.Length; ++peer)
                     {
                         // Only squares that have one possibility can eliminate values from the domain of our square
-                        if(sudoku[peers[peer]].Count == 1 && sudoku[square].Contains(sudoku[peers[peer]][0]))
+                        if(sudoku.valueCount(peers[peer]) == 1 && (sudoku[square] & sudoku[peers[peer]]) != 0)
                         {
                             // Eliminate the possibility
-                            sudoku[square].Remove(sudoku[peers[peer]][0]);
+                            sudoku[square] ^= sudoku[peers[peer]];
                             changed = true;
-                            if(sudoku[square].Count == 0)
+                            if(sudoku[square] == 0)
                                 return false;
                         }
                     }

@@ -52,26 +52,22 @@ namespace Superdoku
         /// <param name="index">The index of the square we want to eliminate the value from.</param>
         /// <param name="value">The value we want to eliminate.</param>
         /// <returns>True if succesfull, false if a contradiction is reached.</returns>
-        public abstract bool eliminate(int index, int value);
+        public abstract bool eliminate(int index, ulong value);
 
         public override bool clean()
         {
-            // A list of all values
-            List<int> allValues = new List<int>(sudoku.NN);
-            for(int i = 0; i < sudoku.NN; ++i)
-                allValues.Add(i);
-
             // First we build a list of indices that we want to apply assign() to
             // Also keep track of there values because we are going to fill the squares with all possibilities again
             List<int> indices = new List<int>();
-            List<int> values = new List<int>();
+            List<ulong> values = new List<ulong>();
+            ulong allValues = (1ul << sudoku.NN) - 1;
             for(int i = 0; i < sudoku.NN * sudoku.NN; ++i)
             {
-                if(sudoku[i].Count == 1)
+                if(sudoku.valueCount(i) == 1)
                 {
                     indices.Add(i);
-                    values.Add(sudoku[i][0]);
-                    sudoku[i] = new List<int>(allValues);
+                    values.Add(sudoku[i]);
+                    sudoku[i] = allValues;
                 }
             }
 

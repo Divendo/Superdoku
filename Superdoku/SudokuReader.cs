@@ -30,11 +30,11 @@ namespace Superdoku
             for(int i = 0; i < grid.Length; ++i)
             {
                 if(Char.IsDigit(grid[i]))
-                    sudoku.setValue(index++, grid[i] - '0');
+                    sudoku[index++] = 1ul << (grid[i] - '0');
                 else if(Char.IsUpper(grid[i]))
-                    sudoku.setValue(index++, 10 + grid[i] - 'A');
+                    sudoku[index++] = 1ul << (10 + grid[i] - 'A');
                 else if(grid[i] == 'x')
-                    sudoku[index++].Clear();
+                    sudoku[index++] = 0;
                 else if(grid[i] == '.')
                     ++index;
             }

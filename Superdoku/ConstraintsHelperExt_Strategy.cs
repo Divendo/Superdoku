@@ -14,13 +14,13 @@ namespace Superdoku
         /// <summary>The index of the square from which a possibility is removed.</summary>
         protected int square;
         /// <summary>The removed possibility.</summary>
-        protected int removedValue;
+        protected ulong removedValue;
 
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The ConstraintsHelper_MAC that calls this strategy.</param>
         /// <param name="square">The index of the square from which a possibility is removed.</param>
         /// <param name="removedValue">The removed possibility.</param>
-        public ConstraintsHelperExt_Strategy(ConstraintsHelperExt constraintsHelper, int square, int removedValue)
+        public ConstraintsHelperExt_Strategy(ConstraintsHelperExt constraintsHelper, int square, ulong removedValue)
         {
             this.constraintsHelper = constraintsHelper;
             this.square = square;
@@ -40,7 +40,7 @@ namespace Superdoku
         /// <param name="square">The index of the square from which a possibility is removed.</param>
         /// <param name="removedValue">The removed possibility.</param>
         /// <returns>The created strategy.</returns>
-        public abstract ConstraintsHelperExt_Strategy createStrategy(ConstraintsHelperExt constraintsHelper, int square, int removedValue);
+        public abstract ConstraintsHelperExt_Strategy createStrategy(ConstraintsHelperExt constraintsHelper, int square, ulong removedValue);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace Superdoku
     /// </summary>
     class ConstraintsHelperExt_Strategy_OneValueLeft : ConstraintsHelperExt_Strategy
     {
-        public ConstraintsHelperExt_Strategy_OneValueLeft(ConstraintsHelperExt constraintsHelper, int square, int removedValue)
+        public ConstraintsHelperExt_Strategy_OneValueLeft(ConstraintsHelperExt constraintsHelper, int square, ulong removedValue)
             : base(constraintsHelper, square, removedValue) { }
 
         public override bool Equals(object obj)
@@ -74,13 +74,13 @@ namespace Superdoku
             SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(constraintsHelper.Sudoku.N);
 
             // We can only apply this strategy if the square has only one possibility left
-            if(constraintsHelper.Sudoku[square].Count == 1)
+            if(constraintsHelper.Sudoku.valueCount(square) == 1)
             {
                 // Eliminate the value from all peers of the square
                 int[] peers = sudokuIndexHelper.getPeersFor(square);
                 for(int i = 0; i < peers.Length; ++i)
                 {
-                    if(!constraintsHelper.eliminate(peers[i], constraintsHelper.Sudoku[square][0]))
+                    if(!constraintsHelper.eliminate(peers[i], constraintsHelper.Sudoku[square]))
                         return false;
                 }
             }
@@ -93,7 +93,7 @@ namespace Superdoku
     /// <summary>Factory class for the ConstraintsHelperExt_Strategy_OneValueLeft class.</summary>
     class ConstraintsHelperExt_StrategyFactory_OneValueLeft : ConstraintsHelperExt_StrategyFactory
     {
-        public override ConstraintsHelperExt_Strategy createStrategy(ConstraintsHelperExt constraintsHelper, int square, int removedValue)
+        public override ConstraintsHelperExt_Strategy createStrategy(ConstraintsHelperExt constraintsHelper, int square, ulong removedValue)
         {
             return new ConstraintsHelperExt_Strategy_OneValueLeft(constraintsHelper, square, removedValue);
         }
@@ -105,8 +105,16 @@ namespace Superdoku
     /// </summary>
     class ConstraintsHelperExt_Strategy_ValueOnceInUnit : ConstraintsHelperExt_Strategy
     {
-        public ConstraintsHelperExt_Strategy_ValueOnceInUnit(ConstraintsHelperExt constraintsHelper, int square, int removedValue)
-            : base(constraintsHelper, square, removedValue) { }
+        /// <summary>The position of the bit that was removed. Used for GetHashCode().</summary>
+        private int removedBit;
+
+        public ConstraintsHelperExt_Strategy_ValueOnceInUnit(ConstraintsHelperExt constraintsHelper, int square, ulong removedValue)
+            : base(constraintsHelper, square, removedValue)
+        {
+            removedBit = 0;
+            while(removedValue != (1ul << removedBit))
+                ++removedBit;
+        }
 
         public override bool Equals(object obj)
         {
@@ -119,7 +127,7 @@ namespace Superdoku
 
         public override int GetHashCode()
         {
-            return (square * constraintsHelper.Sudoku.NN * constraintsHelper.Sudoku.NN + removedValue * constraintsHelper.Sudoku.NN) * 10 + 2;
+            return (square * constraintsHelper.Sudoku.NN * constraintsHelper.Sudoku.NN + removedBit * constraintsHelper.Sudoku.NN) * 10 + 2;
         }
 
         public override bool apply()
@@ -136,7 +144,7 @@ namespace Superdoku
                 int count = 0;
                 for(int j = 0; j < units.GetLength(1); ++j)
                 {
-                    if(constraintsHelper.Sudoku[units[i, j]].Contains(removedValue))
+                    if((constraintsHelper.Sudoku[units[i, j]] & removedValue) != 0)
                     {
                         ++count;
                         occurredAtIndex = units[i, j];
@@ -150,13 +158,17 @@ namespace Superdoku
                 // If the value occurs only once, we apply the strategy (using eliminate, not assign)
                 if(count == 1)
                 {
-                    List<int> toEliminate = new List<int>(constraintsHelper.Sudoku[occurredAtIndex]);
-                    toEliminate.Remove(removedValue);
+                    ulong toEliminate = constraintsHelper.Sudoku[occurredAtIndex] ^ removedValue;
 
-                    for(int eliminateMe = 0; eliminateMe < toEliminate.Count; ++eliminateMe)
+                    for(ulong eliminateMe = 1; toEliminate != 0; eliminateMe <<= 1)
                     {
-                        if(!constraintsHelper.eliminate(occurredAtIndex, toEliminate[eliminateMe]))
+                        if((toEliminate & eliminateMe) == 0)
+                            continue;
+
+                        if(!constraintsHelper.eliminate(occurredAtIndex, eliminateMe))
                             return false;
+
+                        toEliminate ^= eliminateMe;
                     }
                 }
             }
@@ -169,7 +181,7 @@ namespace Superdoku
     /// <summary>Factory class for the ConstraintsHelperExt_Strategy_ValueOnceInUnit class.</summary>
     class ConstraintsHelperExt_StrategyFactory_ValueOnceInUnit : ConstraintsHelperExt_StrategyFactory
     {
-        public override ConstraintsHelperExt_Strategy createStrategy(ConstraintsHelperExt constraintsHelper, int square, int removedValue)
+        public override ConstraintsHelperExt_Strategy createStrategy(ConstraintsHelperExt constraintsHelper, int square, ulong removedValue)
         {
             return new ConstraintsHelperExt_Strategy_ValueOnceInUnit(constraintsHelper, square, removedValue);
         }
@@ -182,7 +194,7 @@ namespace Superdoku
     /// </summary>
     class ConstraintsHelperExt_Strategy_NakedTwins : ConstraintsHelperExt_Strategy
     {
-        public ConstraintsHelperExt_Strategy_NakedTwins(ConstraintsHelperExt constraintsHelper, int square, int removedValue)
+        public ConstraintsHelperExt_Strategy_NakedTwins(ConstraintsHelperExt constraintsHelper, int square, ulong removedValue)
             : base(constraintsHelper, square, removedValue) { }
 
         public override bool Equals(object obj)
@@ -204,7 +216,7 @@ namespace Superdoku
         public override bool apply()
         {
             // Check if the square we are examining actually contains two possibilities
-            if(constraintsHelper.Sudoku[square].Count != 2)
+            if(constraintsHelper.Sudoku.valueCount(square) != 2)
                 return true;
 
             // We will need to request the units of the square
@@ -220,13 +232,19 @@ namespace Superdoku
                     if(units[unit, squareInUnit] == square)
                         continue;
                     // Check if the current square has two possibilities and if they are the same as the square we are examining
-                    else if(constraintsHelper.Sudoku[units[unit, squareInUnit]].Count == 2 &&
-                            constraintsHelper.Sudoku[units[unit, squareInUnit]].Contains(constraintsHelper.Sudoku[square][0]) &&
-                            constraintsHelper.Sudoku[units[unit, squareInUnit]].Contains(constraintsHelper.Sudoku[square][1]))
+                    else if(constraintsHelper.Sudoku[units[unit, squareInUnit]] == constraintsHelper.Sudoku[square])
                     {
                         // Remove the two possibilities from all other squares in the unit
-                        int value1 = constraintsHelper.Sudoku[square][0];              // Note, we need to remember the values here because they might be removed from our square as
-                        int value2 = constraintsHelper.Sudoku[square][1];              // a consequence of applying other strategies while eliminating values from other squares
+                        // Note, we need to remember the values here because they might be removed from our square as
+                        // a consequence of applying other strategies while eliminating values from other squares
+                        ulong value1 = 1;
+                        ulong value2 = 1;
+                        while((constraintsHelper.Sudoku[square] & value1) == 0)
+                            value1 <<= 1;
+                        value2 = value1 << 1;
+                        while((constraintsHelper.Sudoku[square] & value2) == 0)
+                            value2 <<= 1;
+
                         for(int i = 0; i < units.GetLength(1); ++i)
                         {
                             if(units[unit, i] != square && units[unit, i] != units[unit, squareInUnit])
@@ -247,7 +265,7 @@ namespace Superdoku
     /// <summary>Factory class for the ConstraintsHelperExt_Strategy_NakedTwins class.</summary>
     class ConstraintsHelperExt_StrategyFactory_NakedTwins : ConstraintsHelperExt_StrategyFactory
     {
-        public override ConstraintsHelperExt_Strategy createStrategy(ConstraintsHelperExt constraintsHelper, int square, int removedValue)
+        public override ConstraintsHelperExt_Strategy createStrategy(ConstraintsHelperExt constraintsHelper, int square, ulong removedValue)
         {
             return new ConstraintsHelperExt_Strategy_NakedTwins(constraintsHelper, square, removedValue);
         }
