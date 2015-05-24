@@ -12,10 +12,10 @@ namespace Superdoku
         static void Main(string[] args)
         {
             // Whether or not to test a whole list of sudokus
-            bool testMultipleSudokus = true;
+            bool testMultipleSudokus = false;
 
             // The type of search mechanism we want to test
-            bool testDepthFirstSearchAlgorithm = true;
+            bool testDepthFirstSearchAlgorithm = false;
 
             // Read and test the sudokus
             if(testMultipleSudokus)
