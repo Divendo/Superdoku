@@ -17,7 +17,7 @@ namespace Superdoku
         private Stopwatch stopwatch;
 
         /// <summary>The search time limit in milliseconds.</summary>
-        public const long SEARCH_TIME_LIMIT = 30 * 60 * 1000;
+        public const long SEARCH_TIME_LIMIT = 3 * 60 * 1000;
 
         /// <summary>Whether or not to use a hash map to keep track of failed nodes.</summary>
         private bool useHashMap;
