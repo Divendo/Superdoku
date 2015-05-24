@@ -107,7 +107,7 @@ namespace Superdoku
                     row.Remove(sudokuValues[j + i * NN]);
                     col.Remove(sudokuValues[i + j * NN]);
                 }
-
+      
                 heuristicValue += row.Count;
                 heuristicValue += col.Count;
             }
