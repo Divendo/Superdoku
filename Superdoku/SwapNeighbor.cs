@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Superdoku
 {
     /// <summary>Represents a possible swap that can be performed to get a neighbor.</summary>
-    class SwapNeighbor
+    class SwapNeighbor : IComparable<SwapNeighbor>
     {
         /// <summary>The first square that should be swapped.</summary>
         private int square1;
@@ -54,7 +54,34 @@ namespace Superdoku
             return square2 * 1000000 + square1;
         }
 
+        public int CompareTo(SwapNeighbor other)
+        {
+            if (this.scoreDelta > other.scoreDelta)
+                return -1;
+            if (this.scoreDelta < other.scoreDelta)
+                return 1;
+            return 0;
+        }
+
+        public static bool operator < (SwapNeighbor a, SwapNeighbor b)
+        { return a.scoreDelta > b.scoreDelta; }
+
+        public static bool operator >(SwapNeighbor a, SwapNeighbor b)
+        { return a.scoreDelta < b.scoreDelta; }
+
+        public static bool operator <= (SwapNeighbor a, SwapNeighbor b)
+        { return a.scoreDelta >= b.scoreDelta; }
+
+        public static bool operator >=(SwapNeighbor a, SwapNeighbor b)
+        { return a.scoreDelta <= b.scoreDelta; }
+
         public static bool equal(SwapNeighbor a, SwapNeighbor b)
         { return a.Equals(b); }
+
+        public static bool operator == (SwapNeighbor a, SwapNeighbor b)
+        { return a.Equals(b); }
+
+        public static bool operator != (SwapNeighbor a, SwapNeighbor b)
+        { return !a.Equals(b); }
     }
 }

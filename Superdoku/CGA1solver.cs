@@ -17,10 +17,13 @@ namespace Superdoku
         {
             Random random = new Random();
             List<LocalSudoku> generation = new List<LocalSudoku>(50);
+            List<LocalSudoku> generation1 = new List<LocalSudoku>(50);
             List<LocalSudoku> generation2 = new List<LocalSudoku>(25);
             LocalSudoku best;
             LocalSudoku bestFirst, bestSecond;
 
+
+            //Initiate a random population of 50
             for (int i = 0; i < 50; ++i)
             {
                 LocalSudoku newbie = new LocalSudoku(sudoku);
@@ -30,32 +33,34 @@ namespace Superdoku
                         newbie[j] = random.Next(9);
                 newbie.calcHeuristicValue();
                 generation.Add(newbie);
+                generation1.Add(newbie);
             }
-            best = generation[0];
+            best = generation1[0];
 
             // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
             while (best.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
             {
                 generation2 = new List<LocalSudoku>(25);
-
+                generation1 = new List<LocalSudoku>(generation);
                 //randomly select half of the population
                 for (int t = 0; t < 25; ++t)
                 {
-                    int next = random.Next(generation.Count);
-                    generation2.Add(generation[next]);
-                    generation.RemoveAt(next);
+                    int next = random.Next(generation1.Count);
+                    generation2.Add(generation1[next]);
+                    generation1.RemoveAt(next);
                 }
 
 
-                bestFirst = generation[0];
+                bestFirst = generation1[0];
                 bestSecond = generation2[0];
 
+                //Select the best of each half (tournament selection)
                 for (int t = 0; t < 25; ++t)
                 {
-                    if (bestFirst.HeuristicValue > generation[t].HeuristicValue)
-                        bestFirst = generation[t];
+                    if (bestFirst.HeuristicValue > generation1[t].HeuristicValue)
+                        bestFirst = generation1[t];
                     if (bestSecond.HeuristicValue > generation2[t].HeuristicValue)
-                        bestSecond = generation[t];
+                        bestSecond = generation2[t];
                 }
 
                 if (bestFirst.HeuristicValue < bestSecond.HeuristicValue)
@@ -63,7 +68,10 @@ namespace Superdoku
                 else
                     best = bestSecond;
 
-                generation = this.generateGeneration(bestFirst, bestSecond, sudoku.NN * sudoku.NN);
+                //Delete the weakest 10 of the population and replace them
+                generation = generation.OrderByDescending(x => x.HeuristicValue).ToList();
+                generation.RemoveRange(39, 10);
+                generation.AddRange(this.generateGeneration(bestFirst, bestSecond, sudoku.NN * sudoku.NN));
             }
 
             solution = best;
@@ -72,9 +80,9 @@ namespace Superdoku
 
         private List<LocalSudoku> generateGeneration(LocalSudoku a, LocalSudoku b, int N)
         {
-            List<LocalSudoku> result = new List<LocalSudoku>(50);
+            List<LocalSudoku> result = new List<LocalSudoku>(10);
 
-            for (int i = 0; i < 50; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 Random random = new Random();
                 int n = random.Next(N);
