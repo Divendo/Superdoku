@@ -49,7 +49,6 @@
     <Compile Include="ConstraintsHelper_AC3_squares.cs" />
     <Compile Include="ConstraintsHelperExt_MAC.cs" />
     <Compile Include="DepthFirstSearch.cs" />
-    <Compile Include="LocalSearchers\FirstImprovementTabuSearcher.cs" />
     <Compile Include="LocalSearchers\IterativeSearcher.cs" />
     <Compile Include="LocalSearchers\LocalSearcher.cs" />
     <Compile Include="LocalSudoku.cs" />
@@ -59,7 +58,6 @@
     <Compile Include="LocalSearchers\SimulatedAnnealer.cs" />
     <Compile Include="LocalSearchers\SteepRandomHillclimbSolver.cs" />
     <Compile Include="Sudoku.cs" />
-    <Compile Include="SudokuNotPossibleException.cs" />
     <Compile Include="ConstraintsHelper_AC1.cs" />
     <Compile Include="ConstraintsHelper_AC3.cs" />
     <Compile Include="ConstraintsHelperExt_Recursive.cs" />
