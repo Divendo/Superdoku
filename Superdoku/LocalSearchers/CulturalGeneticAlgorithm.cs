@@ -12,10 +12,17 @@ namespace Superdoku
         /// <summary>The size of the population in each iteration.</summary>
         private const int POPULATION_SIZE = 32;
 
+        /// <summary>The maximum amount of iterations without improvement.</summary>
+        private int maxIterationsWithoutImprovement;
+
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        public CulturalGeneticAlgorithm(int maxIterations = -1)
-            : base(maxIterations) { }
+        /// <param name="stopAfterIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
+        public CulturalGeneticAlgorithm(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+            : base(maxIterations)
+        {
+            this.maxIterationsWithoutImprovement = maxIterationsWithoutImprovement;
+        }
 
         public override bool solve(LocalSudoku sudoku)
         {
@@ -24,6 +31,9 @@ namespace Superdoku
 
             // Reset the iterations
             iterations = 0;
+
+            // The amount of iterations since we improved our value
+            int iterationsWithoutImprovement = 0;
 
             // Initialise the first population
             List<LocalSudoku> population = new List<LocalSudoku>(POPULATION_SIZE);
@@ -37,10 +47,11 @@ namespace Superdoku
             }
 
             // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
-            while(bestSolution.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
+            while(bestSolution.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations) && (maxIterationsWithoutImprovement < 0 || iterationsWithoutImprovement < maxIterationsWithoutImprovement))
             {
                 // Increase the iteration counter
                 ++iterations;
+                ++iterationsWithoutImprovement;
 
                 // Generate a new population
                 List<LocalSudoku> newPopulation = new List<LocalSudoku>(POPULATION_SIZE);
@@ -53,7 +64,10 @@ namespace Superdoku
                     // Let them create a baby
                     LocalSudoku baby = new LocalSudoku(mate1, mate2);
                     if(baby.HeuristicValue < bestSolution.HeuristicValue)
+                    {
                         bestSolution = new LocalSudoku(baby);
+                        iterationsWithoutImprovement = 0;
+                    }
 
                     // Perform some mutations
                     int mutationCount = Randomizer.random.Next((baby.HeuristicValue + 1) / 2) + 1;
@@ -65,7 +79,10 @@ namespace Superdoku
 
                     // Add the baby to the new population
                     if(baby.HeuristicValue < bestSolution.HeuristicValue)
+                    {
                         bestSolution = new LocalSudoku(baby);
+                        iterationsWithoutImprovement = 0;
+                    }
                     newPopulation.Add(baby);
                 }
 

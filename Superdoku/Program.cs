@@ -59,7 +59,7 @@ namespace Superdoku
         static void testLocalSearch(Sudoku sudoku)
         {
             // Create the search machine
-            LocalSearcher searchMachine = new CulturalGeneticAlgorithm_Tournament();
+            LocalSearcher searchMachine = new TabuCGAHybrid();
 
             // Measure the performance
             Stopwatch stopWatch = new Stopwatch();
