@@ -34,6 +34,7 @@ namespace Superdoku
             // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
             while (best.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
             {
+                ++iterations;
                 generation2 = new List<LocalSudoku>(25);
                 generation1 = new List<LocalSudoku>(generation);
 

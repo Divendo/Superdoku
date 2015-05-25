@@ -59,7 +59,7 @@ namespace Superdoku
         static void testLocalSearch(Sudoku sudoku)
         {
             // Solve the sudoku using local search
-            LocalSearcher searchMachine = new CGA1solver();
+            LocalSearcher searchMachine = new SteepRandomHillclimbSolver();
             Sudoku solution = searchMachine.solve(sudoku);
             if(solution == null)
             {
