@@ -32,6 +32,8 @@ namespace Superdoku
             //The size of the Markov chain should represent the size of the search space
             maxIterations = 42700*2209;//(int)Math.Pow(sudoku.NN, 4) * 20;
 
+            int maxRounds = sudoku.NN * sudoku.NN * 9 / 16;
+
             // Reset the iterations
             iterations = 0;
             rounds = 0;
@@ -51,7 +53,7 @@ namespace Superdoku
 
 
                 //Alter the temperature
-                if (rounds == 2209)
+                if (rounds == maxRounds)
                 {
                     c *= alpha;
                     rounds = 0;

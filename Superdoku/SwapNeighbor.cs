@@ -63,25 +63,8 @@ namespace Superdoku
             return 0;
         }
 
-        public static bool operator < (SwapNeighbor a, SwapNeighbor b)
-        { return a.scoreDelta > b.scoreDelta; }
-
-        public static bool operator >(SwapNeighbor a, SwapNeighbor b)
-        { return a.scoreDelta < b.scoreDelta; }
-
-        public static bool operator <= (SwapNeighbor a, SwapNeighbor b)
-        { return a.scoreDelta >= b.scoreDelta; }
-
-        public static bool operator >=(SwapNeighbor a, SwapNeighbor b)
-        { return a.scoreDelta <= b.scoreDelta; }
-
         public static bool equal(SwapNeighbor a, SwapNeighbor b)
         { return a.Equals(b); }
 
-        public static bool operator == (SwapNeighbor a, SwapNeighbor b)
-        { return a.Equals(b); }
-
-        public static bool operator != (SwapNeighbor a, SwapNeighbor b)
-        { return !a.Equals(b); }
     }
 }

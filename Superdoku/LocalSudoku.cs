@@ -87,6 +87,11 @@ namespace Superdoku
             heuristicValue = other.heuristicValue;
         }
 
+        public LocalSudoku(int N)
+        { n = N;
+        sudokuValues = new int[n * n * n * n];
+        }
+
         /// <summary>Calculates (or recalculates) the heuristic value of this solution.</summary>
         public void calcHeuristicValue()
         {
