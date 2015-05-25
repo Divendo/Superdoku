@@ -21,7 +21,7 @@ namespace Superdoku
         /// <summary>The heuristic value of this sudoku.</summary>
         private int heuristicValue;
 
-        /// <summary>Construct from a sudoku, copying the squares with one possibility and filling in the rest.</summary>
+        /// <summary>Construct from a sudoku, copying and fixing the squares with one possibility and randomly filling in the rest.</summary>
         /// <param name="sudoku">The sudoku that should be used to initialise.</param>
         public LocalSudoku(Sudoku sudoku)
         {
@@ -85,6 +85,20 @@ namespace Superdoku
             for(int i = 0; i < NN*NN; ++i)
                 sudokuValues[i] = other[i];
             heuristicValue = other.heuristicValue;
+        }
+
+        /// <summary>Generates a LocalSudoku copying the fixed values from the given LocalSudoku and randomizing the rest.</summary>
+        /// <param name="localSudoku">The LocalSudoku that should be used to generate a new LocalSudoku.</param>
+        /// <returns>The generated LocalSudoku.</returns>
+        public static LocalSudoku buildRandomlyFromLocalSudoku(LocalSudoku localSudoku)
+        {
+            Sudoku sudoku = new Sudoku(localSudoku.N);
+            for(int square = 0; square < localSudoku.NN * localSudoku.NN; ++square)
+            {
+                if(localSudoku.isFixed(square))
+                    sudoku[square] = 1ul << localSudoku[square];
+            }
+            return new LocalSudoku(sudoku);
         }
 
         public LocalSudoku(int N)

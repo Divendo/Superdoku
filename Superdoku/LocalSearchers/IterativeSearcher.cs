@@ -16,6 +16,9 @@ namespace Superdoku
 
         public override bool solve(LocalSudoku sudoku)
         {
+            // Initialise the best solution
+            bestSolution = new LocalSudoku(sudoku);
+
             // Reset the iterations
             iterations = 0;
 
@@ -40,10 +43,14 @@ namespace Superdoku
 
                 // If we have found a neighbor, apply it otherwise we return null
                 if(bestNeighbor != null)
+                {
                     sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
+                    if(sudoku.HeuristicValue < bestSolution.HeuristicValue)
+                        bestSolution = new LocalSudoku(sudoku);
+                }
                 return false;
             }
-            solution = sudoku;
+
             return sudoku.HeuristicValue == 0;
         }
     }

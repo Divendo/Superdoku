@@ -65,6 +65,5 @@ namespace Superdoku
 
         public static bool equal(SwapNeighbor a, SwapNeighbor b)
         { return a.Equals(b); }
-
     }
 }

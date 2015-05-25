@@ -20,11 +20,14 @@ namespace Superdoku
         /// <returns>The size of the tabu list for a sudoku of the given size.</returns>
         public int tabuListLength(int n)
         {
-            return (int)(n*n );
+            return n*n;
         }
 
         public override bool solve(LocalSudoku sudoku)
         {
+            // Initialise the best solution
+            bestSolution = new LocalSudoku(sudoku);
+
             // The tabu list
             int tabuListSize = tabuListLength(sudoku.N);
             HashSet<SwapNeighbor> tabuList = new HashSet<SwapNeighbor>();
@@ -58,9 +61,13 @@ namespace Superdoku
                     tabuList.Remove(tabuQueue.Dequeue());
                 tabuList.Add(bestNeighbor);
                 tabuQueue.Enqueue(bestNeighbor);
+
+                // Remember the best solution
+                if(sudoku.HeuristicValue < bestSolution.HeuristicValue)
+                    bestSolution = new LocalSudoku(sudoku);
             }
-            solution = sudoku;
-            return true;
+
+            return sudoku.HeuristicValue == 0;
         }
 
         /// <summary>Generates the Neighbors of a LocalSudoku.</summary>

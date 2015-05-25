@@ -64,7 +64,7 @@ namespace Superdoku
                 sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
 
             }
-            solution = sudoku;
+            bestSolution = sudoku;
             return true;
         }
 

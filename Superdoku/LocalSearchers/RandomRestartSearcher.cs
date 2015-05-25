@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Superdoku
 {
-    /// <summary>This class implements the hillclimbing technique with random restarts</summary>
+    /// <summary>This class implements the hillclimbing technique with random restarts.</summary>
     class RandomRestartSearcher : LocalSearcher
     {
         /// <summary>Constructor.</summary>
@@ -14,12 +14,11 @@ namespace Superdoku
         public RandomRestartSearcher(int maxIterations = -1)
             : base(maxIterations) { }
 
-        //TESTER
-        int lowest = 1000;
-
         public override bool solve(LocalSudoku sudoku)
         {
-            
+            // Initialise the best solution
+            bestSolution = new LocalSudoku(sudoku);
+
             // Reset the iterations
             iterations = 0;
 
@@ -28,10 +27,6 @@ namespace Superdoku
             {
                 // Increase the iteration counter
                 ++iterations;
-
-                //HERE FOR TESTING PURPOSES BTCH
-                if (lowest > sudoku.HeuristicValue)
-                    lowest = sudoku.HeuristicValue;
 
                 // Search for the best neighbor
                 List<SwapNeighbor> neighbors = generateNeighbors(sudoku);
@@ -46,13 +41,17 @@ namespace Superdoku
                     }
                 }
 
-                // If we have found a neighbor, apply it otherwise we return null
-                if (bestNeighbor != null)
+                // If we have found a neighbor, apply it otherwise we restart the algorithm
+                if(bestNeighbor != null)
                     sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
-                else //If we cannot find any better neighbors, restart
-                    return this.solve(new LocalSudoku(primary));
+                else
+                    sudoku = LocalSudoku.buildRandomlyFromLocalSudoku(sudoku);
+
+                // Keep track of the best solution
+                if(sudoku.HeuristicValue < bestSolution.HeuristicValue)
+                    bestSolution = new LocalSudoku(sudoku);
             }
-            solution = sudoku;
+
             return sudoku.HeuristicValue == 0;
         }
     }

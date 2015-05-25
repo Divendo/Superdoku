@@ -67,7 +67,7 @@ namespace Superdoku
                 generation.AddRange(this.generateGeneration(bestFirst, bestSecond));
             }
 
-            solution = best;
+            bestSolution = best;
             return true;
         }
 
