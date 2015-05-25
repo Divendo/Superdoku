@@ -45,7 +45,7 @@ namespace Superdoku
 
                 //Generate the neighbors
                 for (int t = 0; t < neighborhoodSize; ++t)
-                    neighborhood.Add(generateNeighbor(sudoku));
+                    neighborhood.Add(generateRandomNeighbor(sudoku));
 
                 for (int t = 0; t < Math.Max(neighborhoodSize / 4,1); ++t)
                 {

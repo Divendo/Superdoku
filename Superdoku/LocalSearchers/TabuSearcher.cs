@@ -10,10 +10,7 @@ namespace Superdoku
     class TabuSearcher : LocalSearcher
     {
         /// <summary>A list of all possible neighbors.</summary>
-        private List<SwapNeighbor> allNeighbors;
-
-        /// <summary>The neighbor we last applied.</summary>
-        private SwapNeighbor lastApplied;
+        private LocalSearcherNeighborList allNeighbors;
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
@@ -37,8 +34,10 @@ namespace Superdoku
             iterations = 0;
 
             // Initialise the list of all neighbors
-            allNeighbors = generateNeighbors(sudoku);
-            lastApplied = null;
+            allNeighbors = new LocalSearcherNeighborList(generateNeighbors(sudoku));
+
+            // The last neighbor that was applied
+            SwapNeighbor lastApplied = null;
 
             // The tabu list
             int tabuListSize = tabuListLength(sudoku.N);
@@ -51,8 +50,27 @@ namespace Superdoku
                 // Increase the iteration counter
                 ++iterations;
 
+                // Update the list of all neighbors
+                if(lastApplied != null)
+                    allNeighbors.update(sudoku, lastApplied);
+
                 // Find the best neighbor that is not on the tabu list
-                SwapNeighbor bestNeighbor = generateBestNeighbor(sudoku, tabuList);
+                SwapNeighbor bestNeighbor = null;
+                foreach(SwapNeighbor neighbor in allNeighbors.Neighbors)
+                {
+                    // If this neighbor is not on the tabu list, it is a candidate for a better neighbor
+                    if(!tabuList.Contains(neighbor))
+                    {
+                        if(bestNeighbor == null || neighbor.ScoreDelta < bestNeighbor.ScoreDelta)
+                        {
+                            bestNeighbor = neighbor;
+
+                            // We will never be able to improve a score delta of -4
+                            if(bestNeighbor.ScoreDelta == -4)
+                                break;
+                        }
+                    }
+                }
 
                 // If no neighbor can be found, we stop the search process
                 if(bestNeighbor == null)
@@ -60,11 +78,11 @@ namespace Superdoku
 
                 // Otherwise we apply the neighbor and add it to the tabu list
                 sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
+                lastApplied = bestNeighbor;
                 if(tabuQueue.Count == tabuListSize)
                     tabuList.Remove(tabuQueue.Dequeue());
                 tabuList.Add(bestNeighbor);
                 tabuQueue.Enqueue(bestNeighbor);
-                lastApplied = bestNeighbor;
 
                 // Remember the best solution
                 if(sudoku.HeuristicValue < bestSolution.HeuristicValue)
@@ -72,51 +90,6 @@ namespace Superdoku
             }
 
             return sudoku.HeuristicValue == 0;
-        }
-
-        /// <summary>Generates the best neighbor for a given solution, keeping the tabu list in mind.</summary>
-        /// <param name="sudoku">The solution to generate a neighbor for.</param>
-        /// <returns>The best neighbor that could be found or null if no neighbor could be found.</returns>
-        private SwapNeighbor generateBestNeighbor(LocalSudoku sudoku, HashSet<SwapNeighbor> tabulist)
-        {
-            SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
-
-            // The best neighbor we found so far
-            SwapNeighbor bestNeighbor = null;
-
-            // Get the peers of the squares that were swapped in the last iteration
-            List<int> peers = new List<int>(2 * helper.getPeerCount() + 2);
-            if(lastApplied != null)
-            {
-                peers.AddRange(helper.getPeersFor(lastApplied.Square1));
-                peers.Add(lastApplied.Square1);
-                peers.AddRange(helper.getPeersFor(lastApplied.Square2));
-                peers.Add(lastApplied.Square2);
-            }
-
-            // Loop through all neighbors
-            for(int neighbor = 0; neighbor < allNeighbors.Count; ++neighbor)
-            {
-                // Check if this neighbor needs to have its score delta updated
-                if(peers.Contains(allNeighbors[neighbor].Square1) || peers.Contains(allNeighbors[neighbor].Square2))
-                    allNeighbors[neighbor] = new SwapNeighbor(allNeighbors[neighbor].Square1, allNeighbors[neighbor].Square2, sudoku.heuristicDelta(allNeighbors[neighbor].Square1, allNeighbors[neighbor].Square2));
-
-                // If this neighbor is not on the tabu list, it is a candidate for a better neighbor
-                if(!tabulist.Contains(allNeighbors[neighbor]))
-                {
-                    if(bestNeighbor == null || allNeighbors[neighbor].ScoreDelta < bestNeighbor.ScoreDelta)
-                    {
-                        bestNeighbor = allNeighbors[neighbor];
-
-                        // We will never be able to improve a score delta of -4
-                        if(bestNeighbor.ScoreDelta == -4)
-                            return bestNeighbor;
-                    }
-                }
-            }
-
-            // Return the best neighbor
-            return bestNeighbor;
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Superdoku
                 ++iterations;
 
                 // Randomly generate a neighbor
-                SwapNeighbor neighbor = generateNeighbor(sudoku);
+                SwapNeighbor neighbor = generateRandomNeighbor(sudoku);
                 if(neighbor == null)
                     return false;
 

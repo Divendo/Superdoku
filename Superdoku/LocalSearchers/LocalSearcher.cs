@@ -51,7 +51,7 @@ namespace Superdoku
         /// <summary>Randomly generates a neighbor for the given sudoku.</summary>
         /// <param name="sudoku">The sudoku to generate a neighbor for.</param>
         /// <returns>The generated neighbor, or null if no neighbor could be generated.</returns>
-        protected SwapNeighbor generateNeighbor(LocalSudoku sudoku)
+        protected SwapNeighbor generateRandomNeighbor(LocalSudoku sudoku)
         {
             Random random = new Random();
             SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
