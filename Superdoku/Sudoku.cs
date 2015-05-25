@@ -300,7 +300,7 @@ namespace Superdoku
 
                     // Remove the square itself from its peers and copy the result
                     peerSet.Remove(x + y * NN);
-                    peers[x + y * NN] = new int[n * n - 1 + 2 * (n - 1) * n];
+                    peers[x + y * NN] = new int[getPeerCount()];
                     peerSet.CopyTo(peers[x + y * NN]);
                 }
             }
@@ -324,6 +324,17 @@ namespace Superdoku
         /// <returns>The y coordinate of the square.</returns>
         public int indexToY(int index)
         { return index / NN; }
+
+        /// <summary>Returns the amount of peers each square has.</summary>
+        /// <returns>The amount of peers each square has.</returns>
+        public int getPeerCount()
+        {
+            // In the same box: NN - 1
+            // In a row (excluding the box):    NN - N = (N - 1) * N
+            // In a column (excluding the box): NN - N = (N - 1) * N
+            // Adding together: NN - 1 + 2 * (N - 1) * N
+            return NN - 1 + 2 * (N - 1) * N;
+        }
 
         /// <summary>Returns the peers for the given square.</summary>
         /// <param name="index">The index of the square whose peers should be returned.</param>

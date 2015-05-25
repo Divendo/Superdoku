@@ -58,9 +58,17 @@ namespace Superdoku
 
         static void testLocalSearch(Sudoku sudoku)
         {
-            // Solve the sudoku using local search
-            LocalSearcher searchMachine = new SteepRandomHillclimbSolver();
+            // Create the search machine
+            LocalSearcher searchMachine = new TabuCGAHybrid();
+
+            // Measure the performance
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             Sudoku solution = searchMachine.solve(sudoku);
+            stopWatch.Stop();
+
+            // Show the result
+            Console.WriteLine("The local searcher finished in {0} ms.", stopWatch.ElapsedMilliseconds);
             if(solution == null)
             {
                 Console.WriteLine("The local searcher was not able to solve this sudoku...");
