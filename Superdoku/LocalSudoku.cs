@@ -48,7 +48,7 @@ namespace Superdoku
                 }
             }
 
-            // Now we give each square one of its possibilities as value 
+            // Now we give each square one of its possibilities as value
             fixiated = new bool[NN * NN];
             sudokuValues = new int[NN * NN];
             Random random = new Random();
@@ -64,7 +64,7 @@ namespace Superdoku
                 else
                 {
                     int box = sudokuIndexHelper.indexToX(i) / N + N * (sudokuIndexHelper.indexToY(i) / N);
-                    int index = random.Next(0, possibleValuesPerBox[box].Count());
+                    int index = Randomizer.random.Next(0, possibleValuesPerBox[box].Count());
                     sudokuValues[i] = possibleValuesPerBox[box][index];
                     possibleValuesPerBox[box].RemoveAt(index);
                 }
@@ -101,9 +101,42 @@ namespace Superdoku
             return new LocalSudoku(sudoku);
         }
 
-        public LocalSudoku(int N)
-        { n = N;
-        sudokuValues = new int[n * n * n * n];
+        /// <summary>Creates a new LocalSudoku by mating the two given LocalSudoku instances.</summary>
+        /// <param name="localSudoku1">The first instance to use for mating.</param>
+        /// <param name="localSudoku2">The second instance to use for mating.</param>
+        public LocalSudoku(LocalSudoku localSudoku1, LocalSudoku localSudoku2)
+        {
+            // Initialise the fields of this instance
+            n = localSudoku1.N;
+            fixiated = new bool[NN * NN];
+            sudokuValues = new int[NN * NN];
+
+            // We will also need a SudokuIndexHelper
+            SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(N);
+
+            // Decide per box from which parent we want to copy it
+            for(int box = 0; box < NN; ++box)
+            {
+                bool copyFromFirstParent = Randomizer.random.Next() % 2 == 0;
+
+                int[,] units = sudokuIndexHelper.getUnitsFor(N * (box % N), N * (box / N));
+                for(int i = 0; i < NN; ++i)
+                {
+                    if(copyFromFirstParent)
+                    {
+                        sudokuValues[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]] = localSudoku1.sudokuValues[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]];
+                        fixiated[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]] = localSudoku1.fixiated[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]];
+                    }
+                    else
+                    {
+                        sudokuValues[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]] = localSudoku2.sudokuValues[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]];
+                        fixiated[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]] = localSudoku2.fixiated[units[SudokuIndexHelper.UNIT_BOX_INDEX, i]];
+                    }
+                }
+            }
+
+            // Calculate the heuristic value
+            calcHeuristicValue();
         }
 
         /// <summary>Calculates (or recalculates) the heuristic value of this solution.</summary>

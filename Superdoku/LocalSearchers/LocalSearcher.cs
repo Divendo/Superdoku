@@ -53,11 +53,10 @@ namespace Superdoku
         /// <returns>The generated neighbor, or null if no neighbor could be generated.</returns>
         protected SwapNeighbor generateRandomNeighbor(LocalSudoku sudoku)
         {
-            Random random = new Random();
             SudokuIndexHelper helper = SudokuIndexHelper.get(sudoku.N);
 
             // Pick a random box 
-            int box = random.Next(0, sudoku.NN);
+            int box = Randomizer.random.Next(0, sudoku.NN);
 
             List<int> squares = null;
             int currBox = box;
@@ -87,8 +86,8 @@ namespace Superdoku
                 return null;
 
             // Randomly pick two squares
-            int square1 = random.Next(0, squares.Count);
-            int square2 = random.Next(0, squares.Count - 1);
+            int square1 = Randomizer.random.Next(0, squares.Count);
+            int square2 = Randomizer.random.Next(0, squares.Count - 1);
             if (square2 >= square1)
                 ++square2;
 

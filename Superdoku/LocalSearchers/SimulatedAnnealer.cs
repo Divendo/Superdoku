@@ -22,9 +22,6 @@ namespace Superdoku
             // Initialise the best solution
             bestSolution = new LocalSudoku(sudoku);
 
-            // We will need a random generator
-            Random random = new Random();
-
             // The size of the Markov chain should represent the size of the search space
             //maxIterations = 42700*2209;//(int)Math.Pow(sudoku.NN, 4) * 20;
 
@@ -57,7 +54,7 @@ namespace Superdoku
                 if(neighbor.ScoreDelta < 0)
                     sudoku.swap(neighbor.Square1, neighbor.Square2);
                 // Else we adopt it with a given chance
-                else if(random.NextDouble() < Math.Exp(-neighbor.ScoreDelta / c))
+                else if(Randomizer.random.NextDouble() < Math.Exp(-neighbor.ScoreDelta / c))
                     sudoku.swap(neighbor.Square1, neighbor.Square2);
 
                 // Remember the best solution

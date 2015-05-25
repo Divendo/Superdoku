@@ -41,17 +41,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CGA1solver.cs" />
-    <Compile Include="CGA2solver.cs" />
     <Compile Include="ConstraintsHelper.cs" />
     <Compile Include="ConstraintsHelperExt.cs" />
     <Compile Include="ConstraintsHelperExt_Strategy.cs" />
     <Compile Include="ConstraintsHelper_AC3_squares.cs" />
     <Compile Include="ConstraintsHelperExt_MAC.cs" />
+    <Compile Include="LocalSearchers\CulturalGeneticAlgorithm.cs" />
     <Compile Include="DepthFirstSearch.cs" />
+    <Compile Include="LocalSearchers\CulturalGeneticAlgorithm_Roulette.cs" />
+    <Compile Include="LocalSearchers\CulturalGeneticAlgorithm_Tournament.cs" />
     <Compile Include="LocalSearchers\IterativeSearcher.cs" />
     <Compile Include="LocalSearchers\LocalSearcher.cs" />
     <Compile Include="LocalSearcherNeighborList.cs" />
+    <Compile Include="Randomizer.cs" />
     <Compile Include="LocalSudoku.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
