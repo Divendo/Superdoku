@@ -36,7 +36,7 @@ namespace Superdoku
             else
             {
                 // Read the sudoku
-                Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/9x9.txt", 3);
+                Sudoku sudoku = SudokuReader.readFromFile("../../sudokus/16x16.txt", 4);
                 Console.WriteLine("Original sudoku:");
                 printSudoku(sudoku);
                 Console.WriteLine();
@@ -59,7 +59,7 @@ namespace Superdoku
         static void testLocalSearch(Sudoku sudoku)
         {
             // Create the search machine
-            LocalSearcher searchMachine = new TabuCGAHybrid();
+            LocalSearcher searchMachine = new TabuSearcher();
 
             // Measure the performance
             Stopwatch stopWatch = new Stopwatch();
