@@ -53,12 +53,18 @@ namespace Superdoku
         /// <summary>Reads multiple sudokus from a file, one on each line.</summary>
         /// <param name="filename">The file to read the sudoku from.</param>
         /// <param name="n">The size of the sudoku (n*n by n*n squares).</param>
+        /// <param name="amount">Reads only the first amount of sudokus, or all sudokus if a negative number is given here.</param>
         /// <returns>The parsed sudoku</returns>
-        public static Sudoku[] readFromFileLines(string filename, int n)
+        public static Sudoku[] readFromFileLines(string filename, int n, int amount = -1)
         {
             string[] lines = File.ReadAllText(filename).Split(new char[] { '\n' });
-            Sudoku[] sudokus = new Sudoku[lines.Length];
-            for(int i = 0; i < lines.Length; ++i)
+
+            int sudokuCount = lines.Length;
+            if(amount > 0 && amount < lines.Length)
+                sudokuCount = amount;
+
+            Sudoku[] sudokus = new Sudoku[sudokuCount];
+            for(int i = 0; i < sudokuCount; ++i)
                 sudokus[i] = readFromString(lines[i], n);
             return sudokus;
         }
