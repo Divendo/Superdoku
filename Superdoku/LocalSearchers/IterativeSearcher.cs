@@ -59,16 +59,16 @@ namespace Superdoku
                     }
                 }
 
-                // If we have found a neighbor, apply it otherwise we return null
+                // If we have found a neighbor, apply it otherwise we return false
                 if(bestNeighbor != null)
                 {
                     sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
                     lastApplied = bestNeighbor;
-                    if (sudoku.HeuristicValue < bestSolution.HeuristicValue)
+                    if(sudoku.HeuristicValue < bestSolution.HeuristicValue)
                         bestSolution = new LocalSudoku(sudoku);
-                    else
-                        return false;
                 }
+                else
+                    return false;
             }
 
             return sudoku.HeuristicValue == 0;
