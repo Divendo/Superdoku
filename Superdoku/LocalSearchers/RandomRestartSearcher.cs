@@ -14,8 +14,9 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        public RandomRestartSearcher(int maxIterations = -1)
-            : base(maxIterations) { }
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of restarts (negative value for unlimited).</param>
+        public RandomRestartSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+            : base(maxIterations, maxIterationsWithoutImprovement) { }
 
         public override bool solve(LocalSudoku sudoku)
         {
@@ -24,6 +25,9 @@ namespace Superdoku
 
             // Reset the iterations
             iterations = 0;
+
+            // The amount of restarts we have done
+            int restarts = 0;
 
             // Initialise the list of all neighbors
             allNeighbors = new LocalSearcherNeighborList(generateNeighbors(sudoku));
@@ -45,8 +49,8 @@ namespace Superdoku
                 SwapNeighbor bestNeighbor = null;
                 foreach(SwapNeighbor neighbor in allNeighbors.Neighbors)
                 {
-                    // We will only accept improvements and equals
-                    if(neighbor.ScoreDelta <= 0)
+                    // We will only accept improvements
+                    if(neighbor.ScoreDelta < 0)
                     {
                         if(bestNeighbor == null || neighbor.ScoreDelta < bestNeighbor.ScoreDelta)
                         {
@@ -65,8 +69,13 @@ namespace Superdoku
                     sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
                     lastApplied = bestNeighbor;
                 }
+                else if(restarts == maxIterationsWithoutImprovement)
+                    break;
                 else
                 {
+                    // Increase the amount of restarts
+                    ++restarts;
+
                     // Start at a random new solution
                     sudoku = LocalSudoku.buildRandomlyFromLocalSudoku(sudoku);
 

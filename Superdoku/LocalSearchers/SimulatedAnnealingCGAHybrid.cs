@@ -13,8 +13,9 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        public SimulatedAnnealingCGAHybrid(int maxIterations = -1)
-            : base(maxIterations) { }
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement for the simulated annealing searcher (negative value for unlimited).</param>
+        public SimulatedAnnealingCGAHybrid(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+            : base(maxIterations, maxIterationsWithoutImprovement) { }
 
         public override bool solve(LocalSudoku sudoku)
         {
@@ -27,7 +28,7 @@ namespace Superdoku
                 return true;
            
             // If that did not work, we try simulated annealing
-            SimulatedAnnealer sa = new SimulatedAnnealer(maxIterations - iterations);
+            SimulatedAnnealer sa = new SimulatedAnnealer(maxIterations - iterations, maxIterationsWithoutImprovement);
             solved = sa.solve(bestSolution);
             bestSolution = sa.Solution;
             iterations += cga.Iterations;

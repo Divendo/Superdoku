@@ -14,8 +14,9 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        public TabuSearcher(int maxIterations = -1)
-            : base(maxIterations) { }
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
+        public TabuSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+            : base(maxIterations, maxIterationsWithoutImprovement) { }
 
         /// <summary>Calculates the length of the tabu list for a sudoku of the given size.</summary>
         /// <param name="n">The size of the sudoku (n*n by n*n squares).</param>
@@ -33,6 +34,9 @@ namespace Superdoku
             // Reset the iterations
             iterations = 0;
 
+            // The amount of iterations since we improved our value
+            int iterationsWithoutImprovement = 0;
+
             // Initialise the list of all neighbors
             allNeighbors = new LocalSearcherNeighborList(generateNeighbors(sudoku));
 
@@ -45,10 +49,11 @@ namespace Superdoku
             Queue<SwapNeighbor> tabuQueue = new Queue<SwapNeighbor>(tabuListSize);
 
             // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
-            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
+            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations) && (maxIterationsWithoutImprovement < 0 || iterationsWithoutImprovement < maxIterationsWithoutImprovement))
             {
                 // Increase the iteration counter
                 ++iterations;
+                ++iterationsWithoutImprovement;
 
                 // Update the list of all neighbors
                 if(lastApplied != null)
@@ -75,6 +80,10 @@ namespace Superdoku
                 // If no neighbor can be found, we stop the search process
                 if(bestNeighbor == null)
                     return false;
+
+                // Check if we are going to improve our value
+                if(bestNeighbor.ScoreDelta < 0)
+                    iterationsWithoutImprovement = 0;
 
                 // Otherwise we apply the neighbor and add it to the tabu list
                 sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);

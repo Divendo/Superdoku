@@ -10,17 +10,23 @@ namespace Superdoku
     {
         /// <summary>The best solution that was found while solving the sudoku.</summary>
         protected LocalSudoku bestSolution;
+
         /// <summary>The maximum amount of iterations the searcher should perform (negative value for unlimited).</summary>
         protected int maxIterations;
+
+        /// <summary>The maximum amount of iterations without improvement.</summary>
+        protected int maxIterationsWithoutImprovement;
 
         /// <summary>The amount of iterations performed in the last run.</summary>
         protected int iterations;
         
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        public LocalSearcher(int maxIterations = -1)
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
+        public LocalSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
         {
             this.maxIterations = maxIterations;
+            this.maxIterationsWithoutImprovement = maxIterationsWithoutImprovement;
         }
 
         /// <summary>The best solution that was found after applying solve().</summary>

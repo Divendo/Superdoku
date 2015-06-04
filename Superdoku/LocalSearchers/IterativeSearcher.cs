@@ -14,8 +14,9 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        public IterativeSearcher(int maxIterations = -1)
-            : base(maxIterations) { }
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
+        public IterativeSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+            : base(maxIterations, maxIterationsWithoutImprovement) { }
 
         public override bool solve(LocalSudoku sudoku)
         {
@@ -25,6 +26,9 @@ namespace Superdoku
             // Reset the iterations
             iterations = 0;
 
+            // The amount of iterations since we improved our value
+            int iterationsWithoutImprovement = 0;
+
             // Initialise the list of all neighbors
             allNeighbors = new LocalSearcherNeighborList(generateNeighbors(sudoku));
 
@@ -32,10 +36,11 @@ namespace Superdoku
             SwapNeighbor lastApplied = null;
 
             // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
-            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
+            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations) && (maxIterationsWithoutImprovement < 0 || iterationsWithoutImprovement < maxIterationsWithoutImprovement))
             {
                 // Increase the iteration counter
                 ++iterations;
+                ++iterationsWithoutImprovement;
 
                 // Update the list of all neighbors
                 if(lastApplied != null)
@@ -62,6 +67,9 @@ namespace Superdoku
                 // If we have found a neighbor, apply it otherwise we return false
                 if(bestNeighbor != null)
                 {
+                    if(bestNeighbor.ScoreDelta < 0)
+                        iterationsWithoutImprovement = 0;
+
                     sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
                     lastApplied = bestNeighbor;
                     if(sudoku.HeuristicValue < bestSolution.HeuristicValue)

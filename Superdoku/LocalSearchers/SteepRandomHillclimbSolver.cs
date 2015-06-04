@@ -16,7 +16,8 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        public SteepRandomHillclimbSolver(int maxIterations = -1)
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of random walks (negative value for unlimited).</param>
+        public SteepRandomHillclimbSolver(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
             : base(maxIterations) { }
 
         public override bool solve(LocalSudoku sudoku)
@@ -26,6 +27,9 @@ namespace Superdoku
 
             // Reset the iterations
             iterations = 0;
+
+            // The amount of random walks
+            int randomWalks = 0;
 
             // Initialise the list of all neighbors
             allNeighbors = new LocalSearcherNeighborList(generateNeighbors(sudoku));
@@ -67,8 +71,13 @@ namespace Superdoku
                     sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
                     lastApplied = bestNeighbor;
                 }
+                else if(randomWalks == maxIterationsWithoutImprovement)
+                    break;
                 else
                 {
+                    // Increase the random walks counter
+                    ++randomWalks;
+
                     // We start a random walk starting from the best point we have ever found
                     sudoku = randomWalk(bestSolution, STEPS);
 

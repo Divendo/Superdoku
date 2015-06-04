@@ -11,17 +11,12 @@ namespace Superdoku
         int[] velocities;
         int POPULATION_SIZE = 32;
 
-
-        /// <summary>The maximum amount of iterations without improvement.</summary>
-        private int maxIterationsWithoutImprovement;
-
-                public RepulsivePSO(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
-            : base(maxIterations)
-        {
-            this.maxIterationsWithoutImprovement = maxIterationsWithoutImprovement;
-        }
-
-   
+        /// <summary>Constructor.</summary>
+        /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
+        public RepulsivePSO(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+            : base(maxIterations, maxIterationsWithoutImprovement)
+        { }
 
         public override bool solve(LocalSudoku sudoku)
         {

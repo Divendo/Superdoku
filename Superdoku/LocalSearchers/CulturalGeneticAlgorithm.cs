@@ -12,17 +12,12 @@ namespace Superdoku
         /// <summary>The size of the population in each iteration.</summary>
         private const int POPULATION_SIZE = 32;
 
-        /// <summary>The maximum amount of iterations without improvement.</summary>
-        private int maxIterationsWithoutImprovement;
-
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        /// <param name="stopAfterIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
         public CulturalGeneticAlgorithm(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
-            : base(maxIterations)
-        {
-            this.maxIterationsWithoutImprovement = maxIterationsWithoutImprovement;
-        }
+            : base(maxIterations, maxIterationsWithoutImprovement)
+        { }
 
         public override bool solve(LocalSudoku sudoku)
         {

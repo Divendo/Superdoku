@@ -14,8 +14,9 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
-        public SimulatedAnnealer(int maxIterations = -1)
-            : base(maxIterations) { }
+        /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
+        public SimulatedAnnealer(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+            : base(maxIterations, maxIterationsWithoutImprovement) { }
 
         public override bool solve(LocalSudoku sudoku)
         {
@@ -30,16 +31,20 @@ namespace Superdoku
             double c = 10.0;
 
             // Determine after how many iterations we lower c
-            int maxRounds = sudoku.NN * sudoku.NN * 9 / 16;
+            int iterationsBeforeCoolingDown = sudoku.NN * sudoku.NN * 9 / 16;
 
             // Reset the iterations
             iterations = 0;
 
+            // The amount of iterations since we improved our value
+            int iterationsWithoutImprovement = 0;
+
             // Keep running while the sudoku has not been solved yet (and we have not reached our iteration limit)
-            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations))
+            while(sudoku.HeuristicValue > 0 && (maxIterations < 0 || iterations < maxIterations) && (maxIterationsWithoutImprovement < 0 || iterationsWithoutImprovement < maxIterationsWithoutImprovement))
             {
                 // Increase the iteration counter
                 ++iterations;
+                ++iterationsWithoutImprovement;
 
                 // Randomly generate a neighbor
                 SwapNeighbor neighbor = generateRandomNeighbor(sudoku);
@@ -47,12 +52,15 @@ namespace Superdoku
                     return false;
 
                 // Lower the temperature
-                if(iterations % maxRounds == 0)
+                if(iterations % iterationsBeforeCoolingDown == 0)
                     c *= alpha;
 
                 // If the sample is better, adopt it
                 if(neighbor.ScoreDelta < 0)
+                {
                     sudoku.swap(neighbor.Square1, neighbor.Square2);
+                    iterationsWithoutImprovement = 0;
+                }
                 // Else we adopt it with a given chance
                 else if(Randomizer.random.NextDouble() < Math.Exp(-neighbor.ScoreDelta / c))
                     sudoku.swap(neighbor.Square1, neighbor.Square2);
