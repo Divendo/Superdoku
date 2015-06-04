@@ -9,7 +9,7 @@ namespace Superdoku
     class RepulsivePSO : LocalSearcher
     {
         int[] velocities;
-        int POPULATION_SIZE = 100;
+        int POPULATION_SIZE = 32;
 
 
         /// <summary>The maximum amount of iterations without improvement.</summary>
@@ -59,8 +59,8 @@ namespace Superdoku
                 //Update each particle handing a random best from another particle and a random velocitytable
                 foreach (Particle p in population)
                 {
-                    int a = random.Next(100);
-                    int b = random.Next(100);
+                    int a = random.Next(POPULATION_SIZE);
+                    int b = random.Next(POPULATION_SIZE);
                     p.Step(population[a].best, population[b].velocities);
 
                     if (p.bestHeuristic < bestSolution.HeuristicValue)

@@ -59,7 +59,7 @@ namespace Superdoku
         static void testLocalSearch(Sudoku sudoku)
         {
             // Create the search machine
-            LocalSearcher searchMachine = new RepulsivePSO();
+            LocalSearcher searchMachine = new GeneticLocalSearcher();
 
             // Measure the performance
             Stopwatch stopWatch = new Stopwatch();

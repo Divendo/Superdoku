@@ -46,6 +46,7 @@
     <Compile Include="ConstraintsHelperExt_Strategy.cs" />
     <Compile Include="ConstraintsHelper_AC3_squares.cs" />
     <Compile Include="ConstraintsHelperExt_MAC.cs" />
+    <Compile Include="GeneticLocalSearcher.cs" />
     <Compile Include="LocalSearchers\CulturalGeneticAlgorithm.cs" />
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="LocalSearchers\CulturalGeneticAlgorithm_Roulette.cs" />
@@ -62,7 +63,7 @@
     <Compile Include="LocalSearchers\RandomRestartSearcher.cs" />
     <Compile Include="LocalSearchers\SimulatedAnnealer.cs" />
     <Compile Include="LocalSearchers\SteepRandomHillclimbSolver.cs" />
-    <Compile Include="RepulsivePSO.cs" />
+    <Compile Include="LocalSearchers\RepulsivePSO.cs" />
     <Compile Include="Sudoku.cs" />
     <Compile Include="ConstraintsHelper_AC1.cs" />
     <Compile Include="ConstraintsHelper_AC3.cs" />
