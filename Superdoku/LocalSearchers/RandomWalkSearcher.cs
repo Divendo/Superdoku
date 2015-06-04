@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Superdoku
 {
-    class SteepRandomHillclimbSolver : LocalSearcher
+    class RandomWalkSearcher : LocalSearcher
     {
         /// <summary>A list of all possible neighbors.</summary>
         private LocalSearcherNeighborList allNeighbors;
@@ -17,7 +17,7 @@ namespace Superdoku
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
         /// <param name="maxIterationsWithoutImprovement">The maximum amount of random walks (negative value for unlimited).</param>
-        public SteepRandomHillclimbSolver(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+        public RandomWalkSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
             : base(maxIterations) { }
 
         public override bool solve(LocalSudoku sudoku)
