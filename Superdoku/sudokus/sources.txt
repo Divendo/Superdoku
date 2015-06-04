@@ -1,0 +1,7 @@
+The file gordon-royle-49151-9x9.txt was created from the database that can be found here: http://staffhome.ecm.uwa.edu.au/~00013890/sudokumin.php (2015-06-03)
+
+For the maatec* files the program MaaTec sudoku (version 1.9) was used: http://www.maatec.com/sudoku/index.html
+
+The file norvig-95-9x9.txt contains 95 hard sudokus found by Norvig: http://norvig.com/sudoku.html
+
+The file project-euler-50-9x9.txt contains the sudokus for problem 96 of project Euler: https://projecteuler.net
