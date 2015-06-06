@@ -25,6 +25,9 @@ namespace Superdoku
         /// <summary>Nodes that we have tried but failed.</summary>
         private HashSet<Sudoku> failedNodes;
 
+        /// <summary>The amount of nodes that were expanded.</summary>
+        private long expandedNodes;
+
         /// <summary>Constructor.</summary>
         public DepthFirstSearch()
         {
@@ -41,6 +44,10 @@ namespace Superdoku
             stopwatch = null;
             useHashMap = false;
         }
+
+        /// <summary>Property to get the amount of nodes that were expanded in the last search.</summary>
+        public long ExpandedNodes
+        { get { return expandedNodes; } }
 
         /// <summary>Convenience method. Applies clean() from the constraints helper of this instance.</summary>
         /// <param name="sudoku">The sudoku that should be cleaned.</param>
@@ -65,7 +72,7 @@ namespace Superdoku
                 failedNodes = new HashSet<Sudoku>();
 
             // Do the actual searching
-            iterations = 0;
+            expandedNodes = 0;
             Sudoku result = search_helper(sudoku);
 
             // Clear the stopwatch
@@ -78,24 +85,24 @@ namespace Superdoku
             return result;
         }
 
-        long iterations;
-
         /// <summary>Does the actual depth-first searching (while making deep copies).</summary>
         /// <returns>The solved sudoku if successful, null otherwise.</returns>
         private Sudoku search_helper(Sudoku sudoku)
         {
-            ++iterations;
             // We can not solve a non-existing soduko
             if(sudoku == null)
                 return null;
 
-            // Check if we have already solved the sudoku
-            if(sudoku.isSolvedSimple())
-                return sudoku;
-
             // Check if this node was already tried
             if(useHashMap && failedNodes.Contains(sudoku))
                 return null;
+
+            // We are expanding this node
+            ++expandedNodes;
+
+            // Check if we have already solved the sudoku
+            if(sudoku.isSolvedSimple())
+                return sudoku;
 
             // Pick the square with the fewest possibilities (ignoring the squares with one possibility)
             int index = -1;

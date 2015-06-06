@@ -15,13 +15,13 @@ namespace Superdoku
             bool testMultipleSudokus = true;
 
             // The type of search mechanism we want to test
-            bool testDepthFirstSearchAlgorithm = true;
+            bool testDepthFirstSearchAlgorithm = false;
 
             // Read and test the sudokus
             if(testMultipleSudokus)
             {
                 // Read the sudokus
-                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/project-euler-50-9x9.txt", 3);
+                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/project-euler-50-9x9.txt", 3, 5);
                 Console.WriteLine("{0} sudokus imported.", sudokus.Length);
 
                 // Make sure the SudokuIndexHelper is cached (for fair measurements)
@@ -95,18 +95,19 @@ namespace Superdoku
             Dictionary<string, LocalSearcher> constraintFactories = new Dictionary<string, LocalSearcher>();
             constraintFactories.Add("CGA Roulette", new CulturalGeneticAlgorithm_Roulette(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
             constraintFactories.Add("CGA Tournament", new CulturalGeneticAlgorithm_Tournament(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
-            //constraintFactories.Add("Iterative", new IterativeSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
-            //constraintFactories.Add("Random restart", new RandomRestartSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
-            //constraintFactories.Add("Randwom walk", new RandomWalkSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
-            //constraintFactories.Add("Simulated annealing", new SimulatedAnnealer(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Iterative", new IterativeSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Random restart", new RandomRestartSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Randwom walk", new RandomWalkSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Simulated annealing", new SimulatedAnnealer(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
             constraintFactories.Add("Simulated annealing CGA hybrid", new SimulatedAnnealingCGAHybrid(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
-            //constraintFactories.Add("Tabu", new TabuSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Tabu", new TabuSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
             constraintFactories.Add("Tabu CGA hybrid", new TabuCGAHybrid(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
 
             // Things we are going to measure
             Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
             Dictionary<string, bool[]> solved = new Dictionary<string, bool[]>();
             Dictionary<string, int[]> heuristicValues = new Dictionary<string, int[]>();
+            Dictionary<string, long[]> iterations = new Dictionary<string, long[]>();
 
             // Initialise the measure dictionaries
             foreach(KeyValuePair<string, LocalSearcher> entry in constraintFactories)
@@ -114,6 +115,7 @@ namespace Superdoku
                 solveTimes.Add(entry.Key, new long[sudokus.Length]);
                 solved.Add(entry.Key, new bool[sudokus.Length]);
                 heuristicValues.Add(entry.Key, new int[sudokus.Length]);
+                iterations.Add(entry.Key, new long[sudokus.Length]);
             }
 
             // Measure the performance on each sudoku
@@ -146,6 +148,7 @@ namespace Superdoku
                         solveTimes[algorithmName][i] = searchTime;
                         solved[algorithmName][i] = localSearcher.Solution.toSudoku().isSolved();
                         heuristicValues[algorithmName][i] = localSearcher.Solution.HeuristicValue;
+                        iterations[algorithmName][i] = localSearcher.Iterations;
 
                         // Show that this algorithm is done
                         Console.WriteLine("Algorithm '" + algorithmName + "' done.");
@@ -170,14 +173,18 @@ namespace Superdoku
                 long solveTimeSum = 0;
                 long heuristicSum = 0;
                 int solveCount = 0;
+                long iterationSum = 0;
+                long iterationSumSolved = 0;
                 for(int i = 0; i < sudokus.Length; ++i)
                 {
                     heuristicSum += heuristicValues[entry][i];
+                    iterationSum += iterations[entry][i];
 
                     if(solved[entry][i])
                     {
                         ++solveCount;
                         solveTimeSum += solveTimes[entry][i];
+                        iterationSumSolved += iterations[entry][i];
                     }
                 }
 
@@ -185,12 +192,16 @@ namespace Superdoku
                 resultsExporter.addResult(entry, "solve time", solveTimeSum);
                 resultsExporter.addResult(entry, "solve count", solveCount);
                 resultsExporter.addResult(entry, "heuristic value", heuristicSum);
+                resultsExporter.addResult(entry, "iteration count", iterationSum);
+                resultsExporter.addResult(entry, "iteration count (solved)", iterationSumSolved);
                 resultsExporter.addResult(entry, "sudoku count", sudokus.Length);
 
                 // Then we show them
                 Console.WriteLine("Algorithm '" + entry + "' solved {0} sudokus.", solveCount);
-                Console.WriteLine("Solving:\ttotal: {0}ms\tmean: {1}ms", solveTimeSum, ((double)solveTimeSum) / solveCount);
-                Console.WriteLine("Heuristic:\ttotal: {0}\tmean: {1}", heuristicSum, ((double)heuristicSum) / sudokus.Length);
+                Console.WriteLine("Solving:\t\ttotal: {0}ms\tmean: {1}ms", solveTimeSum, ((double)solveTimeSum) / solveCount);
+                Console.WriteLine("Heuristic:\t\ttotal: {0}\tmean: {1}", heuristicSum, ((double)heuristicSum) / sudokus.Length);
+                Console.WriteLine("Iterations:\t\ttotal: {0}\tmean: {1}", iterationSum, ((double)iterationSum) / sudokus.Length);
+                Console.WriteLine("Iterations (solved):\ttotal: {0}\tmean: {1}", iterationSumSolved, ((double)iterationSumSolved) / solveCount);
                 Console.WriteLine("--------------------");
             }
             resultsExporter.write();
@@ -201,9 +212,9 @@ namespace Superdoku
         {
             // We will solve the sudoku using depth-first search and different constraint strategies
             Dictionary<string, ConstraintsHelperFactory> constraintFactories = new Dictionary<string, ConstraintsHelperFactory>();
-            //constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
-            //constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
-            //constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
+            constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
+            constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
+            constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
             constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
             constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
             //constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
@@ -278,6 +289,7 @@ namespace Superdoku
             Dictionary<string, bool[]> cleaned = new Dictionary<string, bool[]>();
             Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
             Dictionary<string, bool[]> solved = new Dictionary<string, bool[]>();
+            Dictionary<string, long[]> expandedNodes = new Dictionary<string, long[]>();
 
             // Initialise the measure dictionaries
             foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)
@@ -286,11 +298,13 @@ namespace Superdoku
                 cleaned.Add(entry.Key, new bool[sudokus.Length]);
                 solveTimes.Add(entry.Key, new long[sudokus.Length]);
                 solved.Add(entry.Key, new bool[sudokus.Length]);
+                expandedNodes.Add(entry.Key, new long[sudokus.Length]);
 
                 cleanTimes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
                 cleaned.Add(entry.Key + " (with hashmap)", new bool[sudokus.Length]);
                 solveTimes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
                 solved.Add(entry.Key + " (with hashmap)", new bool[sudokus.Length]);
+                expandedNodes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
             }
 
             // Measure the performance on each sudoku
@@ -343,6 +357,7 @@ namespace Superdoku
                             stopWatch.Reset();
 
                             // Record the measurements
+                            expandedNodes[algorithmName][i] = depthFirstSearch.ExpandedNodes;
                             solveTimes[algorithmName][i] = searchTime;
                             if(solvedSudoku == null)
                             {
@@ -383,6 +398,8 @@ namespace Superdoku
                 long wholeTimeSum = 0;
                 int cleanCount = 0;
                 int solveCount = 0;
+                long expandedNodeCount = 0;
+                long expandedNodeCountSolved = 0;
                 for(int i = 0; i < sudokus.Length; ++i)
                 {
                     // We only count cleaned and solved sudokus
@@ -390,12 +407,14 @@ namespace Superdoku
                     {
                         ++cleanCount;
                         cleanTimeSum += cleanTimes[entry][i];
+                        expandedNodeCount += expandedNodes[entry][i];
 
                         if(solved[entry][i])
                         {
                             ++solveCount;
                             solveTimeSum += solveTimes[entry][i];
                             wholeTimeSum += cleanTimes[entry][i] + solveTimes[entry][i];
+                            expandedNodeCountSolved += expandedNodes[entry][i];
                         }
                     }
                 }
@@ -406,6 +425,8 @@ namespace Superdoku
                 resultsExporter.addResult(entry, "solve time", solveTimeSum);
                 resultsExporter.addResult(entry, "solve count", solveCount);
                 resultsExporter.addResult(entry, "total time", wholeTimeSum);
+                resultsExporter.addResult(entry, "expanded nodes", expandedNodeCount);
+                resultsExporter.addResult(entry, "expanded nodes (solved)", expandedNodeCountSolved);
                 resultsExporter.addResult(entry, "sudoku count", sudokus.Length);
 
                 // Then we show them
@@ -413,6 +434,7 @@ namespace Superdoku
                 Console.WriteLine("Cleaning:\ttotal: {0}ms\tmean: {1}ms", cleanTimeSum, ((double)cleanTimeSum) / cleanCount);
                 Console.WriteLine("Solving:\ttotal: {0}ms\tmean: {1}ms", solveTimeSum, ((double)solveTimeSum) / solveCount);
                 Console.WriteLine("Total:\t\ttotal: {0}ms\tmean: {1}ms", wholeTimeSum, ((double)wholeTimeSum) / solveCount);
+                Console.WriteLine("Nodes expanded:\ttotal: {0}\tmean: {1}", expandedNodeCountSolved, ((double)expandedNodeCountSolved) / solveCount);
                 Console.WriteLine("--------------------");
             }
             resultsExporter.write();
