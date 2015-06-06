@@ -12,7 +12,7 @@ namespace Superdoku
         static void Main(string[] args)
         {
             // Whether or not to test a whole list of sudokus
-            bool testMultipleSudokus = false;
+            bool testMultipleSudokus = true;
 
             // The type of search mechanism we want to test
             bool testDepthFirstSearchAlgorithm = false;
@@ -21,7 +21,7 @@ namespace Superdoku
             if(testMultipleSudokus)
             {
                 // Read the sudokus
-                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/norvig-95-9x9.txt", 3);
+                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/project-euler-50-9x9.txt", 3, 19);
                 Console.WriteLine("{0} sudokus imported.", sudokus.Length);
 
                 // Make sure the SudokuIndexHelper is cached (for fair measurements)
@@ -87,7 +87,108 @@ namespace Superdoku
         
         static void testLocalSearch(Sudoku[] sudokus)
         {
-            throw new NotImplementedException();
+            // The default maximum iterations and maximum iterations without improvement
+            int defaultMaxIterations = 50000;
+            int defaultMaxIterationsWithoutImprovement = 500;
+
+            // We will solve the sudoku using different local search techniques
+            Dictionary<string, LocalSearcher> constraintFactories = new Dictionary<string, LocalSearcher>();
+            constraintFactories.Add("CGA Roulette", new CulturalGeneticAlgorithm_Roulette(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("CGA Tournament", new CulturalGeneticAlgorithm_Tournament(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            //constraintFactories.Add("Iterative", new IterativeSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            //constraintFactories.Add("Random restart", new RandomRestartSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            //constraintFactories.Add("Randwom walk", new RandomWalkSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            //constraintFactories.Add("Simulated annealing", new SimulatedAnnealer(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Simulated annealing CGA hybrid", new SimulatedAnnealingCGAHybrid(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            //constraintFactories.Add("Tabu", new TabuSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Tabu CGA hybrid", new TabuCGAHybrid(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+
+            // Things we are going to measure
+            Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
+            Dictionary<string, bool[]> solved = new Dictionary<string, bool[]>();
+            Dictionary<string, int[]> heuristicValues = new Dictionary<string, int[]>();
+
+            // Initialise the measure dictionaries
+            foreach(KeyValuePair<string, LocalSearcher> entry in constraintFactories)
+            {
+                solveTimes.Add(entry.Key, new long[sudokus.Length]);
+                solved.Add(entry.Key, new bool[sudokus.Length]);
+                heuristicValues.Add(entry.Key, new int[sudokus.Length]);
+            }
+
+            // Measure the performance on each sudoku
+            for(int i = 0; i < sudokus.Length; ++i)
+            {
+                // Show which sudoku we are solving
+                Console.WriteLine("Solving sudoku " + i.ToString());
+
+                // We will want to measure the performance of each strategy
+                foreach(KeyValuePair<string, LocalSearcher> entry in constraintFactories)
+                {
+                    // Initialise the necessary objects
+                    LocalSearcher localSearcher = entry.Value;
+                    Sudoku copy = new Sudoku(sudokus[i]);
+                    Stopwatch stopWatch = new Stopwatch();
+
+                    // Determine the name of the algorithm
+                    string algorithmName = entry.Key;
+
+                    // Measure the time it takes to solve the sudoku
+                    try
+                    {
+                        stopWatch.Start();
+                        localSearcher.solve(sudokus[i]);
+                        stopWatch.Stop();
+                        long searchTime = stopWatch.ElapsedMilliseconds;
+                        stopWatch.Reset();
+
+                        // Record the measurements
+                        solveTimes[algorithmName][i] = searchTime;
+                        solved[algorithmName][i] = localSearcher.Solution.toSudoku().isSolved();
+                        heuristicValues[algorithmName][i] = localSearcher.Solution.HeuristicValue;
+
+                        // Show that this algorithm is done
+                        Console.WriteLine("Algorithm '" + algorithmName + "' done.");
+                    }
+                    catch(Exception exc)
+                    {
+                        Console.WriteLine("Algorithm '" + algorithmName + "' threw exception: " + exc.Message);
+                    }
+                }
+
+                // Newline
+                Console.WriteLine();
+            }
+
+            // Calculate and show the stats
+            Console.WriteLine("Results (from {0} sudokus):", sudokus.Length);
+            Console.WriteLine("--------------------");
+            foreach(string entry in solveTimes.Keys)
+            {
+                // First we calculate the stats
+                long solveTimeSum = 0;
+                long heuristicSum = 0;
+                int solveCount = 0;
+                for(int i = 0; i < sudokus.Length; ++i)
+                {
+                    if((solved[entry][i] && heuristicValues[entry][i] != 0) || (!solved[entry][i] && heuristicValues[entry][i] == 0))
+                        Console.WriteLine("Sudoko {0}, algorithm {1}...", i, entry);
+
+                    heuristicSum += heuristicValues[entry][i];
+
+                    if(solved[entry][i])
+                    {
+                        ++solveCount;
+                        solveTimeSum += solveTimes[entry][i];
+                    }
+                }
+
+                // Then we show them
+                Console.WriteLine("Algorithm '" + entry + "' solved {0} sudokus.", solveCount);
+                Console.WriteLine("Solving:\ttotal: {0}ms\tmean: {1}ms", solveTimeSum, ((double)solveTimeSum) / solveCount);
+                Console.WriteLine("Heuristic:\ttotal: {0}\tmean: {1}", heuristicSum, ((double)heuristicSum) / sudokus.Length);
+                Console.WriteLine("--------------------");
+            }
         }
 
         static void testDepthFirstSearch(Sudoku sudoku)
@@ -235,7 +336,7 @@ namespace Superdoku
                             long searchTime = stopWatch.ElapsedMilliseconds;
                             stopWatch.Reset();
 
-                            // Recored the measurements
+                            // Record the measurements
                             solveTimes[algorithmName][i] = searchTime;
                             if(solvedSudoku == null)
                             {
