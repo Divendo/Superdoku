@@ -72,6 +72,9 @@
     <Compile Include="SudokuReader.cs" />
     <Compile Include="SwapNeighbor.cs" />
     <Compile Include="LocalSearchers\TabuSearcher.cs" />
+    <Compile Include="Tests\Test.cs" />
+    <Compile Include="Tests\Test_DepthFirstGlobal.cs" />
+    <Compile Include="Tests\Test_LocalSearchGlobal.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
