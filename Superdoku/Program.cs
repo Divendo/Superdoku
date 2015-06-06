@@ -21,7 +21,7 @@ namespace Superdoku
             if(testMultipleSudokus)
             {
                 // Read the sudokus
-                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/project-euler-50-9x9.txt", 3, 5);
+                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/gordon-royle-49151-9x9.txt", 3, 5);
                 Console.WriteLine("{0} sudokus imported.", sudokus.Length);
 
                 // Make sure the SudokuIndexHelper is cached (for fair measurements)
@@ -89,7 +89,7 @@ namespace Superdoku
         {
             // The default maximum iterations and maximum iterations without improvement
             int defaultMaxIterations = 50000;
-            int defaultMaxIterationsWithoutImprovement = 500;
+            int defaultMaxIterationsWithoutImprovement = 800;
 
             // We will solve the sudoku using different local search techniques
             Dictionary<string, LocalSearcher> constraintFactories = new Dictionary<string, LocalSearcher>();
@@ -102,6 +102,8 @@ namespace Superdoku
             constraintFactories.Add("Simulated annealing CGA hybrid", new SimulatedAnnealingCGAHybrid(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
             constraintFactories.Add("Tabu", new TabuSearcher(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
             constraintFactories.Add("Tabu CGA hybrid", new TabuCGAHybrid(defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Genetic Local Search ITERATIVE", new GeneticLocalSearcher(new IterativeSearcher(defaultMaxIterations, 10) , defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
+            constraintFactories.Add("Genetic Local Search Tabu", new GeneticLocalSearcher(new TabuSearcher(defaultMaxIterations, 5), defaultMaxIterations, defaultMaxIterationsWithoutImprovement));
 
             // Things we are going to measure
             Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
