@@ -81,10 +81,6 @@ namespace Superdoku
                 if(bestNeighbor == null)
                     return false;
 
-                // Check if we are going to improve our value
-                if(bestNeighbor.ScoreDelta < 0)
-                    iterationsWithoutImprovement = 0;
-
                 // Otherwise we apply the neighbor and add it to the tabu list
                 sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
                 lastApplied = bestNeighbor;
@@ -95,7 +91,10 @@ namespace Superdoku
 
                 // Remember the best solution
                 if(sudoku.HeuristicValue < bestSolution.HeuristicValue)
+                {
                     bestSolution = new LocalSudoku(sudoku);
+                    iterationsWithoutImprovement = 0;
+                }
             }
 
             return sudoku.HeuristicValue == 0;

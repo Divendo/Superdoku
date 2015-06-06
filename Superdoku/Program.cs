@@ -129,7 +129,6 @@ namespace Superdoku
                 {
                     // Initialise the necessary objects
                     LocalSearcher localSearcher = entry.Value;
-                    Sudoku copy = new Sudoku(sudokus[i]);
                     Stopwatch stopWatch = new Stopwatch();
 
                     // Determine the name of the algorithm
@@ -212,11 +211,11 @@ namespace Superdoku
         {
             // We will solve the sudoku using depth-first search and different constraint strategies
             Dictionary<string, ConstraintsHelperFactory> constraintFactories = new Dictionary<string, ConstraintsHelperFactory>();
-            constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
-            constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
-            constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
+            //constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
+            //constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
+            //constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
             constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
-            constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
+            //constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
             //constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
 
             // We will want to measure the performance of each strategy
@@ -277,11 +276,11 @@ namespace Superdoku
         {
             // We will solve the sudoku using depth-first search and different constraint strategies
             Dictionary<string, ConstraintsHelperFactory> constraintFactories = new Dictionary<string, ConstraintsHelperFactory>();
-            constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
-            constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
-            constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
+            //constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
+            //constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
+            //constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
             constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
-            constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
+            //constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
             //constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
 
             // Things we are going to measure

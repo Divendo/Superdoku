@@ -23,9 +23,6 @@ namespace Superdoku
             // Initialise the best solution
             bestSolution = new LocalSudoku(sudoku);
 
-            // The size of the Markov chain should represent the size of the search space
-            //maxIterations = 42700*2209;//(int)Math.Pow(sudoku.NN, 4) * 20;
-
             // Our temperature
             // We want to accept with an 80% chance, assuming that the average bad delta is 3, we get a c of 10
             double c = 10.0;
