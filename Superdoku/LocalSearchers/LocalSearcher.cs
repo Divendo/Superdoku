@@ -69,7 +69,7 @@ namespace Superdoku
             do
             {
                 // Make a list of all squares that can be swapped within this box
-                int[,] units = helper.getUnitsFor(sudoku.N * (box % sudoku.N), sudoku.N * (box / sudoku.N));
+                int[,] units = helper.getUnitsFor(sudoku.N * (currBox % sudoku.N), sudoku.N * (currBox / sudoku.N));
                 squares = new List<int>(units.GetLength(1));
                 for (int square = 0; square < units.GetLength(1); ++square)
                 {
