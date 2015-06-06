@@ -64,6 +64,7 @@
     <Compile Include="LocalSearchers\SimulatedAnnealer.cs" />
     <Compile Include="LocalSearchers\RandomWalkSearcher.cs" />
     <Compile Include="LocalSearchers\RepulsivePSO.cs" />
+    <Compile Include="ResultsExporter.cs" />
     <Compile Include="Sudoku.cs" />
     <Compile Include="ConstraintsHelper_AC1.cs" />
     <Compile Include="ConstraintsHelper_AC3.cs" />

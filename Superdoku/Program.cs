@@ -15,13 +15,13 @@ namespace Superdoku
             bool testMultipleSudokus = true;
 
             // The type of search mechanism we want to test
-            bool testDepthFirstSearchAlgorithm = false;
+            bool testDepthFirstSearchAlgorithm = true;
 
             // Read and test the sudokus
             if(testMultipleSudokus)
             {
                 // Read the sudokus
-                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/project-euler-50-9x9.txt", 3, 19);
+                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/project-euler-50-9x9.txt", 3);
                 Console.WriteLine("{0} sudokus imported.", sudokus.Length);
 
                 // Make sure the SudokuIndexHelper is cached (for fair measurements)
@@ -161,6 +161,7 @@ namespace Superdoku
             }
 
             // Calculate and show the stats
+            ResultsExporter resultsExporter = new ResultsExporter("local-search.csv");
             Console.WriteLine("Results (from {0} sudokus):", sudokus.Length);
             Console.WriteLine("--------------------");
             foreach(string entry in solveTimes.Keys)
@@ -171,9 +172,6 @@ namespace Superdoku
                 int solveCount = 0;
                 for(int i = 0; i < sudokus.Length; ++i)
                 {
-                    if((solved[entry][i] && heuristicValues[entry][i] != 0) || (!solved[entry][i] && heuristicValues[entry][i] == 0))
-                        Console.WriteLine("Sudoko {0}, algorithm {1}...", i, entry);
-
                     heuristicSum += heuristicValues[entry][i];
 
                     if(solved[entry][i])
@@ -183,12 +181,20 @@ namespace Superdoku
                     }
                 }
 
+                // Add the results to the exporter
+                resultsExporter.addResult(entry, "solve time", solveTimeSum);
+                resultsExporter.addResult(entry, "solve count", solveCount);
+                resultsExporter.addResult(entry, "heuristic value", heuristicSum);
+                resultsExporter.addResult(entry, "sudoku count", sudokus.Length);
+
                 // Then we show them
                 Console.WriteLine("Algorithm '" + entry + "' solved {0} sudokus.", solveCount);
                 Console.WriteLine("Solving:\ttotal: {0}ms\tmean: {1}ms", solveTimeSum, ((double)solveTimeSum) / solveCount);
                 Console.WriteLine("Heuristic:\ttotal: {0}\tmean: {1}", heuristicSum, ((double)heuristicSum) / sudokus.Length);
                 Console.WriteLine("--------------------");
             }
+            resultsExporter.write();
+            Console.WriteLine("Results have been exported to '{0}'.", resultsExporter.Filename);
         }
 
         static void testDepthFirstSearch(Sudoku sudoku)
@@ -366,6 +372,7 @@ namespace Superdoku
             }
 
             // Calculate and show the stats
+            ResultsExporter resultsExporter = new ResultsExporter("depth-first-search.csv");
             Console.WriteLine("Results (from {0} sudokus):", sudokus.Length);
             Console.WriteLine("--------------------");
             foreach(string entry in cleanTimes.Keys)
@@ -393,6 +400,14 @@ namespace Superdoku
                     }
                 }
 
+                // Add the results to the exporter
+                resultsExporter.addResult(entry, "clean time", cleanTimeSum);
+                resultsExporter.addResult(entry, "clean count", cleanCount);
+                resultsExporter.addResult(entry, "solve time", solveTimeSum);
+                resultsExporter.addResult(entry, "solve count", solveCount);
+                resultsExporter.addResult(entry, "total time", wholeTimeSum);
+                resultsExporter.addResult(entry, "sudoku count", sudokus.Length);
+
                 // Then we show them
                 Console.WriteLine("Algorithm '" + entry + "' solved {0} sudokus (cleaned {1}).", solveCount, cleanCount);
                 Console.WriteLine("Cleaning:\ttotal: {0}ms\tmean: {1}ms", cleanTimeSum, ((double)cleanTimeSum) / cleanCount);
@@ -400,6 +415,8 @@ namespace Superdoku
                 Console.WriteLine("Total:\t\ttotal: {0}ms\tmean: {1}ms", wholeTimeSum, ((double)wholeTimeSum) / solveCount);
                 Console.WriteLine("--------------------");
             }
+            resultsExporter.write();
+            Console.WriteLine("Results have been exported to '{0}'.", resultsExporter.Filename);
         }
 
         static void printSudoku(Sudoku sudoku)
