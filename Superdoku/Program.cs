@@ -21,7 +21,7 @@ namespace Superdoku
             if(testMultipleSudokus)
             {
                 // Read the sudokus
-                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/gordon-royle-49151-9x9.txt", 3, 5);
+                Sudoku[] sudokus = SudokuReader.readFromFileLines("../../sudokus/project-euler-50-9x9.txt", 3, 5);
                 Console.WriteLine("{0} sudokus imported.", sudokus.Length);
 
                 // Make sure the SudokuIndexHelper is cached (for fair measurements)
