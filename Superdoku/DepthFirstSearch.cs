@@ -68,11 +68,13 @@ namespace Superdoku
 
         /// <summary>Convenience method. Applies clean() from the constraints helper of this instance.</summary>
         /// <param name="sudoku">The sudoku that should be cleaned.</param>
-        /// <returns>True if succesfull, false if a contradiction is reached.</returns>
-        public bool clean(Sudoku sudoku)
+        /// <returns>The amount of iterations the constraint helper needed if succesful, or -1 if a contradiction was reached.</returns>
+        public long clean(Sudoku sudoku)
         {
             ConstraintsHelper helper = constraintsHelperFactory.createConstraintsHelper(sudoku);
-            return helper.clean();
+            if(helper.clean())
+                return helper.Iterations;
+            return -1;
         }
 
         /// <summary>Searches for a solution for the given sudoku using depth-first search.</summary>

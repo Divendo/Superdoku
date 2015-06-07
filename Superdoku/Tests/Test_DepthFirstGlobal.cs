@@ -23,6 +23,7 @@ namespace Superdoku
 
             // Things we are going to measure
             Dictionary<string, long[]> cleanTimes = new Dictionary<string, long[]>();
+            Dictionary<string, long[]> cleanConstraintIterations = new Dictionary<string, long[]>();
             Dictionary<string, bool[]> cleaned = new Dictionary<string, bool[]>();
             Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
             Dictionary<string, bool[]> solved = new Dictionary<string, bool[]>();
@@ -34,6 +35,7 @@ namespace Superdoku
             foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)
             {
                 cleanTimes.Add(entry.Key, new long[sudokus.Length]);
+                cleanConstraintIterations.Add(entry.Key, new long[sudokus.Length]);
                 cleaned.Add(entry.Key, new bool[sudokus.Length]);
                 solveTimes.Add(entry.Key, new long[sudokus.Length]);
                 solved.Add(entry.Key, new bool[sudokus.Length]);
@@ -42,6 +44,7 @@ namespace Superdoku
                 constraintTimes.Add(entry.Key, new long[sudokus.Length]);
 
                 cleanTimes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
+                cleanConstraintIterations.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
                 cleaned.Add(entry.Key + " (with hashmap)", new bool[sudokus.Length]);
                 solveTimes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
                 solved.Add(entry.Key + " (with hashmap)", new bool[sudokus.Length]);
@@ -74,17 +77,18 @@ namespace Superdoku
 
                         // Measure the time it takes to clean the sudoku
                         stopWatch.Start();
-                        bool isCleaned = depthFirstSearch.clean(copy);
+                        long cleanResult = depthFirstSearch.clean(copy);
                         stopWatch.Stop();
                         long cleanTime = stopWatch.ElapsedTicks;
                         stopWatch.Reset();
 
                         // Recored the measurements
-                        cleaned[algorithmName][i] = isCleaned;
+                        cleaned[algorithmName][i] = cleanResult != -1;
+                        cleanConstraintIterations[algorithmName][i] = cleanResult;
                         cleanTimes[algorithmName][i] = cleanTime;
 
                         // Stop if the sudoku could not be cleaned
-                        if(!isCleaned)
+                        if(cleanResult == -1)
                         {
                             Console.WriteLine("Algorithm '" + algorithmName + "' failed to clean the sudoku.");
                             continue;
@@ -148,6 +152,7 @@ namespace Superdoku
             {
                 // First we calculate the stats
                 long cleanTimeSum = 0;
+                long cleanConstraintIterationSum = 0;
                 long solveTimeSum = 0;
                 long wholeTimeSum = 0;
                 int cleanCount = 0;
@@ -163,6 +168,7 @@ namespace Superdoku
                     {
                         ++cleanCount;
                         cleanTimeSum += cleanTimes[entry][i];
+                        cleanConstraintIterationSum += cleanConstraintIterations[entry][i];
                         expandedNodeCount += expandedNodes[entry][i];
 
                         if(solved[entry][i])
@@ -181,6 +187,7 @@ namespace Superdoku
                 if(resultsExporter != null)
                 {
                     resultsExporter.addResult(entry, "clean time", cleanTimeSum);
+                    resultsExporter.addResult(entry, "clean iterations", cleanConstraintIterationSum);
                     resultsExporter.addResult(entry, "clean count", cleanCount);
                     resultsExporter.addResult(entry, "solve time", solveTimeSum);
                     resultsExporter.addResult(entry, "solve count", solveCount);
