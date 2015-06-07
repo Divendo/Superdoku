@@ -30,7 +30,7 @@ namespace Superdoku
         /// <param name="sudoku">The sudoku to run the algorithm on.</param>
         /// <param name="changedSquare">The square that has been changed, or -1 if all squares should be added to the queue.</param>
         /// <returns>True if successful, false otherwise (e.g. in case a contradiction is reached).</returns>
-        public static bool apply(Sudoku sudoku, int changedSquare = -1)
+        public bool apply(Sudoku sudoku, int changedSquare = -1)
         {
             // Nothing to do if changedSquare is set and it has more than 1 possibility left
             if(changedSquare != -1 && sudoku.valueCount(changedSquare) != 1)
@@ -65,6 +65,9 @@ namespace Superdoku
             // Keep running while there are still squares in the queue
             while(toCheckQueue.Count != 0)
             {
+                // Increase the iteration count
+                ++iterations;
+
                 // Pop the square we are going to check
                 int square = toCheckQueue.Dequeue();
                 toCheck[square] = false;

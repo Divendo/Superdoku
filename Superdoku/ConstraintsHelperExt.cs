@@ -34,6 +34,8 @@ namespace Superdoku
             applyStrategies = new bool[strategyFactories.Length];
             for(int i = 0; i < applyStrategies.Length; ++i)
                 applyStrategies[i] = true;
+
+            iterations = 0;
         }
 
         /// <summary>Sets whether or not a certain strategy should be used.</summary>

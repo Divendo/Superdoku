@@ -44,6 +44,7 @@ namespace Superdoku
             // Keep running strategies while there are strategies to run
             while(strategiesQueue.Count != 0)
             {
+                ++iterations;
                 ConstraintsHelperExt_Strategy strategy = strategiesQueue.Dequeue();
                 strategiesToRun.Remove(strategy);
                 if(!strategy.apply())

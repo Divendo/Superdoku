@@ -26,7 +26,7 @@ namespace Superdoku
         /// <summary>Runs the algorithm on the Sudoku.</summary>
         /// <param name="sudoku">The sudoku to run the algorithm on.</param>
         /// <returns>True if successful, false otherwise (e.g. in case a contradiction is reached).</returns>
-        public static bool apply(Sudoku sudoku)
+        public bool apply(Sudoku sudoku)
         {
             // We will need an index helper
             SudokuIndexHelper sudokuIndexHelper = SudokuIndexHelper.get(sudoku.N);
@@ -35,6 +35,9 @@ namespace Superdoku
             bool changed = true;
             while(changed)
             {
+                // Increase the iteration count
+                ++iterations;
+
                 // Initially nothing has changed in this loop
                 changed = false;
 

@@ -12,10 +12,20 @@ namespace Superdoku
         /// <summary>The sudoku this helper represents</summary>
         protected Sudoku sudoku;
 
+        /// <summary>The amount of iterations that were used (in all the time this instance is used).</summary>
+        protected int iterations;
+
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The sudoku this helper will represent.</param>
         public ConstraintsHelper(Sudoku sudoku)
-        { this.sudoku = sudoku; }
+        {
+            this.sudoku = sudoku;
+            iterations = 0;
+        }
+
+        /// <summary>The amount of iterations that were used (in all the time this instance is used).</summary>
+        public int Iterations
+        { get { return iterations; } }
 
         /// <summary>Assign a value to a square, and then apply the constraint satisfaction algorithm of this class.</summary>
         /// <param name="index">The index of the square we want to change.</param>

@@ -27,6 +27,8 @@ namespace Superdoku
             Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
             Dictionary<string, bool[]> solved = new Dictionary<string, bool[]>();
             Dictionary<string, long[]> expandedNodes = new Dictionary<string, long[]>();
+            Dictionary<string, long[]> constraintIterations = new Dictionary<string, long[]>();
+            Dictionary<string, long[]> constraintTimes = new Dictionary<string, long[]>();
 
             // Initialise the measure dictionaries
             foreach(KeyValuePair<string, ConstraintsHelperFactory> entry in constraintFactories)
@@ -36,12 +38,16 @@ namespace Superdoku
                 solveTimes.Add(entry.Key, new long[sudokus.Length]);
                 solved.Add(entry.Key, new bool[sudokus.Length]);
                 expandedNodes.Add(entry.Key, new long[sudokus.Length]);
+                constraintIterations.Add(entry.Key, new long[sudokus.Length]);
+                constraintTimes.Add(entry.Key, new long[sudokus.Length]);
 
                 cleanTimes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
                 cleaned.Add(entry.Key + " (with hashmap)", new bool[sudokus.Length]);
                 solveTimes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
                 solved.Add(entry.Key + " (with hashmap)", new bool[sudokus.Length]);
                 expandedNodes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
+                constraintIterations.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
+                constraintTimes.Add(entry.Key + " (with hashmap)", new long[sudokus.Length]);
             }
 
             // Measure the performance on each sudoku
@@ -70,7 +76,7 @@ namespace Superdoku
                         stopWatch.Start();
                         bool isCleaned = depthFirstSearch.clean(copy);
                         stopWatch.Stop();
-                        long cleanTime = stopWatch.ElapsedMilliseconds;
+                        long cleanTime = stopWatch.ElapsedTicks;
                         stopWatch.Reset();
 
                         // Recored the measurements
@@ -90,12 +96,16 @@ namespace Superdoku
                             stopWatch.Start();
                             Sudoku solvedSudoku = depthFirstSearch.search(copy);
                             stopWatch.Stop();
-                            long searchTime = stopWatch.ElapsedMilliseconds;
+                            long searchTime = stopWatch.ElapsedTicks;
                             stopWatch.Reset();
 
                             // Record the measurements
                             expandedNodes[algorithmName][i] = depthFirstSearch.ExpandedNodes;
+                            constraintIterations[algorithmName][i] = depthFirstSearch.ConstraintIterations;
+                            constraintTimes[algorithmName][i] = depthFirstSearch.ContraintTime;
                             solveTimes[algorithmName][i] = searchTime;
+
+                            // Show the result
                             if(solvedSudoku == null)
                             {
                                 solved[algorithmName][i] = false;
@@ -126,7 +136,10 @@ namespace Superdoku
             // Create an exporter
             ResultsExporter resultsExporter = null;
             if(filename != null)
+            {
                 resultsExporter = new ResultsExporter(filename);
+                resultsExporter.addExtraValue("Ticks per second", Stopwatch.Frequency);
+            }
 
             // Calculate and show the stats
             Console.WriteLine("Results (from {0} sudokus):", sudokus.Length);
@@ -141,6 +154,8 @@ namespace Superdoku
                 int solveCount = 0;
                 long expandedNodeCount = 0;
                 long expandedNodeCountSolved = 0;
+                long constraintIterationSum = 0;
+                long constraintTimeSum = 0;
                 for(int i = 0; i < sudokus.Length; ++i)
                 {
                     // We only count cleaned and solved sudokus
@@ -156,6 +171,8 @@ namespace Superdoku
                             solveTimeSum += solveTimes[entry][i];
                             wholeTimeSum += cleanTimes[entry][i] + solveTimes[entry][i];
                             expandedNodeCountSolved += expandedNodes[entry][i];
+                            constraintIterationSum += constraintIterations[entry][i];
+                            constraintTimeSum += constraintTimes[entry][i];
                         }
                     }
                 }
@@ -170,6 +187,8 @@ namespace Superdoku
                     resultsExporter.addResult(entry, "total time", wholeTimeSum);
                     resultsExporter.addResult(entry, "expanded nodes", expandedNodeCount);
                     resultsExporter.addResult(entry, "expanded nodes (solved)", expandedNodeCountSolved);
+                    resultsExporter.addResult(entry, "constraint iterations", constraintIterationSum);
+                    resultsExporter.addResult(entry, "constraint time", constraintTimeSum);
                     resultsExporter.addResult(entry, "sudoku count", sudokus.Length);
                 }
 

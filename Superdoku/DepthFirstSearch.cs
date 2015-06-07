@@ -28,6 +28,15 @@ namespace Superdoku
         /// <summary>The amount of nodes that were expanded.</summary>
         private long expandedNodes;
 
+        /// <summary>The total amount of iterations the ConstraintHelper instances did.</summary>
+        private long constraintIterations;
+
+        /// <summary>The time that was used to apply the ConstraintHelper (in Stopwacht ticks).</summary>
+        private long constraintTime;
+
+        /// <summary>Used to measure the time the ConstraintHelper uses.</summary>
+        private Stopwatch constraintTimeStopwatch;
+
         /// <summary>Constructor.</summary>
         public DepthFirstSearch()
         {
@@ -48,6 +57,14 @@ namespace Superdoku
         /// <summary>Property to get the amount of nodes that were expanded in the last search.</summary>
         public long ExpandedNodes
         { get { return expandedNodes; } }
+
+        /// <summary>Property to get the total amount of iterations that the constraint helpers used.</summary>
+        public long ConstraintIterations
+        { get { return constraintIterations; } }
+
+        /// <summary>Property to get the total amount of Stopwacht ticks that the constraint helpers used.</summary>
+        public long ContraintTime
+        { get { return constraintTime; } }
 
         /// <summary>Convenience method. Applies clean() from the constraints helper of this instance.</summary>
         /// <param name="sudoku">The sudoku that should be cleaned.</param>
@@ -73,6 +90,9 @@ namespace Superdoku
 
             // Do the actual searching
             expandedNodes = 0;
+            constraintIterations = 0;
+            constraintTime = 0;
+            constraintTimeStopwatch = new Stopwatch();
             Sudoku result = search_helper(sudoku);
 
             // Clear the stopwatch
@@ -133,14 +153,24 @@ namespace Superdoku
                 if((sudoku[index] & value) == 0)
                     continue;
 
+                // Apply the constraint helper (and measure its performance)
                 ConstraintsHelper helper = constraintsHelperFactory.createConstraintsHelper(new Sudoku(sudoku));
-                if(helper.assign(index, value))
+                constraintTimeStopwatch.Start();
+                bool helperSuccess = helper.assign(index, value);
+                constraintTimeStopwatch.Stop();
+                constraintTime += constraintTimeStopwatch.ElapsedTicks;
+                constraintTimeStopwatch.Reset();
+                constraintIterations += helper.Iterations;
+
+                // If we did not reach a contradiction, we expand this node
+                if(helperSuccess)
                 {
                     Sudoku result = search_helper(helper.Sudoku);
                     if(result != null)
                         return result;
                 }
 
+                // We have checked this value and no longer need to check it
                 valuesToCheck ^= value;
             }
 

@@ -53,6 +53,7 @@ namespace Superdoku
             {
                 if(applyStrategies[i])
                 {
+                    ++iterations;
                     ConstraintsHelperExt_Strategy strategy = strategyFactories[i].createStrategy(this, index, value);
                     if(!strategy.apply())
                         return false;
@@ -68,10 +69,6 @@ namespace Superdoku
     class ConstraintsHelperFactory_Recursive : ConstraintsHelperFactory
     {
         public override ConstraintsHelper createConstraintsHelper(Sudoku sudoku)
-        { ConstraintsHelperExt_Recursive c = new ConstraintsHelperExt_Recursive(sudoku);
-        //c.setStrategyUse(ConstraintsHelperExt.STRATEGY_NAKED_TWINS, false);
-        //c.setStrategyUse(ConstraintsHelperExt.STRATEGY_VALUE_ONCE_IN_UNIT, false);
-        return c;
-        }
+        { return new ConstraintsHelperExt_Recursive(sudoku); }
     }
 }
