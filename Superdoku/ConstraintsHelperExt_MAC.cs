@@ -17,8 +17,9 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The sudoku we will be manipulating.</param>
-        public ConstraintsHelperExt_MAC(Sudoku sudoku)
-            : base(sudoku) { }
+        /// <param name="strategies">Whether or not certain strategies should be applied.</param>
+        public ConstraintsHelperExt_MAC(Sudoku sudoku, bool[] strategies = null)
+            : base(sudoku, strategies) { }
 
         public override bool assign(int index, ulong value)
         {
@@ -91,10 +92,15 @@ namespace Superdoku
         }
     }
 
-    /// <summary>A factor for the ConstraintsHelper_Recursive class.</summary>
-    class ConstraintsHelperFactory_MAC : ConstraintsHelperFactory
+    /// <summary>A factory for the ConstraintsHelper_Recursive class.</summary>
+    class ConstraintsHelperFactory_MAC : ConstraintsHelperFactory_Ext
     {
+        /// <summary>Constructor.</summary>
+        /// <param name="strategies">Whether or not certain strategies should be applied.</param>
+        public ConstraintsHelperFactory_MAC(bool[] strategies = null)
+            : base(strategies) { }
+
         public override ConstraintsHelper createConstraintsHelper(Sudoku sudoku)
-        { return new ConstraintsHelperExt_MAC(sudoku); }
+        { return new ConstraintsHelperExt_MAC(sudoku, applyStrategies); }
     }
 }

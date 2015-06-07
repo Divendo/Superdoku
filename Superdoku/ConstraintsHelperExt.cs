@@ -9,12 +9,15 @@ namespace Superdoku
     abstract class ConstraintsHelperExt : ConstraintsHelper
     {
         /// <summary>The strategies that can be applied.</summary>
-        static protected ConstraintsHelperExt_StrategyFactory[] strategyFactories = new ConstraintsHelperExt_StrategyFactory[]
+        protected static ConstraintsHelperExt_StrategyFactory[] strategyFactories = new ConstraintsHelperExt_StrategyFactory[]
         {
             new ConstraintsHelperExt_StrategyFactory_OneValueLeft(),
             new ConstraintsHelperExt_StrategyFactory_ValueOnceInUnit(),
             new ConstraintsHelperExt_StrategyFactory_NakedTwins()
         };
+
+        /// <summary>The amount of strategies there exist.</summary>
+        public static int STRATEGY_COUNT = strategyFactories.Length;
 
         /// <summary>The index of the 'one value left' strategy.</summary>
         public const int STRATEGY_ONE_VALUE_LEFT = 0;
@@ -28,12 +31,18 @@ namespace Superdoku
 
         /// <summary>Constructor.</summary>
         /// <param name="sudoku">The sudoku we will be manipulating.</param>
-        public ConstraintsHelperExt(Sudoku sudoku)
+        /// <param name="strategies">Whether or not certain strategies should be applied.</param>
+        public ConstraintsHelperExt(Sudoku sudoku, bool[] strategies = null)
             : base(sudoku)
         {
-            applyStrategies = new bool[strategyFactories.Length];
-            for(int i = 0; i < applyStrategies.Length; ++i)
-                applyStrategies[i] = true;
+            applyStrategies = new bool[STRATEGY_COUNT];
+            for(int i = 0; i < STRATEGY_COUNT; ++i)
+            {
+                if(strategies != null && i < strategies.Length)
+                    applyStrategies[i] = strategies[i];
+                else
+                    applyStrategies[i] = true;
+            }
 
             iterations = 0;
         }
@@ -83,5 +92,32 @@ namespace Superdoku
             // If we have come here, everything went successful
             return true;
         }
+    }
+
+    /// <summary>An abstract factory for the ConstraintsHelperExt class.</summary>
+    abstract class ConstraintsHelperFactory_Ext : ConstraintsHelperFactory
+    {
+        /// <summary>Whether or not certain strategies should be applied.</summary>
+        protected bool[] applyStrategies;
+        
+        /// <summary>Constructor.</summary>
+        /// <param name="strategies">Whether or not certain strategies should be applied.</param>
+        public ConstraintsHelperFactory_Ext(bool[] strategies = null)
+        {
+            applyStrategies = new bool[ConstraintsHelperExt.STRATEGY_COUNT];
+            for(int i = 0; i < ConstraintsHelperExt.STRATEGY_COUNT; ++i)
+            {
+                if(strategies != null && i < strategies.Length)
+                    applyStrategies[i] = strategies[i];
+                else
+                    applyStrategies[i] = true;
+            }
+        }
+
+        /// <summary>Sets whether or not a certain strategy should be used.</summary>
+        /// <param name="strategy">The strategy (use the STRATEGY_* constants).</param>
+        /// <param name="use">Whether or not the strategy should be used.</param>
+        public void setStrategyUse(int strategy, bool use)
+        { applyStrategies[strategy] = use; }
     }
 }

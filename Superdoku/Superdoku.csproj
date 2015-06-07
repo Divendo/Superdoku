@@ -76,6 +76,7 @@
     <Compile Include="Tests\Test.cs" />
     <Compile Include="Tests\Test_DepthFirstGlobal.cs" />
     <Compile Include="Tests\Test_LocalSearchGlobal.cs" />
+    <Compile Include="Tests\Test_ConstraintHelperExtStrategies.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
