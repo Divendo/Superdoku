@@ -13,7 +13,10 @@ namespace Superdoku
         {
             // Setup the test queue
             TestQueue testQueue = new TestQueue();
-            testQueue.addTest(new Test_DepthFirstGlobal(), "../../sudokus/project-euler-50-9x9.txt", -1, 3, "depth-first.csv");
+            testQueue.addTest(new Test_DepthFirstGlobal(), "../../sudokus/norvig-and-euler-145-9x9.txt", -1, 3, "depth-first-3.csv");
+            testQueue.addTest(new Test_DepthFirstGlobal(), "../../sudokus/maatec-30-16x16.txt", -1, 4, "depth-first-4.csv");
+            testQueue.addTest(new Test_DepthFirstGlobal(), "../../sudokus/maatec-20-25x25.txt", -1, 5, "depth-first-5.csv");
+            testQueue.addTest(new Test_DepthFirstGlobal(), "../../sudokus/maatec-15-36x36.txt", -1, 6, "depth-first-6.csv");
 
             // Run the tests
             testQueue.run();
