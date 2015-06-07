@@ -11,34 +11,12 @@ namespace Superdoku
     {
         static void Main(string[] args)
         {
-            /***** SETUP THE TEST PARAMETERS HERE *****/
+            // Setup the test queue
+            TestQueue testQueue = new TestQueue();
+            testQueue.addTest(new Test_DepthFirstGlobal(), "../../sudokus/project-euler-50-9x9.txt", -1, 3, "depth-first.csv");
 
-            // The test we want to run
-            Test test = new Test_DepthFirstGlobal();
-                   
-            // The sudokus to use for the test
-            string sudokusFile = "../../sudokus/project-euler-50-9x9.txt";
-     
-            // The maximum amount of sudokus to read, or -1 for unlimited
-            int maxSudokus = -1;
-         
-            // The size of the sudokus (n*n by n*n squares)
-            int n = 3;
-
-            // The file to export the results to (null if the results should not be exported)
-            string exportFile = "depth-first.csv";
-             
-            /***** END OF THE TEST SETUP, YOU DO NOT NEED TO CHANGE ANYTHING BELOW HERE *****/
-
-            // Read the sudokus
-            Sudoku[] sudokus = SudokuReader.readFromFileLines(sudokusFile, n, maxSudokus);
-            Console.WriteLine("{0} sudokus imported.", sudokus.Length);
-
-            // Make sure the SudokuIndexHelper is cached (for fair measurements)
-            SudokuIndexHelper.get(sudokus[0].N);
-
-            // Run the test
-            test.runTest(sudokus, exportFile);
+            // Run the tests
+            testQueue.run();
 
             // Wait for the user
             Console.WriteLine("Press <enter> to quit.");

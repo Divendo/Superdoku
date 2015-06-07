@@ -19,18 +19,18 @@ namespace Superdoku
         public override void runTest(Sudoku[] sudokus, string filename = null)
         {
             // We will solve the sudoku using different local search techniques
-            Dictionary<string, LocalSearcher> constraintFactories = new Dictionary<string, LocalSearcher>();
-            constraintFactories.Add("CGA Roulette", new CulturalGeneticAlgorithm_Roulette(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("CGA Tournament", new CulturalGeneticAlgorithm_Tournament(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Iterative", new IterativeSearcher(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Random restart", new RandomRestartSearcher(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Randwom walk", new RandomWalkSearcher(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Simulated annealing", new SimulatedAnnealer(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Simulated annealing CGA hybrid", new SimulatedAnnealingCGAHybrid(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Tabu", new TabuSearcher(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Tabu CGA hybrid", new TabuCGAHybrid(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Genetic local search (iterative)", new GeneticLocalSearcher(new IterativeSearcher(1000, 10), DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
-            constraintFactories.Add("Genetic local search (tabu)", new GeneticLocalSearcher(new TabuSearcher(1000, 10), DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            Dictionary<string, LocalSearcher> localSearchers = new Dictionary<string, LocalSearcher>();
+            localSearchers.Add("CGA Roulette", new CulturalGeneticAlgorithm_Roulette(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("CGA Tournament", new CulturalGeneticAlgorithm_Tournament(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Iterative", new IterativeSearcher(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Random restart", new RandomRestartSearcher(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Randwom walk", new RandomWalkSearcher(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Simulated annealing", new SimulatedAnnealer(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Simulated annealing CGA hybrid", new SimulatedAnnealingCGAHybrid(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Tabu", new TabuSearcher(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Tabu CGA hybrid", new TabuCGAHybrid(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Genetic local search (iterative)", new GeneticLocalSearcher(new IterativeSearcher(1000, 10), DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
+            localSearchers.Add("Genetic local search (tabu)", new GeneticLocalSearcher(new TabuSearcher(1000, 10), DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT));
 
             // Things we are going to measure
             Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
@@ -39,7 +39,7 @@ namespace Superdoku
             Dictionary<string, long[]> iterations = new Dictionary<string, long[]>();
 
             // Initialise the measure dictionaries
-            foreach(KeyValuePair<string, LocalSearcher> entry in constraintFactories)
+            foreach(KeyValuePair<string, LocalSearcher> entry in localSearchers)
             {
                 solveTimes.Add(entry.Key, new long[sudokus.Length]);
                 solved.Add(entry.Key, new bool[sudokus.Length]);
@@ -54,7 +54,7 @@ namespace Superdoku
                 Console.WriteLine("Solving sudoku " + i.ToString());
 
                 // We will want to measure the performance of each strategy
-                foreach(KeyValuePair<string, LocalSearcher> entry in constraintFactories)
+                foreach(KeyValuePair<string, LocalSearcher> entry in localSearchers)
                 {
                     // Initialise the necessary objects
                     LocalSearcher localSearcher = entry.Value;
