@@ -74,6 +74,7 @@
     <Compile Include="LocalSearchers\TabuSearcher.cs" />
     <Compile Include="TestQueue.cs" />
     <Compile Include="Tests\Test.cs" />
+    <Compile Include="Tests\Test_CGA_SimAn.cs" />
     <Compile Include="Tests\Test_DepthFirstGlobal.cs" />
     <Compile Include="Tests\Test_LocalSearchGlobal.cs" />
     <Compile Include="Tests\Test_ConstraintHelperExtStrategies.cs" />
