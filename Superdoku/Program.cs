@@ -13,11 +13,7 @@ namespace Superdoku
         {
             // Setup the test queue
             TestQueue testQueue = new TestQueue();
-            testQueue.addTest(new Test_SimulatedAnnealer(), "../../sudokus/project-euler-50-9x9.txt", 3, "siman-test1-1.csv", 0, 10);
-            testQueue.addTest(new Test_SimulatedAnnealer(), "../../sudokus/project-euler-50-9x9.txt", 3, "siman-test1-2.csv", 10, 10);
-            testQueue.addTest(new Test_SimulatedAnnealer(), "../../sudokus/project-euler-50-9x9.txt", 3, "siman-test1-3.csv", 20, 10);
-            testQueue.addTest(new Test_SimulatedAnnealer(), "../../sudokus/project-euler-50-9x9.txt", 3, "siman-test1-4.csv", 30, 10);
-            testQueue.addTest(new Test_SimulatedAnnealer(), "../../sudokus/project-euler-50-9x9.txt", 3, "siman-test1-5.csv", 40, 10);
+            testQueue.addTest(new Test_CGA_SimAn(), "../../sudokus/project-euler-50-9x9.txt", 3, "siman-cga-test.csv");
 
             // Run the tests
             testQueue.run();

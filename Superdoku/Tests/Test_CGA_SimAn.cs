@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Superdoku.Tests
+namespace Superdoku
 {
     class Test_CGA_SimAn : Test
     {
@@ -20,7 +20,7 @@ namespace Superdoku.Tests
             // We will solve the sudoku using different parameters for cga simulated annealing
             Dictionary<string, SimulatedAnnealingCGAHybrid> localSearchers = new Dictionary<string, SimulatedAnnealingCGAHybrid>();
             for(int iterationsWithoutImprovement = 2; iterationsWithoutImprovement <= 20; ++iterationsWithoutImprovement)
-                localSearchers.Add("Simulated annealing exp (iters = " + iterationsWithoutImprovement.ToString() + ")", new SimulatedAnnealingCGAHybrid(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT, iterationsWithoutImprovement));
+                localSearchers.Add("Simulated annealing CGA hybrid (iters = " + iterationsWithoutImprovement.ToString() + ")", new SimulatedAnnealingCGAHybrid(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT, iterationsWithoutImprovement));
 
             // Things we are going to measure
             Dictionary<string, long[]> solveTimes = new Dictionary<string, long[]>();
@@ -28,6 +28,7 @@ namespace Superdoku.Tests
             Dictionary<string, int[]> heuristicValues = new Dictionary<string, int[]>();
             Dictionary<string, long[]> iterations = new Dictionary<string, long[]>();
             Dictionary<string, long[]> iterationsCga = new Dictionary<string, long[]>();
+            Dictionary<string, int[]> heuristicValuesCga = new Dictionary<string, int[]>();
 
             // Initialise the measure dictionaries
             foreach(KeyValuePair<string, SimulatedAnnealingCGAHybrid> entry in localSearchers)
@@ -37,6 +38,7 @@ namespace Superdoku.Tests
                 heuristicValues.Add(entry.Key, new int[sudokus.Length]);
                 iterations.Add(entry.Key, new long[sudokus.Length]);
                 iterationsCga.Add(entry.Key, new long[sudokus.Length]);
+                heuristicValuesCga.Add(entry.Key, new int[sudokus.Length]);
             }
 
             // Measure the performance on each sudoku
@@ -70,6 +72,7 @@ namespace Superdoku.Tests
                         heuristicValues[algorithmName][i] = localSearcher.Solution.HeuristicValue;
                         iterations[algorithmName][i] = localSearcher.Iterations;
                         iterationsCga[algorithmName][i] = localSearcher.IterationsSpentOnCga;
+                        heuristicValuesCga[algorithmName][i] = localSearcher.HeuristicValueAfterCga;
 
                         // Show that this algorithm is done
                         Console.WriteLine("Algorithm '" + algorithmName + "' done.");
@@ -102,11 +105,13 @@ namespace Superdoku.Tests
                 long iterationSumSolved = 0;
                 long iterationsCgaSum = 0;
                 long iterationsCgaSumSolved = 0;
+                long heuristicValueCgaSum = 0;
                 for(int i = 0; i < sudokus.Length; ++i)
                 {
                     heuristicSum += heuristicValues[entry][i];
                     iterationSum += iterations[entry][i];
                     iterationsCgaSum += iterationsCga[entry][i];
+                    heuristicValueCgaSum += heuristicValuesCga[entry][i];
 
                     if(solved[entry][i])
                     {
@@ -123,6 +128,7 @@ namespace Superdoku.Tests
                     resultsExporter.addResult(entry, "solve time", solveTimeSum);
                     resultsExporter.addResult(entry, "solve count", solveCount);
                     resultsExporter.addResult(entry, "heuristic value", heuristicSum);
+                    resultsExporter.addResult(entry, "heuristic value cga", heuristicValueCgaSum);
                     resultsExporter.addResult(entry, "iteration count", iterationSum);
                     resultsExporter.addResult(entry, "iteration count (solved)", iterationSumSolved);
                     resultsExporter.addResult(entry, "iteration cga count", iterationsCgaSum);

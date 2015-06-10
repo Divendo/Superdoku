@@ -14,6 +14,9 @@ namespace Superdoku
         /// <summary>The amount of iterations spent on running CGA.</summary>
         private int iterationsSpentOnCga;
 
+        /// <summary>The heuristic value after running CGA.</summary>
+        private int heuristicValueAfterCga;
+
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
         /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement for the simulated annealing searcher (negative value for unlimited).</param>
@@ -28,6 +31,9 @@ namespace Superdoku
         public int IterationsSpentOnCga
         { get { return iterationsSpentOnCga; } }
 
+        public int HeuristicValueAfterCga
+        { get { return heuristicValueAfterCga; } }
+
         public override bool solve(LocalSudoku sudoku)
         {
             // First we try to find a solution using CGA
@@ -36,6 +42,7 @@ namespace Superdoku
             bestSolution = cga.Solution;
             iterations = cga.Iterations;
             iterationsSpentOnCga = cga.Iterations;
+            heuristicValueAfterCga = bestSolution.HeuristicValue;
             if(solved)
                 return true;
            
