@@ -38,7 +38,7 @@ namespace Superdoku
 
             // Keep track of the constraints we still need to check
             HashSet<Constraint> toCheck = new HashSet<Constraint>();
-            Queue<Constraint> toCheckQueue = new Queue<Constraint>(sudoku.NN * sudoku.NN * 2);
+            Queue<Constraint> toCheckQueue = new Queue<Constraint>(sudoku.NN * sudoku.NN * (3 * sudoku.NN - 2 * sudoku.N - 1));
 
             // Add the constraints to the queue
             if(changedSquare != -1)

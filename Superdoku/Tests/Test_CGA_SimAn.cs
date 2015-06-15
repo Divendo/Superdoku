@@ -19,7 +19,7 @@ namespace Superdoku
         {
             // We will solve the sudoku using different parameters for cga simulated annealing
             Dictionary<string, SimulatedAnnealingCGAHybrid> localSearchers = new Dictionary<string, SimulatedAnnealingCGAHybrid>();
-            for(int iterationsWithoutImprovement = 2; iterationsWithoutImprovement <= 20; ++iterationsWithoutImprovement)
+            for(int iterationsWithoutImprovement = 2; iterationsWithoutImprovement <= 40; iterationsWithoutImprovement += 2)
                 localSearchers.Add("Simulated annealing CGA hybrid (iters = " + iterationsWithoutImprovement.ToString() + ")", new SimulatedAnnealingCGAHybrid(DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_ITERATIONS_WITHOUT_IMPROVEMENT, iterationsWithoutImprovement));
 
             // Things we are going to measure
