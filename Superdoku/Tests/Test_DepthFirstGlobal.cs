@@ -17,7 +17,7 @@ namespace Superdoku
             constraintFactories.Add("AC1", new ConstraintsHelperFactory_AC1());
             constraintFactories.Add("AC3", new ConstraintsHelperFactory_AC3());
             constraintFactories.Add("AC3 squares", new ConstraintsHelperFactory_AC3_squares());
-            constraintFactories.Add("recursive", new ConstraintsHelperFactory_Recursive());
+            constraintFactories.Add("Recursive", new ConstraintsHelperFactory_Recursive());
             constraintFactories.Add("MAC", new ConstraintsHelperFactory_MAC());
             //constraintFactories.Add("trivial", new ConstraintsHelperFactory_Trivial());
 
