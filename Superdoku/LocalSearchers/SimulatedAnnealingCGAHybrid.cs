@@ -47,7 +47,7 @@ namespace Superdoku
                 return true;
            
             // If that did not work, we try simulated annealing
-            SimulatedAnnealer sa = new SimulatedAnnealer(maxIterations - iterations, maxIterationsWithoutImprovement);
+            SimulatedAnnealer sa = new SimulatedAnnealer(maxIterations - iterations, maxIterationsWithoutImprovement, 16, new SimulatedAnnealingCoolingScheme_Exponential(0.9));
             solved = sa.solve(bestSolution);
             bestSolution = sa.Solution;
             iterations += cga.Iterations;
