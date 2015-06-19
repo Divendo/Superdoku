@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Superdoku
 {
     /// <summary>This class implements the hillclimbing technique.</summary>
-    class IterativeSearcher : LocalSearcher
+    class IterativeSearcher : LocalSearcherSwapCounter
     {
         /// <summary>A list of all possible neighbors.</summary>
         private LocalSearcherNeighborList allNeighbors;
@@ -25,6 +25,9 @@ namespace Superdoku
 
             // Reset the iterations
             iterations = 0;
+
+            // Reset the swap counter
+            totalSwaps = 0;
 
             // The amount of iterations since we improved our value
             int iterationsWithoutImprovement = 0;
@@ -72,6 +75,7 @@ namespace Superdoku
 
                     sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
                     lastApplied = bestNeighbor;
+                    ++totalSwaps;
                     if(sudoku.HeuristicValue < bestSolution.HeuristicValue)
                         bestSolution = new LocalSudoku(sudoku);
                 }

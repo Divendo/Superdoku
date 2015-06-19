@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Superdoku
 {
     /// <summary>This class implements the tabu search technique.</summary>
-    class TabuSearcher : LocalSearcher
+    class TabuSearcher : LocalSearcherSwapCounter
     {
         /// <summary>A list of all possible neighbors.</summary>
         private LocalSearcherNeighborList allNeighbors;
@@ -33,6 +33,9 @@ namespace Superdoku
 
             // Reset the iterations
             iterations = 0;
+
+            // Reset the total amount of swaps
+            totalSwaps = 0;
 
             // The amount of iterations since we improved our value
             int iterationsWithoutImprovement = 0;
@@ -84,6 +87,7 @@ namespace Superdoku
                 // Otherwise we apply the neighbor and add it to the tabu list
                 sudoku.swap(bestNeighbor.Square1, bestNeighbor.Square2);
                 lastApplied = bestNeighbor;
+                ++totalSwaps;
                 if(tabuQueue.Count == tabuListSize)
                     tabuList.Remove(tabuQueue.Dequeue());
                 tabuList.Add(bestNeighbor);

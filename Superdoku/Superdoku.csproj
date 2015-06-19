@@ -51,9 +51,11 @@
     <Compile Include="DepthFirstSearch.cs" />
     <Compile Include="LocalSearchers\CulturalGeneticAlgorithm_Roulette.cs" />
     <Compile Include="LocalSearchers\CulturalGeneticAlgorithm_Tournament.cs" />
+    <Compile Include="LocalSearchers\IteratedLocalSearch.cs" />
     <Compile Include="LocalSearchers\IterativeSearcher.cs" />
     <Compile Include="LocalSearchers\LocalSearcher.cs" />
     <Compile Include="LocalSearcherNeighborList.cs" />
+    <Compile Include="LocalSearchers\LocalSearcherSwapCounter.cs" />
     <Compile Include="LocalSearchers\SimulatedAnnealingCGAHybrid.cs" />
     <Compile Include="LocalSearchers\TabuCGAHybrid.cs" />
     <Compile Include="Randomizer.cs" />
@@ -76,6 +78,7 @@
     <Compile Include="Tests\Test.cs" />
     <Compile Include="Tests\Test_CGA_SimAn.cs" />
     <Compile Include="Tests\Test_DepthFirstGlobal.cs" />
+    <Compile Include="Tests\Test_GeneticVsIterated.cs" />
     <Compile Include="Tests\Test_LocalSearchGlobal.cs" />
     <Compile Include="Tests\Test_ConstraintHelperExtStrategies.cs" />
     <Compile Include="Tests\Test_SimulatedAnnealer.cs" />

@@ -6,21 +6,23 @@ using System.Threading.Tasks;
 
 namespace Superdoku
 {
-    class GeneticLocalSearcher : LocalSearcher
+    class GeneticLocalSearcher : LocalSearcherSwapCounter
     {
-        private const int POLULATION_SIZE = 20;
+        /// <summary>The size of the population.</summary>
+        private int populationSize = 20;
 
         /// <summary>The local searcher that is used to find local optima.</summary>
-        private LocalSearcher localSearcher;
+        private LocalSearcherSwapCounter localSearcher;
 
         /// <summary>Constructor.</summary>
         /// <param name="localSearcher">The local searcher that is used to find local optima.</param>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
         /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
-        public GeneticLocalSearcher(LocalSearcher localSearcher, int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+        public GeneticLocalSearcher(LocalSearcherSwapCounter localSearcher, int maxIterations = -1, int maxIterationsWithoutImprovement = -1, int populationSize = 20)
             : base(maxIterations, maxIterationsWithoutImprovement)
         {
             this.localSearcher = localSearcher;
+            this.populationSize = populationSize;
         }
 
         public override bool solve(LocalSudoku sudoku)
@@ -30,6 +32,9 @@ namespace Superdoku
 
             // Reset the iterations
             iterations = 0;
+
+            // Reset the total amount of swaps
+            totalSwaps = 0;
 
             // The amount of iterations since we improved our value
             int iterationsWithoutImprovement = 0;
@@ -52,8 +57,8 @@ namespace Superdoku
                 ++iterationsWithoutImprovement;
 
                 // Choose two parents for mating (and make sure they are different)
-                int mate1 = Randomizer.random.Next(POLULATION_SIZE);
-                int mate2 = Randomizer.random.Next(POLULATION_SIZE - 1);
+                int mate1 = Randomizer.random.Next(populationSize);
+                int mate2 = Randomizer.random.Next(populationSize - 1);
                 if(mate2 >= mate1)
                     ++mate2;
 
@@ -84,8 +89,8 @@ namespace Superdoku
         /// <returns>The newly created population.</returns>
         protected List<LocalSudoku> initialisePopulation(LocalSudoku sudoku)
         {
-            List<LocalSudoku> result = new List<LocalSudoku>(POLULATION_SIZE);
-            for(int t = 0; t < POLULATION_SIZE; ++t)
+            List<LocalSudoku> result = new List<LocalSudoku>(populationSize);
+            for(int t = 0; t < populationSize; ++t)
                 result.Add(findLocalOptimum(LocalSudoku.buildRandomlyFromLocalSudoku(sudoku)));
 
             return result;
@@ -97,6 +102,7 @@ namespace Superdoku
         private LocalSudoku findLocalOptimum(LocalSudoku sudoku)
         {
             localSearcher.solve(sudoku);
+            totalSwaps += localSearcher.TotalSwaps;
             return localSearcher.Solution;
         }
     }
