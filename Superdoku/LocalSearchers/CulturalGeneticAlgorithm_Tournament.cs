@@ -12,8 +12,9 @@ namespace Superdoku
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
         /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
-        public CulturalGeneticAlgorithm_Tournament(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
-            : base(maxIterations, maxIterationsWithoutImprovement) { }
+        /// <param name="populationSize">The size of the population in each iteration.</param>
+        public CulturalGeneticAlgorithm_Tournament(int maxIterations = -1, int maxIterationsWithoutImprovement = -1, int populationSize = 42)
+            : base(maxIterations, maxIterationsWithoutImprovement, populationSize) { }
 
         protected override LocalSudoku selectForMating(List<LocalSudoku> population)
         {

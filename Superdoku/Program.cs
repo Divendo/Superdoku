@@ -13,7 +13,9 @@ namespace Superdoku
         {
             // Setup the test queue
             TestQueue testQueue = new TestQueue();
-            testQueue.addTest(new Test_GeneticVsIterated(), "../../sudokus/project-euler-50-9x9.txt", 3, "gls-vs-ils");
+            testQueue.addTest(new Test_Competition(), "../../sudokus/9x9.txt", 3, "competition-3.csv");
+            testQueue.addTest(new Test_Competition(), "../../sudokus/16x16.txt", 4, "competition-4.csv");
+            testQueue.addTest(new Test_Competition(), "../../sudokus/25x25.txt", 5, "competition-5.csv");
 
             // Run the tests
             testQueue.run();

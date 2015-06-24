@@ -12,18 +12,17 @@ namespace Superdoku
         /// <summary>A list of all possible neighbors.</summary>
         private LocalSearcherNeighborList allNeighbors;
 
+        /// <summary>The length of the tabu list.</summary>
+        private int tabuListSize;
+
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
         /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
-        public TabuSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
-            : base(maxIterations, maxIterationsWithoutImprovement) { }
-
-        /// <summary>Calculates the length of the tabu list for a sudoku of the given size.</summary>
-        /// <param name="n">The size of the sudoku (n*n by n*n squares).</param>
-        /// <returns>The size of the tabu list for a sudoku of the given size.</returns>
-        public int tabuListLength(int n)
+        /// <param name="tabuListSize">The length of the tabu list.</param>
+        public TabuSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1, int tabuListSize = 5)
+            : base(maxIterations, maxIterationsWithoutImprovement)
         {
-            return n;
+            this.tabuListSize = tabuListSize;
         }
 
         public override bool solve(LocalSudoku sudoku)
@@ -47,7 +46,6 @@ namespace Superdoku
             SwapNeighbor lastApplied = null;
 
             // The tabu list
-            int tabuListSize = tabuListLength(sudoku.N);
             HashSet<SwapNeighbor> tabuList = new HashSet<SwapNeighbor>();
             Queue<SwapNeighbor> tabuQueue = new Queue<SwapNeighbor>(tabuListSize);
 

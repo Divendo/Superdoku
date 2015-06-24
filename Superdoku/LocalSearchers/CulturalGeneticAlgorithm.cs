@@ -10,14 +10,17 @@ namespace Superdoku
     abstract class CulturalGeneticAlgorithm : LocalSearcher
     {
         /// <summary>The size of the population in each iteration.</summary>
-        private const int POPULATION_SIZE = 32;
+        private int populationSize = 32;
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
         /// <param name="maxIterationsWithoutImprovement">The maximum amount of iterations without improvement (negative value for unlimited).</param>
-        public CulturalGeneticAlgorithm(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
+        /// <param name="populationSize">The size of the population in each iteration.</param>
+        public CulturalGeneticAlgorithm(int maxIterations = -1, int maxIterationsWithoutImprovement = -1, int populationSize = 32)
             : base(maxIterations, maxIterationsWithoutImprovement)
-        { }
+        {
+            this.populationSize = populationSize;
+        }
 
         public override bool solve(LocalSudoku sudoku)
         {
@@ -31,8 +34,8 @@ namespace Superdoku
             int iterationsWithoutImprovement = 0;
 
             // Initialise the first population
-            List<LocalSudoku> population = new List<LocalSudoku>(POPULATION_SIZE);
-            for(int i = 0; i < POPULATION_SIZE; ++i)
+            List<LocalSudoku> population = new List<LocalSudoku>(populationSize);
+            for(int i = 0; i < populationSize; ++i)
             {
                 LocalSudoku newLocalSudoku = LocalSudoku.buildRandomlyFromLocalSudoku(sudoku);
                 population.Add(newLocalSudoku);
@@ -49,8 +52,8 @@ namespace Superdoku
                 ++iterationsWithoutImprovement;
 
                 // Generate a new population
-                List<LocalSudoku> newPopulation = new List<LocalSudoku>(POPULATION_SIZE);
-                for(int i = 0; i < POPULATION_SIZE; ++i)
+                List<LocalSudoku> newPopulation = new List<LocalSudoku>(populationSize);
+                for(int i = 0; i < populationSize; ++i)
                 {
                     // Select two solutions for mating
                     LocalSudoku mate1 = selectForMating(population);

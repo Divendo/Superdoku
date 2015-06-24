@@ -12,13 +12,17 @@ namespace Superdoku
         private LocalSearcherNeighborList allNeighbors;
 
         /// <summary>The amount of steps each random walk should perform.</summary>
-        private const int STEPS = 300;
+        private int randomSteps = 300;
 
         /// <summary>Constructor.</summary>
         /// <param name="maxIterations">The maximum amount of iterations the searcher should perform (negative value for unlimited).</param>
         /// <param name="maxIterationsWithoutImprovement">The maximum amount of random walks (negative value for unlimited).</param>
-        public RandomWalkSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1)
-            : base(maxIterations) { }
+        /// <param name="randomSteps">The amount of steps each random walk should perform.</param>
+        public RandomWalkSearcher(int maxIterations = -1, int maxIterationsWithoutImprovement = -1, int randomSteps = 300)
+            : base(maxIterations, maxIterationsWithoutImprovement)
+        {
+            this.randomSteps = randomSteps;
+        }
 
         public override bool solve(LocalSudoku sudoku)
         {
@@ -52,7 +56,7 @@ namespace Superdoku
                 foreach(SwapNeighbor neighbor in allNeighbors.Neighbors)
                 {
                     // We will only accept improvements and equals
-                    if(neighbor.ScoreDelta <= 0)
+                    if(neighbor.ScoreDelta < 0)
                     {
                         if(bestNeighbor == null || neighbor.ScoreDelta < bestNeighbor.ScoreDelta)
                         {
@@ -79,7 +83,7 @@ namespace Superdoku
                     ++randomWalks;
 
                     // We start a random walk starting from the best point we have ever found
-                    sudoku = randomWalk(bestSolution, STEPS);
+                    sudoku = randomWalk(bestSolution, randomSteps);
 
                     // Re-initialise the list of all neighbors
                     allNeighbors = new LocalSearcherNeighborList(generateNeighbors(sudoku));

@@ -82,6 +82,7 @@
     <Compile Include="Tests\Test_LocalSearchGlobal.cs" />
     <Compile Include="Tests\Test_ConstraintHelperExtStrategies.cs" />
     <Compile Include="Tests\Test_SimulatedAnnealer.cs" />
+    <Compile Include="Tests\Test_Competition.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
